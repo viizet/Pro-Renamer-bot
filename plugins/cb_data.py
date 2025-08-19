@@ -83,7 +83,7 @@ async def doc(bot, update):
         metadata_path = f"Metadata/{new_filename}"
         await add_metadata(path, metadata_path, metadata, ms)
     else:
-        await ms.edit("🚀 Mode Changing...  ⚡")
+        await ms.edit("🚀 Processing Document...  ⚡")
 
     splitpath = path.split("/downloads/")
     dow_file_name = splitpath[1]
@@ -196,7 +196,7 @@ async def vid(bot, update):
         metadata_path = f"Metadata/{new_filename}"
         await add_metadata(path, metadata_path, metadata, ms)
     else:
-        await ms.edit("🚀 Mode Changing...  ⚡")
+        await ms.edit("🚀 Processing Video...  ⚡")
 
     splitpath = path.split("/downloads/")
     dow_file_name = splitpath[1]
@@ -340,7 +340,7 @@ async def aud(bot, update):
         metadata_path = f"Metadata/{new_filename}"
         await add_metadata(path, metadata_path, metadata, ms)
     else:
-        await ms.edit("🚀 Mode Changing...  ⚡")
+        await ms.edit("🚀 Processing Audio...  ⚡")
 
     splitpath = path.split("/downloads/")
     dow_file_name = splitpath[1]
