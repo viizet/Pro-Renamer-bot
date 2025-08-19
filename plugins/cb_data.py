@@ -227,10 +227,8 @@ async def vid(bot, update):
 
     else:
         try:
-            ph_path_ = await take_screen_shot(file_path, os.path.dirname(os.path.abspath(file_path)), random.randint(0, duration - 1))
-            if ph_path_:
-                width, height, ph_path = await fix_thumb(ph_path_)
-            else:
+            ph_path = await take_screen_shot(file_path, os.path.dirname(os.path.abspath(file_path)), random.randint(0, duration - 1))
+            if not ph_path:
                 ph_path = None
         except Exception as e:
             ph_path = None
