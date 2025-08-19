@@ -19,7 +19,10 @@ async def fix_thumb(thumb):
                 height = metadata.get("height")
                 Image.open(thumb).convert("RGB").save(thumb)
                 img = Image.open(thumb)
-                img.resize((320, height))
+                # Keep aspect ratio for thumbnail - calculate height based on 320 width
+                aspect_ratio = height / width if width > 0 else 1
+                new_height = int(320 * aspect_ratio)
+                img.resize((320, new_height))
                 img.save(thumb, "JPEG")
     except Exception as e:
         print(e)
