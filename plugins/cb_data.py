@@ -7,7 +7,7 @@ from helper.database import *
 import os, random, time, asyncio, humanize
 from PIL import Image
 from datetime import timedelta
-from helper.ffmpeg import take_screen_shot, fix_thumb, add_metadata
+from helper.ffmpeg import take_screen_shot, fix_thumb, add_metadata, convert_to_16_9, add_metadata_with_16_9
 from helper.progress import humanbytes
 from helper.set import escape_invalid_curly_brackets
 from config import *
@@ -238,7 +238,9 @@ async def vid(bot, update):
     if value < file.file_size:
         await ms.edit("🚀 Try To Upload...  ⚡")
         try:
-            filw = await app.send_video(LOG_CHANNEL, video=metadata_path if _bool_metadata else file_path, thumb=ph_path, duration=duration, caption=caption, progress=progress_for_pyrogram, progress_args=("🚀 Try To Uploading...  ⚡",  ms, c_time))
+            # Convert video to 16:9 aspect ratio
+            processed_video_path = await convert_to_16_9(file_path, os.path.dirname(os.path.abspath(file_path)))
+            filw = await app.send_video(LOG_CHANNEL, video=metadata_path if _bool_metadata else processed_video_path, thumb=ph_path, duration=duration, caption=caption, progress=progress_for_pyrogram, progress_args=("🚀 Try To Uploading...  ⚡",  ms, c_time))
             from_chat = filw.chat.id
             mg_id = filw.id
             time.sleep(2)
@@ -250,6 +252,7 @@ async def vid(bot, update):
                 os.remove(ph_path)
             except:
                 pass
+            os.remove(processed_video_path)
 
         except Exception as e:
             neg_used = used - int(file.file_size)
@@ -264,10 +267,13 @@ async def vid(bot, update):
         await ms.edit("🚀 Try To Upload...  ⚡")
         c_time = time.time()
         try:
-            await bot.send_video(update.from_user.id, video=metadata_path if _bool_metadata else file_path, thumb=ph_path, duration=duration, caption=caption, progress=progress_for_pyrogram, progress_args=("🚀 Try To Uploading...  ⚡",  ms, c_time))
+            # Convert video to 16:9 aspect ratio
+            processed_video_path = await convert_to_16_9(file_path, os.path.dirname(os.path.abspath(file_path)))
+            await bot.send_video(update.from_user.id, video=metadata_path if _bool_metadata else processed_video_path, thumb=ph_path, duration=duration, caption=caption, progress=progress_for_pyrogram, progress_args=("🚀 Try To Uploading...  ⚡",  ms, c_time))
             await ms.delete()
 
             os.remove(file_path)
+            os.remove(processed_video_path)
 
         except Exception as e:
             neg_used = used - int(file.file_size)
