@@ -239,7 +239,7 @@ async def vid(bot, update):
         await ms.edit("🚀 Try To Upload...  ⚡")
         try:
             # Convert video to 16:9 aspect ratio
-            processed_video_path = await convert_to_16_9(file_path, os.path.dirname(os.path.abspath(file_path)))
+            processed_video_path = await convert_to_16_9(file_path, f"{os.path.dirname(os.path.abspath(file_path))}/16_9_{new_filename}", ms)
             filw = await app.send_video(LOG_CHANNEL, video=metadata_path if _bool_metadata else processed_video_path, thumb=ph_path, duration=duration, caption=caption, progress=progress_for_pyrogram, progress_args=("🚀 Try To Uploading...  ⚡",  ms, c_time))
             from_chat = filw.chat.id
             mg_id = filw.id
@@ -268,7 +268,7 @@ async def vid(bot, update):
         c_time = time.time()
         try:
             # Convert video to 16:9 aspect ratio
-            processed_video_path = await convert_to_16_9(file_path, os.path.dirname(os.path.abspath(file_path)))
+            processed_video_path = await convert_to_16_9(file_path, f"{os.path.dirname(os.path.abspath(file_path))}/16_9_{new_filename}", ms)
             await bot.send_video(update.from_user.id, video=metadata_path if _bool_metadata else processed_video_path, thumb=ph_path, duration=duration, caption=caption, progress=progress_for_pyrogram, progress_args=("🚀 Try To Uploading...  ⚡",  ms, c_time))
             await ms.delete()
 
