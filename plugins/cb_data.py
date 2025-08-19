@@ -105,10 +105,8 @@ async def doc(bot, update):
         caption = f"**{new_filename}**"
     if thumb:
         ph_path = await bot.download_media(thumb)
-        Image.open(ph_path).convert("RGB").save(ph_path)
-        img = Image.open(ph_path)
-        img.resize((320, 180))
-        img.save(ph_path, "JPEG")
+        # Process thumbnail with proper 16:9 aspect ratio
+        width, height, ph_path = await fix_thumb(ph_path)
         c_time = time.time()
 
     else:
@@ -230,7 +228,10 @@ async def vid(bot, update):
     else:
         try:
             ph_path_ = await take_screen_shot(file_path, os.path.dirname(os.path.abspath(file_path)), random.randint(0, duration - 1))
-            width, height, ph_path = await fix_thumb(ph_path_)
+            if ph_path_:
+                width, height, ph_path = await fix_thumb(ph_path_)
+            else:
+                ph_path = None
         except Exception as e:
             ph_path = None
             print(e)
@@ -338,10 +339,8 @@ async def aud(bot, update):
 
     if thumb:
         ph_path = await bot.download_media(thumb)
-        Image.open(ph_path).convert("RGB").save(ph_path)
-        img = Image.open(ph_path)
-        img.resize((320, 180))
-        img.save(ph_path, "JPEG")
+        # Process thumbnail with proper 16:9 aspect ratio
+        width, height, ph_path = await fix_thumb(ph_path)
         await ms.edit("🚀 Try To Upload...  ⚡")
         c_time = time.time()
         try:
