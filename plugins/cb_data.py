@@ -107,7 +107,11 @@ async def doc(bot, update):
         ph_path = await bot.download_media(thumb)
         Image.open(ph_path).convert("RGB").save(ph_path)
         img = Image.open(ph_path)
-        img.resize((320, 320))
+        # Don't force square thumbnail - keep aspect ratio
+        img_width, img_height = img.size
+        aspect_ratio = img_height / img_width if img_width > 0 else 1
+        new_height = int(320 * aspect_ratio)
+        img.resize((320, new_height))
         img.save(ph_path, "JPEG")
         c_time = time.time()
 
@@ -346,7 +350,11 @@ async def aud(bot, update):
         ph_path = await bot.download_media(thumb)
         Image.open(ph_path).convert("RGB").save(ph_path)
         img = Image.open(ph_path)
-        img.resize((320, 320))
+        # Don't force square thumbnail - keep aspect ratio
+        img_width, img_height = img.size
+        aspect_ratio = img_height / img_width if img_width > 0 else 1
+        new_height = int(320 * aspect_ratio)
+        img.resize((320, new_height))
         img.save(ph_path, "JPEG")
         await ms.edit("🚀 Try To Upload...  ⚡")
         c_time = time.time()
