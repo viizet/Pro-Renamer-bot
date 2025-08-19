@@ -74,10 +74,10 @@ async def doc(bot, update):
         used_limit(update.from_user.id, neg_used)
         await ms.edit(e)
         return
-    
+
     # Metadata Adding Code
     _bool_metadata = find(int(message.chat.id))[2] 
-    
+
     if _bool_metadata:
         metadata = find(int(message.chat.id))[3]
         metadata_path = f"Metadata/{new_filename}"
@@ -111,8 +111,8 @@ async def doc(bot, update):
         img_width, img_height = img.size
         aspect_ratio = img_height / img_width if img_width > 0 else 1
         new_height = int(320 * aspect_ratio)
-        img.resize((320, new_height))
-        img.save(ph_path, "JPEG")
+        resized_img = img.resize((320, new_height))
+        resized_img.save(ph_path, "JPEG")
         c_time = time.time()
 
     else:
@@ -128,13 +128,13 @@ async def doc(bot, update):
             time.sleep(2)
             await bot.copy_message(update.from_user.id, from_chat, mg_id)
             await ms.delete()
-            
+
             os.remove(file_path)
             try:
                 os.remove(ph_path)
             except:
                 pass
-            
+
         except Exception as e:
             neg_used = used - int(file.file_size)
             used_limit(update.from_user.id, neg_used)
@@ -150,9 +150,9 @@ async def doc(bot, update):
         try:
             await bot.send_document(update.from_user.id, document=metadata_path if _bool_metadata else file_path, thumb=ph_path, caption=caption, progress=progress_for_pyrogram, progress_args=("🚀 Try To Uploading...  ⚡",  ms, c_time))
             await ms.delete()
-            
+
             os.remove(file_path)
-            
+
         except Exception as e:
             neg_used = used - int(file.file_size)
             used_limit(update.from_user.id, neg_used)
@@ -191,10 +191,10 @@ async def vid(bot, update):
         used_limit(update.from_user.id, neg_used)
         await ms.edit(e)
         return
-    
+
     # Metadata Adding Code
     _bool_metadata = find(int(message.chat.id))[2] 
-    
+
     if _bool_metadata:
         metadata = find(int(message.chat.id))[3]
         metadata_path = f"Metadata/{new_filename}"
@@ -233,8 +233,8 @@ async def vid(bot, update):
         img_width, img_height = img.size
         aspect_ratio = img_height / img_width if img_width > 0 else 1
         new_height = int(320 * aspect_ratio)
-        img.resize((320, new_height))
-        img.save(ph_path, "JPEG")
+        resized_img = img.resize((320, new_height))
+        resized_img.save(ph_path, "JPEG")
         c_time = time.time()
 
     else:
@@ -255,13 +255,13 @@ async def vid(bot, update):
             time.sleep(2)
             await bot.copy_message(update.from_user.id, from_chat, mg_id)
             await ms.delete()
-            
+
             os.remove(file_path)
             try:
                 os.remove(ph_path)
             except:
                 pass
-                
+
         except Exception as e:
             neg_used = used - int(file.file_size)
             used_limit(update.from_user.id, neg_used)
@@ -277,9 +277,9 @@ async def vid(bot, update):
         try:
             await bot.send_video(update.from_user.id, video=metadata_path if _bool_metadata else file_path, thumb=ph_path, duration=duration, caption=caption, progress=progress_for_pyrogram, progress_args=("🚀 Try To Uploading...  ⚡",  ms, c_time))
             await ms.delete()
-            
+
             os.remove(file_path)
-            
+
         except Exception as e:
             neg_used = used - int(file.file_size)
             used_limit(update.from_user.id, neg_used)
@@ -315,17 +315,17 @@ async def aud(bot, update):
         used_limit(update.from_user.id, neg_used)
         await ms.edit(e)
         return
-    
+
     # Metadata Adding Code
     _bool_metadata = find(int(message.chat.id))[2] 
-    
+
     if _bool_metadata:
         metadata = find(int(message.chat.id))[3]
         metadata_path = f"Metadata/{new_filename}"
         await add_metadata(path, metadata_path, metadata, ms)
     else:
         await ms.edit("🚀 Mode Changing...  ⚡")
-        
+
     splitpath = path.split("/downloads/")
     dow_file_name = splitpath[1]
     old_file_name = f"downloads/{dow_file_name}"
@@ -354,17 +354,17 @@ async def aud(bot, update):
         img_width, img_height = img.size
         aspect_ratio = img_height / img_width if img_width > 0 else 1
         new_height = int(320 * aspect_ratio)
-        img.resize((320, new_height))
-        img.save(ph_path, "JPEG")
+        resized_img = img.resize((320, new_height))
+        resized_img.save(ph_path, "JPEG")
         await ms.edit("🚀 Try To Upload...  ⚡")
         c_time = time.time()
         try:
             await bot.send_audio(update.message.chat.id, audio=metadata_path if _bool_metadata else file_path, caption=caption, thumb=ph_path, duration=duration, progress=progress_for_pyrogram, progress_args=("🚀 Try To Uploading...  ⚡",  ms, c_time))
             await ms.delete()
-            
+
             os.remove(file_path)
             os.remove(ph_path)
-            
+
         except Exception as e:
             neg_used = used - int(file.file_size)
             used_limit(update.from_user.id, neg_used)
@@ -377,9 +377,9 @@ async def aud(bot, update):
         try:
             await bot.send_audio(update.message.chat.id, audio=metadata_path if _bool_metadata else file_path, caption=caption, duration=duration, progress=progress_for_pyrogram, progress_args=("🚀 Try To Uploading...  ⚡",  ms, c_time))
             await ms.delete()
-            
+
             os.remove(file_path)
-            
+
         except Exception as e:
             await ms.edit(e)
             neg_used = used - int(file.file_size)
