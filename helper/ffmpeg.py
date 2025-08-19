@@ -19,7 +19,8 @@ async def fix_thumb(thumb):
                 height = metadata.get("height")
                 Image.open(thumb).convert("RGB").save(thumb)
                 img = Image.open(thumb)
-                img.resize((320, height))
+                # Set 16:9 aspect ratio (320x180)
+                img.resize((320, 180))
                 img.save(thumb, "JPEG")
     except Exception as e:
         print(e)
@@ -37,6 +38,10 @@ async def take_screen_shot(video_file, output_directory, ttl):
         video_file,
         "-vframes",
         "1",
+        "-q:v",
+        "2",  # High quality but fast encoding
+        "-threads",
+        "2",  # Use multiple threads
         out_put_file_name
     ]
     process = await asyncio.create_subprocess_exec(
