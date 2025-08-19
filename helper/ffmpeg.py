@@ -8,16 +8,10 @@ from hachoir.parser import createParser
 
 
 async def fix_thumb(thumb):
-    width = 0
-    height = 0
+    width = 320
+    height = 180
     try:
         if thumb != None:
-            metadata = extractMetadata(createParser(thumb))
-            if metadata.has("width"):
-                width = metadata.get("width")
-            if metadata.has("height"):
-                height = metadata.get("height")
-            
             # Open and convert image
             img = Image.open(thumb).convert("RGB")
             
@@ -33,24 +27,24 @@ async def fix_thumb(thumb):
             target_ratio = target_width / target_height
             
             if current_ratio > target_ratio:
-                # Image is wider, crop width
+                # Image is wider, crop width to fit 16:9
                 new_height = current_height
                 new_width = int(current_height * target_ratio)
                 left = (current_width - new_width) // 2
                 img = img.crop((left, 0, left + new_width, new_height))
             else:
-                # Image is taller, crop height
+                # Image is taller, crop height to fit 16:9
                 new_width = current_width
                 new_height = int(current_width / target_ratio)
                 top = (current_height - new_height) // 2
                 img = img.crop((0, top, new_width, top + new_height))
             
-            # Resize to final dimensions
+            # Resize to final 16:9 dimensions
             img = img.resize((target_width, target_height), Image.Resampling.LANCZOS)
-            img.save(thumb, "JPEG", quality=90)
+            img.save(thumb, "JPEG", quality=95, optimize=True)
             
     except Exception as e:
-        print(e)
+        print(f"Error processing thumbnail: {e}")
         thumb = None 
        
     return width, height, thumb
