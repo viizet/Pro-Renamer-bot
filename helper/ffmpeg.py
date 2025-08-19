@@ -17,11 +17,38 @@ async def fix_thumb(thumb):
                 width = metadata.get("width")
             if metadata.has("height"):
                 height = metadata.get("height")
-                Image.open(thumb).convert("RGB").save(thumb)
-                img = Image.open(thumb)
-                # Set 16:9 aspect ratio (320x180)
-                img.resize((320, 180))
-                img.save(thumb, "JPEG")
+            
+            # Open and convert image
+            img = Image.open(thumb).convert("RGB")
+            
+            # Calculate 16:9 aspect ratio dimensions
+            target_width = 320
+            target_height = 180
+            
+            # Get current dimensions
+            current_width, current_height = img.size
+            
+            # Calculate aspect ratios
+            current_ratio = current_width / current_height
+            target_ratio = target_width / target_height
+            
+            if current_ratio > target_ratio:
+                # Image is wider, crop width
+                new_height = current_height
+                new_width = int(current_height * target_ratio)
+                left = (current_width - new_width) // 2
+                img = img.crop((left, 0, left + new_width, new_height))
+            else:
+                # Image is taller, crop height
+                new_width = current_width
+                new_height = int(current_width / target_ratio)
+                top = (current_height - new_height) // 2
+                img = img.crop((0, top, new_width, top + new_height))
+            
+            # Resize to final dimensions
+            img = img.resize((target_width, target_height), Image.Resampling.LANCZOS)
+            img.save(thumb, "JPEG", quality=90)
+            
     except Exception as e:
         print(e)
         thumb = None 
