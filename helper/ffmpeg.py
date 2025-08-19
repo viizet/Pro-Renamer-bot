@@ -53,6 +53,39 @@ async def take_screen_shot(video_file, output_directory, ttl):
 
 
 
+async def resize_video_to_thumbnail(input_path, output_path, thumbnail_size, ms):
+    try:
+        await ms.edit("<i>Resizing Video To Match Thumbnail Dimensions ⚡</i>")
+        width, height = thumbnail_size
+        command = [
+            'ffmpeg', '-y', '-i', input_path,
+            '-vf', f'scale={width}:{height}:force_original_aspect_ratio=decrease,pad={width}:{height}:(ow-iw)/2:(oh-ih)/2',
+            '-c:a', 'copy',
+            output_path
+        ]
+        
+        process = await asyncio.create_subprocess_exec(
+            *command,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+        )
+        stdout, stderr = await process.communicate()
+        e_response = stderr.decode().strip()
+        t_response = stdout.decode().strip()
+        print(e_response)
+        print(t_response)
+
+        if os.path.exists(output_path):
+            await ms.edit("<i>Video Resized Successfully ✅</i>")
+            return output_path
+        else:
+            await ms.edit("<i>Failed To Resize Video ❌</i>")
+            return None
+    except Exception as e:
+        print(f"Error occurred while resizing video: {str(e)}")
+        await ms.edit("<i>An Error Occurred While Resizing Video ❌</i>")
+        return None
+
 async def add_metadata(input_path, output_path, metadata, ms):
     try:
         await ms.edit("<i>I Found Metadata, Adding Into Your File ⚡</i>")
