@@ -1,120 +1,183 @@
-<img src="https://graph.org/file/ad48ac09b1e6f30d2dae4.jpg" alt="logo" target="/blank">
+# 🤖 Telegram File Rename Bot 4GB
 
-<h1 align="center">
- <b><a href="https://t.me/filerenamexprobot" target="/blank">Rename Bot 4GB</a></>
-</h1>
+<div align="center">
+  <img src="https://graph.org/file/ad48ac09b1e6f30d2dae4.jpg" alt="Rename Bot Logo" width="300">
+  
+  [![Telegram](https://img.shields.io/badge/Telegram-Bot-blue?style=flat&logo=telegram)](https://t.me/filerenamexprobot)
+  [![Python](https://img.shields.io/badge/Python-3.8+-blue?style=flat&logo=python)](https://python.org)
+  [![Pyrogram](https://img.shields.io/badge/Pyrogram-2.0-green?style=flat)](https://pyrogram.org)
+</div>
 
-<p align="center">🩷 Thanks for Being Here 🩷</p>
+## 📖 Overview
 
+An advanced Telegram bot for renaming files up to 4GB in size. Built with Python and Pyrogram, this bot offers premium features including custom thumbnails, captions, and broadcast functionality.
 
+## ✨ Features
 
+- 🚀 **Fast File Renaming** - Rename files quickly and efficiently
+- 📁 **4GB File Support** - Handle large files with premium upgrade
+- 🖼️ **Custom Thumbnails** - Set permanent custom thumbnails
+- 📝 **Custom Captions** - Add personalized captions to files
+- 📢 **Broadcast System** - Send messages to all users (Admin only)
+- 🔄 **File Conversion** - Convert between video and file formats
+- 🔒 **Force Subscribe** - Optional channel subscription requirement
+- ⚡ **Unlimited Renaming** - No limits on concurrent operations
+- 🎨 **Custom Start Picture** - Personalized bot interface
 
+## 🛠️ Installation & Setup
 
-### 🔥 ALL VARIABLES
+### Prerequisites
 
-<b><details><summary>Tap On Me For Environment Variable</summary>
+- Python 3.8 or higher
+- MongoDB database
+- Telegram Bot Token from [@BotFather](https://t.me/BotFather)
+- API credentials from [my.telegram.org](https://my.telegram.org)
 
-* `API_ID` - Get API ID From <a href="https://my.telegram.org" target="/blank">Telegram Auth</a> 
-* `API_HASH` - Get API HASH From <a href="https://my.telegram.org" target="/blank">Telegram Auth</a>
-* `BOT_TOKEN` - Get BOT TOKEN From <a href="https://t.me/BotFather" target="/blank">Bot Father</a>
-* `ADMIN` - Add Your User ID, If Multiple Is Use Space To Split
-* `LOG_CHANNEL` - Bot Logs Channel To Sending User Data & 4GB Premium Client To Use, Id Must Startswith -100 & Make Sure Bot Is Admin In This Channel
-* `DATABASE_URL` - Mongo Database URL From <a href="https://cloud.mongodb.com" target="/blank">Mongo DB</a>
-* `DATABASE_NAME`  - Your Mongo Database Name From Mongo DB (Optional)
-* `FORCE_SUBS` - Your Force Subscribe Channel Username Without @ (Optional)
-* `START_PIC` - Your Bot Start Command Pic (Optional)
-* `STRING_SESSION` - Premium 4GB Client Pyrogram v2 String Session, You Can Get It From <a href="https://t.me/StringGenXRobot" target="/blank">String Gen Bot</a> (Optional)
-</b>
-</details>
+### Local Development
 
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/JishuDeveloper/Rename-Bot-4GB.git
+   cd Rename-Bot-4GB
+   ```
 
+2. **Install dependencies**
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-### 📶 DEPLOYEMENT
+3. **Set up environment variables**
+   Create a `.env` file or set environment variables:
+   ```env
+   API_ID=your_api_id
+   API_HASH=your_api_hash
+   BOT_TOKEN=your_bot_token
+   ADMIN=your_user_id
+   LOG_CHANNEL=your_log_channel_id
+   DATABASE_URL=your_mongodb_url
+   DATABASE_NAME=your_db_name
+   ```
 
-<b><details><summary>Tap On Me For Deply To Heroku</summary>
+4. **Run the bot**
+   ```bash
+   python bot.py
+   ```
 
- - Deploy To Heroku
-<p>
-<a href="https://heroku.com/deploy?template=https://github.com/JishuDeveloper/Rename-Bot-4GB"> <img src="https://www.herokucdn.com/deploy/button.svg" alt="Deploy"> </a>
-</p>
-</b>
-</details>
+### Deploy on Replit
 
+1. Import this repository to Replit
+2. Set up the required environment variables in Secrets
+3. Click the Run button to start the bot
 
+## 🔧 Configuration
 
-### 🥰 FEATURES
+### Required Environment Variables
 
-<b><details><summary>Tap On Me For Bot Features</summary>
+| Variable | Description | Required |
+|----------|-------------|----------|
+| `API_ID` | Telegram API ID from my.telegram.org | ✅ |
+| `API_HASH` | Telegram API Hash from my.telegram.org | ✅ |
+| `BOT_TOKEN` | Bot token from @BotFather | ✅ |
+| `ADMIN` | Admin user ID (space-separated for multiple) | ✅ |
+| `LOG_CHANNEL` | Log channel ID (must start with -100) | ✅ |
+| `DATABASE_URL` | MongoDB connection URL | ✅ |
 
- - Renames Very Fast.
- - Support 4GB Rename With Upgrade Plan.
- - Permanent Thumbnail Support.
- - Supports Broadcasts.
- - Set Custom Caption.
- - Has A Custom Start-Up Pic.
- - Force Subscribe Available.
- - Supports Unlimited Renaming At A Time.
- - Deploy To Koyeb + Heroku + Railway.
- - Developer Service 24x7. 🔥
-</b>
-</details>
+### Optional Environment Variables
 
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `DATABASE_NAME` | MongoDB database name | `madflixbotz` |
+| `FORCE_SUBS` | Force subscribe channel username (without @) | None |
+| `START_PIC` | Custom start command picture URL | Default logo |
+| `STRING_SESSION` | Pyrogram session string for 4GB support | None |
 
+## 📱 Bot Commands
 
-### 😍 USER COMMANDS
+### User Commands
 
-<b><details><summary>Tap On Me For User Commands</summary>
+- `/start` - Start the bot and see welcome message
+- `/viewthumb` - View current thumbnail
+- `/delthumb` - Delete current thumbnail
+- `/set_caption` - Set custom caption
+- `/see_caption` - View current caption
+- `/del_caption` - Delete custom caption
+- `/ping` - Check bot response time
+- `/myplan` - View current subscription plan
+- `/upgrade` - View premium plans
+- `/donate` - Support the developer
+
+### Admin Commands
+
+- `/users` - View total user count
+- `/allids` - List all user IDs
+- `/broadcast` - Broadcast message to all users
+- `/warn` - Send warning to specific user
+- `/addpremium` - Upgrade user to premium
+- `/ceasepower` - Downgrade user capacity
+- `/resetpower` - Reset user to default plan
+- `/restart` - Restart the bot
+
+## 📊 Project Structure
 
 ```
-start - Check If The Bot Is Running.
-viewthumb - To View Current Thumbnail.
-delthumb - To Delete Current Thumbnail.
-set_caption - To Set A Custom Caption.
-see_caption - To See Your Custom Caption.
-del_caption - To Delete Custom Caption.
-ping - To Check Bot Ping.
-myplan - To View User Current Plan.
-donate - To Support Developer.
-upgrade - To View All Plans With Price List.
+Rename-Bot-4GB/
+├── bot.py                 # Main bot file
+├── config.py             # Configuration settings
+├── app.py                # Flask web server
+├── script.py             # Bot text messages
+├── requirements.txt      # Python dependencies
+├── helper/               # Helper modules
+│   ├── database.py       # Database operations
+│   ├── progress.py       # Progress tracking
+│   ├── ffmpeg.py         # Media processing
+│   └── set.py           # Utility functions
+└── plugins/              # Bot command handlers
+    ├── start.py          # Start command
+    ├── admin.py          # Admin commands
+    ├── broadcast.py      # Broadcast functionality
+    ├── callback.py       # Callback handlers
+    └── ...              # Other command handlers
 ```
-</b>
-</details>
 
+## 🤝 Contributing
 
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature-name`
+3. Commit your changes: `git commit -am 'Add new feature'`
+4. Push to the branch: `git push origin feature-name`
+5. Submit a pull request
 
-### 🔐 ADMIN COMMANDS
+## 📄 License
 
-<b><details><summary>Tap On Me For Admin Commands</summary>
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-```
-users - Use This Command To See Total Users [Admins Only].
-allids - Use This Command To See All Users IDs List [Admins Only].
-broadcast - Message Broadcast Command [Admins Only].
-warn - Use This Command To Send A Message To A User [Admins Only].
-ceasepower - To Cease (Downgrade) Renaming Capacity [Admins Only].
-resetpower - To Reset Renaming Capacity (To Default 2GB) [Admins Only].
-addpremium - To Upgrade User Plan [Admins Only].
-restart - Use This Command To Cancel All Process And Restart The Bot [Admins Only].
-```
-</b>
-</details>
+## 👥 Credits & Support
 
+### Developers
+- [Jishu Developer](https://github.com/JishuDeveloper) - Lead Developer
+- [Madflix Official](https://github.com/jishusinha) - Contributor
+- [lntechnical](https://github.com/lntechnical2) - Contributor
 
+### Channels & Support
+- 📢 **Updates**: [Madflix Botz](https://t.me/Madflix_Bots)
+- 🤖 **Bots**: [Jishu Botz](https://t.me/JishuBotz)
+- 💬 **Support**: [Contact Developer](https://t.me/JishuDeveloper)
 
-### ❤️ RESPECTING
-- [JishuDeveloper](https://github.com/JishuDeveloper)
-- [Madflix Official](https://github.com/jishusinha) 
-- [lntechnical](https://github.com/lntechnical2)
+### Donations
+If you find this project helpful, consider supporting the developer:
 
-### 😍 BOTS CHANNEL
-- [Madflix Botz](https://t.me/Madflix_Bots)
-- [Jishu Botz](https://t.me/JishuBotz)
+- 💳 **PayPal**: [Donate via PayPal](https://paypal.me/jishudeveloper/2.50USD)
+- 📱 **UPI**: `madflixofficial@axl`
+- 🔗 **Payment QR**: [View QR Codes](https://graph.org/QR-Payment-07-24-4)
 
-### 💕 CONTACT DEVELOPER
-- [Jishu Developer](https://t.me/JishuDeveloper)
-- [Madflix Official](https://t.me/MadflixOfficials)
+## ⚠️ Disclaimer
 
-### ☕ BUY ME A COFFEE
-- [PayPal](https://paypal.me/jishudeveloper/2.50USD)
-- [PhonePe](https://graph.org/file/6822df5af3a2e80637172.jpg)
-- [UPI](https://graph.org/file/b831109be4acff5c966d2.jpg)
+This bot is for educational purposes. Please ensure you comply with Telegram's Terms of Service and respect copyright laws when using this bot.
+
+---
+
+<div align="center">
+  <b>⭐ Star this repository if you found it helpful!</b>
+  <br>
+  Made with ❤️ by <a href="https://t.me/JishuDeveloper">Jishu Developer</a>
+</div>
