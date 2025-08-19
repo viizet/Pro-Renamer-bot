@@ -81,6 +81,39 @@ async def take_screen_shot(video_file, output_directory, ttl):
 
 
 
+async def convert_to_16_9(input_path, output_path, ms):
+    try:
+        await ms.edit("<i>Converting to 16:9 aspect ratio ⚡</i>")
+        command = [
+            'ffmpeg', '-y', '-i', input_path,
+            '-vf', 'scale=1280:720:force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2:black',
+            '-c:a', 'copy',
+            '-preset', 'fast',
+            output_path
+        ]
+        
+        process = await asyncio.create_subprocess_exec(
+            *command,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+        )
+        stdout, stderr = await process.communicate()
+        e_response = stderr.decode().strip()
+        t_response = stdout.decode().strip()
+        print(e_response)
+        print(t_response)
+
+        if os.path.exists(output_path):
+            await ms.edit("<i>Successfully converted to 16:9 aspect ratio ✅</i>")
+            return output_path
+        else:
+            await ms.edit("<i>Failed to convert aspect ratio ❌</i>")
+            return None
+    except Exception as e:
+        print(f"Error occurred while converting aspect ratio: {str(e)}")
+        await ms.edit("<i>An Error Occurred While Converting Aspect Ratio ❌</i>")
+        return None
+
 async def add_metadata(input_path, output_path, metadata, ms):
     try:
         await ms.edit("<i>I Found Metadata, Adding Into Your File ⚡</i>")
@@ -116,6 +149,45 @@ async def add_metadata(input_path, output_path, metadata, ms):
     except Exception as e:
         print(f"Error occurred while adding metadata: {str(e)}")
         await ms.edit("<i>An Error Occurred While Adding Metadata To Your File ❌</i>")
+        return None
+
+async def add_metadata_with_16_9(input_path, output_path, metadata, ms):
+    try:
+        await ms.edit("<i>Adding metadata and converting to 16:9 aspect ratio ⚡</i>")
+        command = [
+            'ffmpeg', '-y', '-i', input_path,
+            '-vf', 'scale=1280:720:force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2:black',
+            '-c:a', 'copy',
+            '-preset', 'fast',
+            '-metadata', f'title={metadata}',
+            '-metadata', f'author={metadata}',
+            '-metadata:s:s', f'title={metadata}',
+            '-metadata:s:a', f'title={metadata}',
+            '-metadata:s:v', f'title={metadata}',
+            '-metadata', f'artist={metadata}',
+            output_path
+        ]
+        
+        process = await asyncio.create_subprocess_exec(
+            *command,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+        )
+        stdout, stderr = await process.communicate()
+        e_response = stderr.decode().strip()
+        t_response = stdout.decode().strip()
+        print(e_response)
+        print(t_response)
+
+        if os.path.exists(output_path):
+            await ms.edit("<i>Successfully added metadata and converted to 16:9 ✅</i>")
+            return output_path
+        else:
+            await ms.edit("<i>Failed to process video ❌</i>")
+            return None
+    except Exception as e:
+        print(f"Error occurred while processing video: {str(e)}")
+        await ms.edit("<i>An Error Occurred While Processing Video ❌</i>")
         return None
     
 
