@@ -59,6 +59,8 @@ async def take_screen_shot(video_file, output_directory, ttl):
         video_file,
         "-vframes",
         "1",
+        "-vf",
+        "scale=320:180:force_original_aspect_ratio=decrease,pad=320:180:(ow-iw)/2:(oh-ih)/2:black",  # Force 16:9 with black padding
         "-q:v",
         "2",  # High quality but fast encoding
         "-threads",
