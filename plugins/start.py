@@ -70,14 +70,8 @@ async def send_doc(client, message):
                                      reply_markup=InlineKeyboardMarkup([
                                          [InlineKeyboardButton("🔺 Update Channel 🔺", url=f"https://t.me/{FORCE_SUBS}")]
                                          ]))
-            try:
-                await client.send_message(LOG_CHANNEL, f"<b><u>New User Started The Bot</u></b> \n\n<b>User ID :</b> <code>{user_id}</code> \n<b>First Name :</b> {message.from_user.first_name} \n<b>Last Name :</b> {message.from_user.last_name} \n<b>User Name :</b> @{message.from_user.username} \n<b>User Mention :</b> {message.from_user.mention} \n<b>User Link :</b> <a href='tg://openmessage?user_id={user_id}'>Click Here</a> \n<b>User Plan :</b> {user}")
-            except Exception as e:
-                print(f"Error sending log message: {e}")
+            await client.send_message(LOG_CHANNEL, f"<b><u>New User Started The Bot</u></b> \n\n<b>User ID :</b> <code>{user_id}</code> \n<b>First Name :</b> {message.from_user.first_name} \n<b>Last Name :</b> {message.from_user.last_name} \n<b>User Name :</b> @{message.from_user.username} \n<b>User Mention :</b> {message.from_user.mention} \n<b>User Link :</b> <a href='tg://openmessage?user_id={user_id}'>Click Here</a> \n<b>User Plan :</b> {user}")
             return
-        except Exception as e:
-            print(f"Error checking force subscription: {e}")
-            # Continue processing the file if there's an error with force subscription check
 		
     botdata(int(botid))
     bot_data = find_one(int(botid))
@@ -154,16 +148,9 @@ async def send_doc(client, message):
             fileid = file.file_id
             total_rename(int(botid), prrename)
             total_size(int(botid), prsize, file.file_size)
-            
-            # Show different options based on file type
-            if file.file_name.lower().endswith(('.mp4', '.mkv', '.avi', '.mov', '.wmv', '.flv', '.webm', '.m4v')) or message.video:
-                await message.reply_text(f"""__What Do You Want Me To Do With This Video File ?__\n\n**File Name :** `{filename}`\n**File Size :** {filesize}\n**DC ID :** {dcid}""", reply_to_message_id=message.id, reply_markup=InlineKeyboardMarkup(
-                    [[InlineKeyboardButton("📝 Rename", callback_data="rename"),
-                      InlineKeyboardButton("✖️ Cancel", callback_data="cancel")]]))
-            else:
-                await message.reply_text(f"""__What Do You Want Me To Do With This File ?__\n\n**File Name :** `{filename}`\n**File Size :** {filesize}\n**DC ID :** {dcid}""", reply_to_message_id=message.id, reply_markup=InlineKeyboardMarkup(
-                    [[InlineKeyboardButton("📝 Rename", callback_data="rename"),
-                      InlineKeyboardButton("✖️ Cancel", callback_data="cancel")]]))
+            await message.reply_text(f"""__What Do You Want Me To Do With This File ?__\n\n**File Name :** `{filename}`\n**File Size :** {filesize}\n**DC ID :** {dcid}""", reply_to_message_id=message.id, reply_markup=InlineKeyboardMarkup(
+                [[InlineKeyboardButton("📝 Rename", callback_data="rename"),
+                  InlineKeyboardButton("✖️ Cancel", callback_data="cancel")]]))
               
               
               
