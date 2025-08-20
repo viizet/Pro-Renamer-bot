@@ -55,7 +55,43 @@ async def resetpower(bot, message):
         
     await message.reply_text(text=f"Do You Really Want To Reset Daily Limit To Default Data Limit 2GB ?", quote=True, reply_markup=button)
     
+
+
+@Client.on_message(filters.private & filters.user(ADMIN) & filters.command(["allcommand"]))
+async def allcommand(bot, message):
+    commands_text = """<b>📋 ALL BOT COMMANDS</b>
+
+<b>👥 USER COMMANDS:</b>
+• /start - Start the bot and see welcome message
+• /viewthumb - View current thumbnail
+• /delthumb - Delete current thumbnail  
+• /set_caption - Set custom caption
+• /see_caption - View current caption
+• /del_caption - Delete custom caption
+• /ping - Check bot response time
+• /myplan - View current subscription plan
+• /upgrade - View premium plans
+• /donate - Support the developer
+
+<b>🔧 ADMIN COMMANDS:</b>
+• /users - View total user count
+• /allids - List all user IDs
+• /broadcast - Broadcast message to all users
+• /warn - Send warning to specific user
+• /addpremium - Upgrade user to premium
+• /ceasepower - Downgrade user capacity
+• /resetpower - Reset user to default plan
+• /restart - Restart the bot
+• /admin - Show admin panel
+• /allcommand - Show all bot commands (this command)
+
+<b>Made By:</b> @Madflix_Bots"""
     
+    button = InlineKeyboardMarkup([
+        [InlineKeyboardButton("✖️ Close ✖️", callback_data="cancel")]
+    ])
+    
+    await message.reply_text(commands_text, quote=True, reply_markup=button)
     
 
 # PREMIUM POWER MODE @JISHUDEVELOPER
