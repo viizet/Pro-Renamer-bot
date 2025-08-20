@@ -181,176 +181,131 @@ async def vid(bot, update):
         os.mkdir("Metadata")
 
     try:
-        # Get user data
-        used_limit = find(update.from_user.id)[6]
-        user_limit = find(update.from_user.id)[5]
-
-        # Check daily limit
-        if int(used_limit) >= int(user_limit):
-            await update.message.edit("Sorry! You Reached Daily Limit.")
-            return
-
         new_name = update.message.text
-        new_name = new_name.replace("**Select The Output File Type**\n\n**File Name :-** `", "")
-        new_name = new_name.replace("`", "")
-
-        file_path = f"downloads/{new_name}"
-        file = update.message.reply_to_message
+        used_ = find_one(update.from_user.id)
+        used = used_["used_limit"]
+        date = used_["date"]
+        name = new_name.split(":-")
+        new_filename = name[1]
+        file_path = f"downloads/{new_filename}"
+        message = update.message.reply_to_message
+        file = message.document or message.video or message.audio
         ms = await update.message.edit("🚀 Try To Download...  ⚡")
+        used_limit(update.from_user.id, file.file_size)
         c_time = time.time()
-        total_used = used_limit + int(file.file_size)
+        total_used = used + int(file.file_size)
         used_limit(update.from_user.id, total_used)
+        
         try:
-            path = await bot.download_media(message=file,
-                                            progress=progress_for_pyrogram,
-                                            progress_args=("🚀 Try To Downloading...  ⚡", ms, c_time))
+            path = await bot.download_media(message=file, progress=progress_for_pyrogram, progress_args=("🚀 Try To Downloading...  ⚡",  ms, c_time))
         except Exception as e:
-            neg_used = used_limit - int(file.file_size)
+            neg_used = used - int(file.file_size)
             used_limit(update.from_user.id, neg_used)
             await ms.edit(str(e))
             return
-
-        # Get video metadata
-        duration = None
-        width = None
-        height = None
-        try:
-            metadata = extractMetadata(createParser(path))
-            if metadata.has("duration"):
-                duration = int(metadata.get("duration").seconds)
-            if metadata.has("width"):
-                width = int(metadata.get("width"))
-            if metadata.has("height"):
-                height = int(metadata.get("height"))
-        except Exception as e:
-            print(f"Error extracting metadata: {e}")
-
-        # Metadata
-        _bool_metadata = find(int(file.chat.id))[2]
+        
+        # Metadata Adding Code
+        _bool_metadata = find(int(message.chat.id))[2] 
+        
         if _bool_metadata:
-            metadata_setting = find(int(file.chat.id))[3]
-            metadata_path = f"Metadata/{new_name}"
-            await add_metadata(path, metadata_path, metadata_setting, ms)
+            metadata = find(int(message.chat.id))[3]
+            metadata_path = f"Metadata/{new_filename}"
+            await add_metadata(path, metadata_path, metadata, ms)
         else:
-            await ms.edit("🚀 Mode Changing...  ⚡")
+            await ms.edit("🚀 Mode Changing...  ⚡") 
 
         splitpath = path.split("/downloads/")
         dow_file_name = splitpath[1]
         old_file_name = f"downloads/{dow_file_name}"
         os.rename(old_file_name, file_path)
-
-        data = find(int(file.chat.id))
+        user_id = int(update.message.chat.id)
+        data = find(user_id)
+        
         try:
             c_caption = data[1]
         except:
             c_caption = None
-
+        
         thumb = data[0]
-        if c_caption:
-            vid_list = ["filename", "filesize", "duration", "width", "height"]
-            new_tex = escape_invalid_curly_brackets(c_caption, vid_list)
-            caption = new_tex.format(filename=new_name,
-                                     filesize=humanbytes(file.file_size),
-                                     duration=str(timedelta(seconds=duration)),
-                                     width=width,
-                                     height=height)
-        else:
-            caption = f"**{new_name}**"
 
+        duration = 0
+        width = None
+        height = None
+        
+        # Get original video metadata
+        try:
+            metadata_parser = extractMetadata(createParser(file_path))
+            if metadata_parser and metadata_parser.has("duration"):
+                duration = metadata_parser.get('duration').seconds
+            if metadata_parser and metadata_parser.has("width"):
+                width = metadata_parser.get('width')
+            if metadata_parser and metadata_parser.has("height"):
+                height = metadata_parser.get('height')
+        except Exception as e:
+            print(f"Error extracting metadata: {e}")
+            duration = 0
+            
+        if c_caption:
+            vid_list = ["filename", "filesize", "duration"]
+            new_tex = escape_invalid_curly_brackets(c_caption, vid_list)
+            caption = new_tex.format(filename=new_filename, filesize=humanbytes(
+                file.file_size), duration=timedelta(seconds=duration))
+        else:
+            caption = f"**{new_filename}**"
+            
         if thumb:
             ph_path = await bot.download_media(thumb)
             resize_thumb(ph_path)
             c_time = time.time()
         else:
-            ph_path = None
+            try:
+                ph_path_ = await take_screen_shot(file_path, os.path.dirname(os.path.abspath(file_path)), random.randint(0, duration - 1))
+                width, height, ph_path = await fix_thumb(ph_path_)
+            except Exception as e:
+                ph_path = None
+                print(e)
 
-        # Uploading
         value = 2090000000
         if value < file.file_size:
             await ms.edit("🚀 Try To Upload...  ⚡")
             try:
-                filw = await app.send_video(LOG_CHANNEL,
-                                            video=metadata_path if _bool_metadata else file_path,
-                                            thumb=ph_path,
-                                            caption=caption,
-                                            duration=duration,
-                                            width=width,
-                                            height=height,
-                                            progress=progress_for_pyrogram,
-                                            progress_args=("🚀 Try To Uploading...  ⚡", ms, c_time))
+                filw = await app.send_video(LOG_CHANNEL, video=metadata_path if _bool_metadata else file_path, thumb=ph_path, duration=duration, width=width, height=height, caption=caption, progress=progress_for_pyrogram, progress_args=("🚀 Try To Uploading...  ⚡",  ms, c_time))
                 from_chat = filw.chat.id
                 mg_id = filw.id
                 time.sleep(2)
                 await bot.copy_message(update.from_user.id, from_chat, mg_id)
                 await ms.delete()
-
-                # Clean up files
+                
+                os.remove(file_path)
                 try:
-                    if os.path.exists(file_path):
-                        os.remove(file_path)
-                    if ph_path and os.path.exists(ph_path):
-                        os.remove(ph_path)
-                    if _bool_metadata and metadata_path and os.path.exists(metadata_path):
-                        os.remove(metadata_path)
-                except Exception as cleanup_error:
-                    print(f"Cleanup error: {cleanup_error}")
-
+                    os.remove(ph_path)
+                except:
+                    pass
+                    
             except Exception as e:
-                neg_used = used_limit - int(file.file_size)
+                neg_used = used - int(file.file_size)
                 used_limit(update.from_user.id, neg_used)
-                await ms.edit(f"Video upload failed: {str(e)}")
-
-                # Clean up files on error
+                await ms.edit(str(e))
+                os.remove(file_path)
                 try:
-                    if os.path.exists(file_path):
-                        os.remove(file_path)
-                    if 'ph_path' in locals() and ph_path and os.path.exists(ph_path):
-                        os.remove(ph_path)
-                    if '_bool_metadata' in locals() and _bool_metadata and 'metadata_path' in locals() and os.path.exists(metadata_path):
-                        os.remove(metadata_path)
-                except Exception as cleanup_error:
-                    print(f"Cleanup error: {cleanup_error}")
-                return
+                    os.remove(ph_path)
+                except:
+                    return
         else:
             await ms.edit("🚀 Try To Upload...  ⚡")
+            c_time = time.time()
             try:
-                await bot.send_video(update.from_user.id,
-                                     video=metadata_path if _bool_metadata else file_path,
-                                     thumb=ph_path,
-                                     caption=caption,
-                                     duration=duration,
-                                     width=width,
-                                     height=height,
-                                     progress=progress_for_pyrogram,
-                                     progress_args=("🚀 Try To Uploading...  ⚡", ms, c_time))
+                await bot.send_video(update.from_user.id, video=metadata_path if _bool_metadata else file_path, thumb=ph_path, duration=duration, width=width, height=height, caption=caption, progress=progress_for_pyrogram, progress_args=("🚀 Try To Uploading...  ⚡",  ms, c_time))
                 await ms.delete()
-
-                # Clean up files
-                try:
-                    if os.path.exists(file_path):
-                        os.remove(file_path)
-                    if ph_path and os.path.exists(ph_path):
-                        os.remove(ph_path)
-                    if _bool_metadata and metadata_path and os.path.exists(metadata_path):
-                        os.remove(metadata_path)
-                except Exception as cleanup_error:
-                    print(f"Cleanup error: {cleanup_error}")
-
+                
+                os.remove(file_path)
+                
             except Exception as e:
-                neg_used = used_limit - int(file.file_size)
+                neg_used = used - int(file.file_size)
                 used_limit(update.from_user.id, neg_used)
-                await ms.edit(f"Video upload failed: {str(e)}")
-
-                # Clean up files on error
-                try:
-                    if os.path.exists(file_path):
-                        os.remove(file_path)
-                    if 'ph_path' in locals() and ph_path and os.path.exists(ph_path):
-                        os.remove(ph_path)
-                    if '_bool_metadata' in locals() and _bool_metadata and 'metadata_path' in locals() and os.path.exists(metadata_path):
-                        os.remove(metadata_path)
-                except Exception as cleanup_error:
-                    print(f"Cleanup error: {cleanup_error}")
+                await ms.edit(str(e))
+                os.remove(file_path)
                 return
+                
     except Exception as e:
         await update.message.edit(f"An error occurred: {str(e)}")
