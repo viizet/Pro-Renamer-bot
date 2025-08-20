@@ -75,11 +75,25 @@ async def send_doc(client, message):
             print(f"Error checking force subscription: {e}")
             # Continue processing the file even if force sub check fails
 
-    # Check flood control first
-    botdata(int(botid))
-    bot_data = find_one(int(botid))
-    prrename = bot_data['total_rename']
-    prsize = bot_data['total_size']
+    # Get file information first
+    try:
+        media = await client.get_messages(message.chat.id, message.id)
+        file = media.document or media.video or media.audio
+        
+        if not file:
+            await message.reply_text("❌ No valid file detected. Please send a document, video, or audio file.")
+            return
+            
+        dcid = FileId.decode(file.file_id).dc_id
+        filename = file.file_name or "file"
+        file_id = file.file_id
+        
+    except Exception as e:
+        print(f"Error getting file info: {e}")
+        await message.reply_text("❌ Error processing your file. Please try again.")
+        return
+
+    # Check flood control
     user_deta = find_one(user_id)
     used_date = user_deta["date"]
     buy_date = user_deta["prexdate"]
@@ -99,13 +113,8 @@ async def send_doc(client, message):
     if left > 0:
         await message.reply_text(f"<b>Sorry Dude I Am Not Only For You \n\nFlood Control Is Active So Please Wait For {ltime} </b>", reply_to_message_id=message.id)
         return
-    
-    # Get file information
-    media = await client.get_messages(message.chat.id, message.id)
-    file = media.document or media.video or media.audio
-    dcid = FileId.decode(file.file_id).dc_id
-    filename = file.file_name
-    file_id = file.file_id
+
+    # Check user limits
     value = 2147483648
     used_ = find_one(message.from_user.id)
     used = used_["used_limit"]
@@ -121,8 +130,14 @@ async def send_doc(client, message):
     if remain < int(file.file_size):
         await message.reply_text(f"100% Of Daily {humanbytes(limit)} Data Quota Exhausted.\n\n<b>File Size Detected :</b> {humanbytes(file.file_size)}\n<b>Used Daily Limit :</b> {humanbytes(used)}\n\nYou Have Only <b>{humanbytes(remain)}</b> Left On Your Account.\n\nIf U Want To Rename Large File Upgrade Your Plan", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("💳 Upgrade", callback_data="upgrade")]]))
         return
+    
+    # Check file size limits
+    botdata(int(botid))
+    bot_data = find_one(int(botid))
+    prrename = bot_data['total_rename']
+    prsize = bot_data['total_size']
+    
     if value < file.file_size:
-        
         if STRING_SESSION:
             if buy_date == None:
                 await message.reply_text(f"You Can't Upload More Than 2GB File.\n\nYour Plan Doesn't Allow To Upload Files That Are Larger Than 2GB.\n\nUpgrade Your Plan To Rename Files Larger Than 2GB.", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("💳 Upgrade", callback_data="upgrade")]]))
@@ -135,7 +150,6 @@ async def send_doc(client, message):
             else:
                 uploadlimit(message.from_user.id, 2147483648)
                 usertype(message.from_user.id, "Free")
-
                 await message.reply_text(f'Your Plan Expired On {buy_date}', quote=True)
                 return
         else:
