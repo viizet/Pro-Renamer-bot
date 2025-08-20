@@ -58,7 +58,20 @@ async def send_doc(client, message):
     user_id = message.chat.id
     old = insert(int(user_id))
         
-    user_id = message.from_user.id
+    user_id = message.from_user.id    
+    if FORCE_SUBS:
+        try:
+            await client.get_chat_member(FORCE_SUBS, user_id)
+        except UserNotParticipant:
+            _newus = find_one(message.from_user.id)
+            user = _newus["usertype"]
+            await message.reply_text("<b>Hello Dear \n\nYou Need To Join In My Channel To Use Me\n\nKindly Please Join Channel</b>",
+                                     reply_to_message_id=message.id,
+                                     reply_markup=InlineKeyboardMarkup([
+                                         [InlineKeyboardButton("🔺 Update Channel 🔺", url=f"https://t.me/{FORCE_SUBS}")]
+                                         ]))
+            await client.send_message(LOG_CHANNEL, f"<b><u>New User Started The Bot</u></b> \n\n<b>User ID :</b> <code>{user_id}</code> \n<b>First Name :</b> {message.from_user.first_name} \n<b>Last Name :</b> {message.from_user.last_name} \n<b>User Name :</b> @{message.from_user.username} \n<b>User Mention :</b> {message.from_user.mention} \n<b>User Link :</b> <a href='tg://openmessage?user_id={user_id}'>Click Here</a> \n<b>User Plan :</b> {user}")
+            return
 		
     botdata(int(botid))
     bot_data = find_one(int(botid))
@@ -104,29 +117,16 @@ async def send_doc(client, message):
         if remain < int(file.file_size):
             await message.reply_text(f"100% Of Daily {humanbytes(limit)} Data Quota Exhausted.\n\n<b>File Size Detected :</b> {humanbytes(file.file_size)}\n<b>Used Daily Limit :</b> {humanbytes(used)}\n\nYou Have Only <b>{humanbytes(remain)}</b> Left On Your Account.\n\nIf U Want To Rename Large File Upgrade Your Plan", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("💳 Upgrade", callback_data="upgrade")]]))
             return
-        # Check if user has premium plan and valid subscription
-        has_premium = False
-        if buy_date:
-            pre_check = check_expi(buy_date)
-            if pre_check == True:
-                has_premium = True
-        
-        # Apply file size limits based on plan
-        if value < file.file_size and not has_premium:
+        if value < file.file_size:
             
             if STRING_SESSION:
                 if buy_date == None:
                     await message.reply_text(f"You Can't Upload More Than 2GB File.\n\nYour Plan Doesn't Allow To Upload Files That Are Larger Than 2GB.\n\nUpgrade Your Plan To Rename Files Larger Than 2GB.", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("💳 Upgrade", callback_data="upgrade")]]))
                     return
                 pre_check = check_expi(buy_date)
-                if pre_check == False:
-                    await message.reply_text(f"You Can't Upload More Than 2GB File.\n\nYour Plan Doesn't Allow To Upload Files That Are Larger Than 2GB.\n\nUpgrade Your Plan To Rename Files Larger Than 2GB.", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("💳 Upgrade", callback_data="upgrade")]]))
-                    return
-        
-        # For premium users or users within free limit, proceed with file processing
-        if has_premium or value >= file.file_size:
+                if pre_check == True:
                     await message.reply_text(f"""__What Do You Want Me To Do With This File ?__\n\n**File Name :** `{filename}`\n**File Size :** {humanize.naturalsize(file.file_size)}\n**DC ID :** {dcid}""", reply_to_message_id=message.id, reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("📝 Rename", callback_data="rename"), InlineKeyboardButton("✖️ Cancel", callback_data="cancel")]]))
-            total_rename(int(botid), prrename)
+                    total_rename(int(botid), prrename)
                     total_size(int(botid), prsize, file.file_size)
                 else:
                     uploadlimit(message.from_user.id, 2147483648)
@@ -151,4 +151,6 @@ async def send_doc(client, message):
             await message.reply_text(f"""__What Do You Want Me To Do With This File ?__\n\n**File Name :** `{filename}`\n**File Size :** {filesize}\n**DC ID :** {dcid}""", reply_to_message_id=message.id, reply_markup=InlineKeyboardMarkup(
                 [[InlineKeyboardButton("📝 Rename", callback_data="rename"),
                   InlineKeyboardButton("✖️ Cancel", callback_data="cancel")]]))
+              
+              
               
