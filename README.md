@@ -1,183 +1,233 @@
-# 🤖 Telegram File Rename Bot 4GB
+# 🤖 Advanced Telegram File Renamer Bot
 
 <div align="center">
-  <img src="https://graph.org/file/ad48ac09b1e6f30d2dae4.jpg" alt="Rename Bot Logo" width="300">
+  <img src="https://graph.org/file/ad48ac09b1e6f30d2dae4.jpg" alt="Bot Logo" width="200"/>
   
-  [![Telegram](https://img.shields.io/badge/Telegram-Bot-blue?style=flat&logo=telegram)](https://t.me/filerenamexprobot)
-  [![Python](https://img.shields.io/badge/Python-3.8+-blue?style=flat&logo=python)](https://python.org)
-  [![Pyrogram](https://img.shields.io/badge/Pyrogram-2.0-green?style=flat)](https://pyrogram.org)
+  [![Telegram](https://img.shields.io/badge/Telegram-@Madflix_Bots-blue?style=flat&logo=telegram)](https://t.me/Madflix_Bots)
+  [![Support](https://img.shields.io/badge/Support-@MadflixBots_Support-red?style=flat&logo=telegram)](https://t.me/MadflixBots_Support)
+  [![Developer](https://img.shields.io/badge/Developer-@MadflixOfficials-green?style=flat&logo=telegram)](https://t.me/MadflixOfficials)
 </div>
 
-## 📖 Overview
-
-An advanced Telegram bot for renaming files up to 4GB in size. Built with Python and Pyrogram, this bot offers premium features including custom thumbnails, captions, and broadcast functionality.
+## 📋 Table of Contents
+- [Features](#-features)
+- [Premium Features](#-premium-features)
+- [User Commands](#-user-commands)
+- [Admin Commands](#️-admin-commands)
+- [Installation](#-installation)
+- [Configuration](#️-configuration)
+- [Premium Plans](#-premium-plans)
+- [Support](#-support)
+- [Contributing](#-contributing)
 
 ## ✨ Features
 
-- 🚀 **Fast File Renaming** - Rename files quickly and efficiently
-- 📁 **4GB File Support** - Handle large files with premium upgrade
-- 🖼️ **Custom Thumbnails** - Set permanent custom thumbnails
-- 📝 **Custom Captions** - Add personalized captions to files
-- 📢 **Broadcast System** - Send messages to all users (Admin only)
-- 🔄 **File Conversion** - Convert between video and file formats
-- 🔒 **Force Subscribe** - Optional channel subscription requirement
-- ⚡ **Unlimited Renaming** - No limits on concurrent operations
-- 🎨 **Custom Start Picture** - Personalized bot interface
+### 🔧 Core Features
+- **File Renaming**: Rename any file with custom names
+- **Thumbnail Support**: Set custom thumbnails for videos and documents
+- **Custom Captions**: Add personalized captions to your files
+- **Format Conversion**: Convert videos to documents and vice versa
+- **Metadata Editing**: Modify file metadata information
+- **Flood Protection**: Smart flood control to prevent spam
+- **User Management**: Comprehensive user tracking and management
 
-## 🛠️ Installation & Setup
+### 📊 File Processing
+- **Multi-Format Support**: Works with videos, documents, audio files
+- **Size Optimization**: Efficient handling of large files
+- **DC ID Detection**: Shows file datacenter information
+- **Progress Tracking**: Real-time upload/download progress
+- **File Validation**: Automatic file type detection and validation
+
+### 🛡️ Security & Limits
+- **Daily Limits**: Configurable daily upload limits per user
+- **Premium Tiers**: Multiple subscription levels with different limits
+- **Admin Controls**: Comprehensive admin panel for user management
+- **Secure Database**: MongoDB integration for data persistence
+
+## 🌟 Premium Features
+
+### 🪙 Basic Plan (20GB)
+- 20GB daily upload limit
+- Priority processing
+- Custom thumbnails
+- Basic support
+
+### ⚡ Standard Plan (50GB)
+- 50GB daily upload limit
+- Faster processing
+- Advanced features
+- Priority support
+
+### 💎 Pro Plan (100GB)
+- 100GB daily upload limit
+- Fastest processing
+- All premium features
+- VIP support
+
+## 👥 User Commands
+
+| Command | Description |
+|---------|-------------|
+| `/start` | Start the bot and see welcome message |
+| `/viewthumb` | View your current thumbnail |
+| `/delthumb` | Delete your current thumbnail |
+| `/set_caption` | Set a custom caption for files |
+| `/see_caption` | View your current caption |
+| `/del_caption` | Delete your custom caption |
+| `/ping` | Check bot response time |
+| `/myplan` | View your current subscription plan |
+| `/upgrade` | View available premium plans |
+| `/donate` | Support the developer |
+
+## 🔧 Admin Commands
+
+| Command | Description |
+|---------|-------------|
+| `/users` | View total user count and statistics |
+| `/allids` | List all user IDs |
+| `/allcommand` | Show all available bot commands |
+| `/broadcast` | Send message to all users |
+| `/warn` | Send warning to specific user |
+| `/addpremium` | Upgrade user to premium plan |
+| `/ceasepower` | Downgrade user capacity |
+| `/resetpower` | Reset user to default plan |
+| `/restart` | Restart the bot |
+
+## 🚀 Installation
 
 ### Prerequisites
+- Python 3.8+
+- MongoDB Database
+- Telegram Bot Token
+- API ID & Hash from my.telegram.org
 
-- Python 3.8 or higher
-- MongoDB database
-- Telegram Bot Token from [@BotFather](https://t.me/BotFather)
-- API credentials from [my.telegram.org](https://my.telegram.org)
+### Quick Deploy on Replit
+1. Fork this repository
+2. Set up environment variables
+3. Run the bot
 
-### Local Development
+### Manual Installation
+```bash
+git clone https://github.com/YourUsername/Telegram-File-Renamer-Bot
+cd Telegram-File-Renamer-Bot
+pip install -r requirements.txt
+python bot.py
+```
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/JishuDeveloper/Rename-Bot-4GB.git
-   cd Rename-Bot-4GB
-   ```
-
-2. **Install dependencies**
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-3. **Set up environment variables**
-   Create a `.env` file or set environment variables:
-   ```env
-   API_ID=your_api_id
-   API_HASH=your_api_hash
-   BOT_TOKEN=your_bot_token
-   ADMIN=your_user_id
-   LOG_CHANNEL=your_log_channel_id
-   DATABASE_URL=your_mongodb_url
-   DATABASE_NAME=your_db_name
-   ```
-
-4. **Run the bot**
-   ```bash
-   python bot.py
-   ```
-
-### Deploy on Replit
-
-1. Import this repository to Replit
-2. Set up the required environment variables in Secrets
-3. Click the Run button to start the bot
-
-## 🔧 Configuration
+## ⚙️ Configuration
 
 ### Required Environment Variables
 
 | Variable | Description | Required |
 |----------|-------------|----------|
-| `API_ID` | Telegram API ID from my.telegram.org | ✅ |
-| `API_HASH` | Telegram API Hash from my.telegram.org | ✅ |
-| `BOT_TOKEN` | Bot token from @BotFather | ✅ |
-| `ADMIN` | Admin user ID (space-separated for multiple) | ✅ |
-| `LOG_CHANNEL` | Log channel ID (must start with -100) | ✅ |
-| `DATABASE_URL` | MongoDB connection URL | ✅ |
+| `API_ID` | Your API ID from my.telegram.org | Yes |
+| `API_HASH` | Your API Hash from my.telegram.org | Yes |
+| `BOT_TOKEN` | Bot token from @BotFather | Yes |
+| `ADMIN` | Admin user ID | Yes |
+| `DATABASE_URL` | MongoDB connection string | Yes |
+| `LOG_CHANNEL` | Log channel ID | Yes |
 
-### Optional Environment Variables
+### Optional Variables
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `DATABASE_NAME` | MongoDB database name | `madflixbotz` |
-| `FORCE_SUBS` | Force subscribe channel username (without @) | None |
-| `START_PIC` | Custom start command picture URL | Default logo |
-| `STRING_SESSION` | Pyrogram session string for 4GB support | None |
+| Variable | Description | Required |
+|----------|-------------|----------|
+| `STRING_SESSION` | Premium client session for 4GB+ files | No |
+| `FORCE_SUBS` | Force subscription channel username | No |
+| `DATABASE_NAME` | Custom database name | No |
+| `START_PIC` | Custom start image URL | No |
 
-## 📱 Bot Commands
-
-### User Commands
-
-- `/start` - Start the bot and see welcome message
-- `/viewthumb` - View current thumbnail
-- `/delthumb` - Delete current thumbnail
-- `/set_caption` - Set custom caption
-- `/see_caption` - View current caption
-- `/del_caption` - Delete custom caption
-- `/ping` - Check bot response time
-- `/myplan` - View current subscription plan
-- `/upgrade` - View premium plans
-- `/donate` - Support the developer
-
-### Admin Commands
-
-- `/users` - View total user count
-- `/allids` - List all user IDs
-- `/broadcast` - Broadcast message to all users
-- `/warn` - Send warning to specific user
-- `/addpremium` - Upgrade user to premium
-- `/ceasepower` - Downgrade user capacity
-- `/resetpower` - Reset user to default plan
-- `/restart` - Restart the bot
-
-## 📊 Project Structure
-
+### Example .env file
+```env
+API_ID=1234567
+API_HASH=abcdef1234567890abcdef1234567890
+BOT_TOKEN=1234567890:ABCdefGHIjklMNOpqrSTUvwxYZ
+ADMIN=123456789
+DATABASE_URL=mongodb+srv://username:password@cluster.mongodb.net/
+LOG_CHANNEL=-1001234567890
+STRING_SESSION=optional_session_string
 ```
-Rename-Bot-4GB/
-├── bot.py                 # Main bot file
-├── config.py             # Configuration settings
-├── app.py                # Flask web server
-├── script.py             # Bot text messages
-├── requirements.txt      # Python dependencies
-├── helper/               # Helper modules
-│   ├── database.py       # Database operations
-│   ├── progress.py       # Progress tracking
-│   ├── ffmpeg.py         # Media processing
-│   └── set.py           # Utility functions
-└── plugins/              # Bot command handlers
-    ├── start.py          # Start command
-    ├── admin.py          # Admin commands
-    ├── broadcast.py      # Broadcast functionality
-    ├── callback.py       # Callback handlers
-    └── ...              # Other command handlers
-```
+
+## 💰 Premium Plans
+
+### Free Plan
+- ✅ 2GB daily limit
+- ✅ Basic renaming
+- ✅ Thumbnail support
+- ✅ Community support
+
+### Paid Plans
+- **Basic (🪙)**: 20GB daily limit
+- **Standard (⚡)**: 50GB daily limit  
+- **Pro (💎)**: 100GB daily limit
+
+## 🛠️ Technical Details
+
+### Architecture
+- **Framework**: Pyrogram (MTProto API)
+- **Database**: MongoDB with PyMongo
+- **File Handling**: Custom progress tracking
+- **Deployment**: Docker & Replit ready
+
+### File Size Limits
+- **Free Users**: Up to 2GB per file
+- **Premium Users**: Up to 4GB per file (with string session)
+- **Daily Limits**: Based on subscription plan
+
+### Performance
+- **Concurrent Processing**: Multi-threaded file handling
+- **Memory Optimization**: Efficient large file processing
+- **Error Handling**: Comprehensive error management
+
+## 📊 Statistics & Monitoring
+
+- Real-time user statistics
+- File processing analytics
+- Daily usage tracking
+- Admin dashboard
+- Comprehensive logging
+
+## 🔒 Security Features
+
+- User authentication
+- Rate limiting
+- Flood protection
+- Admin-only commands
+- Secure session handling
+
+## 🐛 Known Issues
+
+- Large file processing may take time
+- Some file formats may not be supported
+- Thumbnail generation depends on file type
 
 ## 🤝 Contributing
 
 1. Fork the repository
-2. Create a feature branch: `git checkout -b feature-name`
-3. Commit your changes: `git commit -am 'Add new feature'`
-4. Push to the branch: `git push origin feature-name`
-5. Submit a pull request
+2. Create a feature branch
+3. Make your changes
+4. Submit a pull request
 
-## 📄 License
+## 📝 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 👥 Credits & Support
+## 💬 Support
 
-### Developers
-- [Jishu Developer](https://github.com/JishuDeveloper) - Lead Developer
-- [Madflix Official](https://github.com/jishusinha) - Contributor
-- [lntechnical](https://github.com/lntechnical2) - Contributor
+- **Updates Channel**: [@Madflix_Bots](https://t.me/Madflix_Bots)
+- **Support Group**: [@MadflixBots_Support](https://t.me/MadflixBots_Support)
+- **Developer**: [@MadflixOfficials](https://t.me/MadflixOfficials)
 
-### Channels & Support
-- 📢 **Updates**: [Madflix Botz](https://t.me/Madflix_Bots)
-- 🤖 **Bots**: [Jishu Botz](https://t.me/JishuBotz)
-- 💬 **Support**: [Contact Developer](https://t.me/JishuDeveloper)
+## 🙏 Credits
 
-### Donations
-If you find this project helpful, consider supporting the developer:
+- **Developer**: [@JishuDeveloper](https://t.me/JishuDeveloper) & [@MadflixOfficials](https://t.me/MadflixOfficials)
+- **Framework**: [Pyrogram](https://pyrogram.org/)
+- **Database**: [MongoDB](https://www.mongodb.com/)
 
-- 💳 **PayPal**: [Donate via PayPal](https://paypal.me/jishudeveloper/2.50USD)
-- 📱 **UPI**: `madflixofficial@axl`
-- 🔗 **Payment QR**: [View QR Codes](https://graph.org/QR-Payment-07-24-4)
+## ⭐ Star History
 
-## ⚠️ Disclaimer
-
-This bot is for educational purposes. Please ensure you comply with Telegram's Terms of Service and respect copyright laws when using this bot.
+If you find this project useful, please consider giving it a star!
 
 ---
 
 <div align="center">
-  <b>⭐ Star this repository if you found it helpful!</b>
-  <br>
-  Made with ❤️ by <a href="https://t.me/JishuDeveloper">Jishu Developer</a>
+  <b>Made with ❤️ by <a href="https://t.me/MadflixOfficials">@MadflixOfficials</a></b>
 </div>
