@@ -36,11 +36,18 @@ async def start(client, message):
         if pre_check == False:
             uploadlimit(message.from_user.id, 2147483652)
             usertype(message.from_user.id, "Free")
+    # Check if user has free premium
+    is_free_premium = _newus.get("free_premium", False)
+    premium_badge = " 🎁" if is_free_premium else ""
+    
     if ends == None:
-        text = f"<b>User ID :</b> <code>{message.from_user.id}</code> \n<b>Name :</b> {message.from_user.mention} \n\n<b>🏷 Plan :</b> {user} \n\n✓ Upload 2GB Files \n✓ Daily Upload : {humanbytes(limit)} \n✓ Today Used : {humanbytes(used)} \n✓ Remain : {humanbytes(remain)} \n✓ Timeout : 2 Minutes \n✓ Parallel process : Unlimited \n✓ Time Gap : Yes \n\n<b>Validity :</b> Lifetime"
+        text = f"<b>User ID :</b> <code>{message.from_user.id}</code> \n<b>Name :</b> {message.from_user.mention} \n\n<b>🏷 Plan :</b> {user}{premium_badge} \n\n✓ Upload 2GB Files \n✓ Daily Upload : {humanbytes(limit)} \n✓ Today Used : {humanbytes(used)} \n✓ Remain : {humanbytes(remain)} \n✓ Timeout : 2 Minutes \n✓ Parallel process : Unlimited \n✓ Time Gap : Yes \n\n<b>Validity :</b> Lifetime"
     else:
         normal_date = datetime.fromtimestamp(ends).strftime('%Y-%m-%d')
-        text = f"<b>User ID :</b> <code>{message.from_user.id}</code> \n<b>Name :</b> {message.from_user.mention} \n\n<b>🏷 Plan :</b> {user} \n\n✓ High Priority \n✓ Upload 4GB Files \n✓ Daily Upload : {humanbytes(limit)} \n✓ Today Used : {humanbytes(used)} \n✓ Remain : {humanbytes(remain)} \n✓ Timeout : 0 Second \n✓ Parallel process : Unlimited \n✓ Time Gap : Yes \n\n<b>Your Plan Ends On :</b> {normal_date}"
+        plan_info = f"{user}{premium_badge}"
+        if is_free_premium:
+            plan_info += " (Free Premium)"
+        text = f"<b>User ID :</b> <code>{message.from_user.id}</code> \n<b>Name :</b> {message.from_user.mention} \n\n<b>🏷 Plan :</b> {plan_info} \n\n✓ High Priority \n✓ Upload 4GB Files \n✓ Daily Upload : {humanbytes(limit)} \n✓ Today Used : {humanbytes(used)} \n✓ Remain : {humanbytes(remain)} \n✓ Timeout : 0 Second \n✓ Parallel process : Unlimited \n✓ Time Gap : Yes \n\n<b>Your Plan Ends On :</b> {normal_date}"
 
     if user == "Free":
         await message.reply(text, quote=True, reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("💳 Upgrade", callback_data="upgrade"), InlineKeyboardButton("✖️ Cancel", callback_data="cancel")]]))
