@@ -22,6 +22,15 @@ def check_expi(saved_date):
 	else:
 		return False
 
+def add_custom_date(days):
+	"""Add custom number of days to current date"""
+	today = date.today()
+	ex_date = today + timedelta(days=days)
+	pattern = '%Y-%m-%d'
+	epcho = int(time.mktime(time.strptime(str(ex_date), pattern)))
+	normal_date = datetime.fromtimestamp(epcho).strftime('%Y-%m-%d')
+	return epcho, normal_date
+
 
 
 
