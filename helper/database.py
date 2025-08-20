@@ -147,6 +147,66 @@ def find_one(id):
 
 # Free Premium System Functions
 def set_free_premium_config(plan, duration_days):
+    """Set free premium configuration"""
+    config = {
+        "_id": "free_premium_config",
+        "active": True,
+        "plan": plan,
+        "duration_days": duration_days
+    }
+    dbcol.replace_one({"_id": "free_premium_config"}, config, upsert=True)
+
+def get_free_premium_config():
+    """Get free premium configuration"""
+    return dbcol.find_one({"_id": "free_premium_config"})
+
+def disable_free_premium():
+    """Disable free premium"""
+    dbcol.update_one(
+        {"_id": "free_premium_config"}, 
+        {"$set": {"active": False}}
+    )
+
+def apply_free_premium_to_user(user_id, plan, duration_days):
+    """Apply free premium to a user"""
+    from datetime import datetime, timedelta
+    
+    # Calculate expiry date
+    expiry_date = datetime.now() + timedelta(days=duration_days)
+    expiry_timestamp = expiry_date.strftime('%Y-%m-%d')
+    
+    # Set premium limits based on plan
+    if "Basic" in plan:
+        limit = 21474836480  # 20GB
+    elif "Standard" in plan:
+        limit = 53687091200  # 50GB
+    elif "Pro" in plan:
+        limit = 107374182400  # 100GB
+    else:
+        limit = 21474836480  # Default to Basic
+    
+    dbcol.update_one(
+        {"_id": user_id}, 
+        {"$set": {
+            "free_premium": True,
+            "usertype": plan,
+            "uploadlimit": limit,
+            "prexdate": expiry_timestamp
+        }}
+    )
+
+def remove_free_premium_from_user(user_id):
+    """Remove free premium from a user"""
+    dbcol.update_one(
+        {"_id": user_id}, 
+        {"$set": {
+            "free_premium": False,
+            "usertype": "Free",
+            "uploadlimit": 2147483648,  # 2GB
+            "prexdate": None
+        }}
+    )
+def set_free_premium_config(plan, duration_days):
     """Set global free premium configuration"""
     config_data = {"_id": "free_premium_config", "plan": plan, "duration_days": duration_days, "active": True}
     dbcol.replace_one({"_id": "free_premium_config"}, config_data, upsert=True)
