@@ -104,16 +104,29 @@ async def send_doc(client, message):
         if remain < int(file.file_size):
             await message.reply_text(f"100% Of Daily {humanbytes(limit)} Data Quota Exhausted.\n\n<b>File Size Detected :</b> {humanbytes(file.file_size)}\n<b>Used Daily Limit :</b> {humanbytes(used)}\n\nYou Have Only <b>{humanbytes(remain)}</b> Left On Your Account.\n\nIf U Want To Rename Large File Upgrade Your Plan", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("💳 Upgrade", callback_data="upgrade")]]))
             return
-        if value < file.file_size:
+        # Check if user has premium plan and valid subscription
+        has_premium = False
+        if buy_date:
+            pre_check = check_expi(buy_date)
+            if pre_check == True:
+                has_premium = True
+        
+        # Apply file size limits based on plan
+        if value < file.file_size and not has_premium:
             
             if STRING_SESSION:
                 if buy_date == None:
                     await message.reply_text(f"You Can't Upload More Than 2GB File.\n\nYour Plan Doesn't Allow To Upload Files That Are Larger Than 2GB.\n\nUpgrade Your Plan To Rename Files Larger Than 2GB.", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("💳 Upgrade", callback_data="upgrade")]]))
                     return
                 pre_check = check_expi(buy_date)
-                if pre_check == True:
+                if pre_check == False:
+                    await message.reply_text(f"You Can't Upload More Than 2GB File.\n\nYour Plan Doesn't Allow To Upload Files That Are Larger Than 2GB.\n\nUpgrade Your Plan To Rename Files Larger Than 2GB.", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("💳 Upgrade", callback_data="upgrade")]]))
+                    return
+        
+        # For premium users or users within free limit, proceed with file processing
+        if has_premium or value >= file.file_size:
                     await message.reply_text(f"""__What Do You Want Me To Do With This File ?__\n\n**File Name :** `{filename}`\n**File Size :** {humanize.naturalsize(file.file_size)}\n**DC ID :** {dcid}""", reply_to_message_id=message.id, reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("📝 Rename", callback_data="rename"), InlineKeyboardButton("✖️ Cancel", callback_data="cancel")]]))
-                    total_rename(int(botid), prrename)
+            total_rename(int(botid), prrename)
                     total_size(int(botid), prsize, file.file_size)
                 else:
                     uploadlimit(message.from_user.id, 2147483648)
