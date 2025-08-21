@@ -1,46 +1,81 @@
 from config import *
 from pyrogram import Client, filters
-from pyrogram.types import ( InlineKeyboardButton, InlineKeyboardMarkup)
-from helper.database import botdata, find_one, total_user,getid
+from pyrogram.types import (InlineKeyboardButton, InlineKeyboardMarkup)
+from helper.database import botdata, find_one, total_user, getid, get_user_statistics
 from helper.progress import humanbytes
 
 token = BOT_TOKEN
 botid = token.split(':')[0]
 
 
-
-
-@Client.on_message(filters.private & filters.user(ADMIN)  & filters.command(["users"]))
-async def users(client,message):
+@Client.on_message(filters.private & filters.user(ADMIN) & filters.command(["users"]))
+async def users(client, message):
     botdata(int(botid))
     data = find_one(int(botid))
-    total_rename = data["total_rename"]
-    total_size = data["total_size"]
-    id = str(getid())
-    ids = id.split(',')
+    total_rename = data["total_rename"] if data and "total_rename" in data else 0
+    total_size = data["total_size"] if data and "total_size" in data else 0
     
-    await message.reply_text(f"<b>⚡️ Total User :</b> {total_user()}\n\n<b>⚡️ Total Renamed File :</b> {total_rename}\n<b>⚡ Total Size Renamed :</b> {humanbytes(int(total_size))}", quote=True, reply_markup= InlineKeyboardMarkup([
-        [InlineKeyboardButton("🦋 Close 🦋", callback_data="cancel")]])
-        )
-	
+    # Get detailed user statistics
+    stats = get_user_statistics()
     
+    text = f"""<b>📊 BOT STATISTICS</b>
+
+<b>👥 USER STATISTICS:</b>
+• <b>Total Users:</b> {stats['total_users']}
+• <b>Premium Users:</b> {stats['premium_users']}
+• <b>Free Users:</b> {stats['free_users']}
+• <b>Banned Users:</b> {stats['banned_users']}
+
+<b>📁 FILE STATISTICS:</b>
+• <b>Total Files Renamed:</b> {total_rename}
+• <b>Total Size Processed:</b> {humanbytes(int(total_size)) if total_size else "0 B"}
+
+<b>🤖 Bot ID:</b> <code>{botid}</code>"""
+
+    keyboard = InlineKeyboardMarkup([
+        [InlineKeyboardButton("🔄 Refresh", callback_data="refresh_stats")],
+        [InlineKeyboardButton("🦋 Close 🦋", callback_data="cancel")]
+    ])
     
-@Client.on_message(filters.private & filters.user(ADMIN)  & filters.command(["allids"]))
-async def allids(client,message):
-    botdata(int(botid))
-    data = find_one(int(botid))
-    total_rename = data["total_rename"]
-    total_size = data["total_size"]
-    id = str(getid())
-    ids = id.split(',')
-    
-    await message.reply_text(f"<b>⚡️ All IDs :</b> {ids}\n\n<b>⚡️ Total User :</b> {total_user()}\n\n<b>⚡️ Total Renamed File :</b> {total_rename}\n<b>⚡ Total Size Renamed :</b> {humanbytes(int(total_size))}", quote=True, reply_markup= InlineKeyboardMarkup([
-        [InlineKeyboardButton("🦋 Close 🦋", callback_data="cancel")]])
-        )
+    await message.reply_text(text, quote=True, reply_markup=keyboard)
 
 
+@Client.on_callback_query(filters.regex("refresh_stats"))
+async def refresh_stats(client, callback_query):
+    try:
+        botdata(int(botid))
+        data = find_one(int(botid))
+        total_rename = data["total_rename"] if data and "total_rename" in data else 0
+        total_size = data["total_size"] if data and "total_size" in data else 0
+        
+        # Get updated user statistics
+        stats = get_user_statistics()
+        
+        text = f"""<b>📊 BOT STATISTICS</b>
 
+<b>👥 USER STATISTICS:</b>
+• <b>Total Users:</b> {stats['total_users']}
+• <b>Premium Users:</b> {stats['premium_users']}
+• <b>Free Users:</b> {stats['free_users']}
+• <b>Banned Users:</b> {stats['banned_users']}
 
+<b>📁 FILE STATISTICS:</b>
+• <b>Total Files Renamed:</b> {total_rename}
+• <b>Total Size Processed:</b> {humanbytes(int(total_size)) if total_size else "0 B"}
+
+<b>🤖 Bot ID:</b> <code>{botid}</code>
+
+<i>📊 Statistics refreshed!</i>"""
+
+        keyboard = InlineKeyboardMarkup([
+            [InlineKeyboardButton("🔄 Refresh", callback_data="refresh_stats")],
+            [InlineKeyboardButton("🦋 Close 🦋", callback_data="cancel")]
+        ])
+        
+        await callback_query.message.edit_text(text, reply_markup=keyboard)
+        await callback_query.answer("✅ Statistics refreshed!")
+    except Exception as e:
+        await callback_query.answer(f"❌ Error refreshing: {str(e)}", show_alert=True)
 
 
 # Jishu Developer 
