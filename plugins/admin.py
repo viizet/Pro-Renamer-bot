@@ -232,31 +232,41 @@ async def allcommand(bot, message):
 • /set_caption - Set custom caption
 • /see_caption - View current caption
 • /del_caption - Delete custom caption
+• /metadata - Manage file metadata settings
 • /ping - Check bot response time
 • /myplan - View current subscription plan
 • /upgrade - View premium plans
 • /donate - Support the developer
 • /help - Get help information
 
-
 <b>🔧 ADMIN COMMANDS:</b>
-• /users - View total user count
 
-• /broadcast - Broadcast message to all users
-• /warn - Send warning to specific user
-• /addpremium - Upgrade user to premium
-• /ban - Ban user with reason
-• /unban - Unban user
-• /restart - Restart the bot
-• /admin - Show admin panel
+<b>📊 Statistics & Management:</b>
+• /users - View detailed bot statistics
+• /admin - Show interactive admin panel
+• /top10 - Show top 10 active users
 • /allcommand - Show all bot commands (this command)
-• /free - Manage free premium
-• /removefree - Remove free premium from user
-• /top10 - Show top 10 users (admin view)
 
-<b>Made By:</b> @viizet"""
+<b>👥 User Management:</b>
+• /warn [user_id] [message] - Send warning to user
+• /ban [user_id] [reason] - Ban user with reason
+• /unban [user_id] - Unban user
+• /broadcast - Broadcast message to all users
+
+<b>💎 Premium Management:</b>
+• /addpremium - Upgrade user to premium (paid premium)
+• /removepremium [user_id] - Remove paid premium from user
+• /free - Manage free premium system settings
+• /removefree [user_id] - Remove free premium from user
+
+<b>🛠️ System Commands:</b>
+• /restart - Restart the bot
+
+<b>📱 Developer:</b> @viizet
+<b>📢 Channel:</b> @Phioza</b>"""
 
     button = InlineKeyboardMarkup([
+        [InlineKeyboardButton("🔧 Admin Panel", callback_data="admin_back")],
         [InlineKeyboardButton("✖️ Close ✖️", callback_data="cancel")]
     ])
 
