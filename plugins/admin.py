@@ -11,18 +11,45 @@ from helper.database import uploadlimit, usertype, addpre
 @Client.on_message(filters.private & filters.user(ADMIN) & filters.command(["warn"]))
 async def warn(c, m):
     if len(m.command) < 3:
-        await m.reply_text("**Usage:** /warn <user_id> <message>")
+        await m.reply_text("**Usage:** /warn <user_id> <message>\n\n**Example:** `/warn 123456789 Please follow bot rules`")
         return
     
     try:
         user_id = int(m.command[1])
         reason = " ".join(m.command[2:])
-        await c.send_message(chat_id=user_id, text=f"⚠️ **Warning from Admin:**\n\n{reason}")
-        await m.reply_text(f"✅ User {user_id} notified successfully!")
+        
+        # First check if user exists in database
+        from helper.database import find_one
+        user_data = find_one(user_id)
+        if not user_data:
+            await m.reply_text(f"❌ User {user_id} not found in database!\n\nThe user must start the bot first before you can warn them.")
+            return
+        
+        # Try to get user info to verify the user exists
+        try:
+            user_info = await c.get_users(user_id)
+            user_name = user_info.first_name
+        except Exception:
+            await m.reply_text(f"❌ Invalid user ID {user_id}!\n\nMake sure the user ID is correct and the user has interacted with the bot.")
+            return
+        
+        # Send warning message
+        try:
+            await c.send_message(
+                chat_id=user_id, 
+                text=f"⚠️ **Warning from Admin (@viizet):**\n\n{reason}\n\n**Note:** Please follow bot rules to avoid restrictions."
+            )
+            await m.reply_text(f"✅ Warning sent successfully to {user_name} ({user_id})!")
+        except Exception as send_error:
+            if "PEER_ID_INVALID" in str(send_error):
+                await m.reply_text(f"❌ Cannot send message to user {user_id}!\n\n**Reason:** The user hasn't started the bot or has blocked it.\n\n**Solution:** Ask the user to start the bot first: /start")
+            else:
+                await m.reply_text(f"❌ Failed to send warning: {str(send_error)}")
+                
     except ValueError:
-        await m.reply_text("❌ Invalid user ID!")
+        await m.reply_text("❌ Invalid user ID format!\n\n**Usage:** `/warn <user_id> <message>`\n**Example:** `/warn 123456789 Please follow rules`")
     except Exception as e:
-        await m.reply_text(f"❌ Failed to notify user: {str(e)}")
+        await m.reply_text(f"❌ Unexpected error: {str(e)}")
             
             
 
