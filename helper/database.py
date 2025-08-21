@@ -1,7 +1,8 @@
 import pymongo
-import os
+from datetime import datetime
+from config import DATABASE_URL, DATABASE_NAME
 from helper.date import add_date
-from config import *
+
 mongo = pymongo.MongoClient(DATABASE_URL)
 db = mongo[DATABASE_NAME]
 dbcol = db["user"]
@@ -44,12 +45,12 @@ def insert(chat_id):
                 "metadata": False, "metadata_code": "By @Madflix_Bots", "free_premium": False}
     try:
         dbcol.insert_one(user_det)
-        
+
         # Check if free premium is active and apply it to new user
         free_config = get_free_premium_config()
         if free_config and free_config.get("active", False):
             apply_free_premium_to_user(user_id, free_config["plan"], free_config["duration_days"])
-            
+
     except:
         return True
         pass
@@ -105,10 +106,80 @@ def addpre(chat_id):
     dbcol.update_one({"_id": chat_id}, {"$set": {"prexdate": date[0]}})
 
 def addpredata(chat_id):
-    dbcol.update_one({"_id": chat_id}, {"$set": {"prexdate": None}})
+    user_id = int(chat_id)
+    user_data = dbcol.find_one({"_id": user_id})
+    if user_data:
+        dbcol.update_one({"_id": user_id}, {"$set": {"prexdate": None}}) # Assuming addpredata is for removing premium
+    else:
+        pass # User not found, do nothing
 
-def daily(chat_id, date):
-    dbcol.update_one({"_id": chat_id}, {"$set": {"daily": date}})
+def ban_user(user_id, reason="No reason provided"):
+    user_id = int(user_id)
+    dbcol.update_one(
+        {"_id": user_id},
+        {"$set": {"banned": True, "ban_reason": reason}},
+        upsert=True
+    )
+
+def unban_user(user_id):
+    user_id = int(user_id)
+    dbcol.update_one(
+        {"_id": user_id},
+        {"$set": {"banned": False, "ban_reason": None}}
+    )
+
+def is_user_banned(user_id):
+    user_id = int(user_id)
+    user_data = dbcol.find_one({"_id": user_id})
+    if user_data:
+        return user_data.get("banned", False)
+    return False
+
+def get_user_statistics():
+    try:
+        # Count total users (excluding config documents)
+        total_users = dbcol.count_documents({"_id": {"$ne": "free_premium_config"}})
+
+        # Count premium users (users with premium plans or free premium)
+        premium_users = dbcol.count_documents({
+            "_id": {"$ne": "free_premium_config"},
+            "$or": [
+                {"usertype": {"$regex": "Basic|Standard|Pro", "$options": "i"}},
+                {"free_premium": True}
+            ]
+        })
+
+        # Count free users (users with Free usertype and no premium status)
+        free_users = dbcol.count_documents({
+            "_id": {"$ne": "free_premium_config"},
+            "usertype": "Free",
+            "$or": [
+                {"free_premium": {"$exists": False}},
+                {"free_premium": False}
+            ]
+        })
+
+        # Count banned users
+        banned_users = dbcol.count_documents({
+            "_id": {"$ne": "free_premium_config"},
+            "banned": True
+        })
+
+        return {
+            "total_users": total_users,
+            "premium_users": premium_users,
+            "free_users": free_users,
+            "banned_users": banned_users
+        }
+    except Exception as e:
+        print(f"Error getting user statistics: {e}")
+        return {
+            "total_users": 0,
+            "premium_users": 0,
+            "free_users": 0,
+            "banned_users": 0
+        }
+
 
 def find(chat_id):
     id = {"_id": chat_id}
@@ -127,8 +198,6 @@ def find(chat_id):
             metadata_code = i["metadata_code"]
         except:
             metadata_code = None
-            
-
 
         return [file, caption, metadata, metadata_code]
 
@@ -170,11 +239,11 @@ def disable_free_premium():
 def apply_free_premium_to_user(user_id, plan, duration_days):
     """Apply free premium to a user"""
     from datetime import datetime, timedelta
-    
+
     # Calculate expiry date
     expiry_date = datetime.now() + timedelta(days=duration_days)
     expiry_timestamp = expiry_date.strftime('%Y-%m-%d')
-    
+
     # Set premium limits based on plan
     if "Basic" in plan:
         limit = 21474836480  # 20GB
@@ -184,7 +253,7 @@ def apply_free_premium_to_user(user_id, plan, duration_days):
         limit = 107374182400  # 100GB
     else:
         limit = 21474836480  # Default to Basic
-    
+
     dbcol.update_one(
         {"_id": user_id}, 
         {"$set": {
@@ -198,82 +267,6 @@ def apply_free_premium_to_user(user_id, plan, duration_days):
 def remove_free_premium_from_user(user_id):
     """Remove free premium from a user"""
 
-
-def get_user_statistics():
-    """Get detailed user statistics"""
-    try:
-        # Count total users (excluding config documents)
-        total_users = dbcol.count_documents({"_id": {"$ne": "free_premium_config"}})
-        
-        # Count premium users (users with premium plans or free premium)
-        premium_users = dbcol.count_documents({
-            "_id": {"$ne": "free_premium_config"},
-            "$or": [
-                {"usertype": {"$regex": "Basic|Standard|Pro", "$options": "i"}},
-                {"free_premium": True}
-            ]
-        })
-        
-        # Count free users (users with Free usertype and no premium status)
-        free_users = dbcol.count_documents({
-            "_id": {"$ne": "free_premium_config"},
-            "usertype": "Free",
-            "$or": [
-                {"free_premium": {"$exists": False}},
-                {"free_premium": False}
-            ]
-        })
-        
-        # Count banned users
-        banned_users = dbcol.count_documents({
-            "_id": {"$ne": "free_premium_config"},
-            "banned": True
-        })
-        
-        return {
-            "total_users": total_users,
-            "premium_users": premium_users,
-            "free_users": free_users,
-            "banned_users": banned_users
-        }
-    except Exception as e:
-        print(f"Error getting user statistics: {e}")
-        return {
-            "total_users": 0,
-            "premium_users": 0,
-            "free_users": 0,
-            "banned_users": 0
-        }
-
-def ban_user(user_id, reason="No reason provided"):
-    """Ban a user"""
-    dbcol.update_one(
-        {"_id": user_id},
-        {"$set": {"banned": True, "ban_reason": reason}},
-        upsert=True
-    )
-
-def unban_user(user_id):
-    """Unban a user"""
-    dbcol.update_one(
-        {"_id": user_id},
-        {"$set": {"banned": False, "ban_reason": None}}
-    )
-
-def is_user_banned(user_id):
-    """Check if user is banned"""
-    user_data = dbcol.find_one({"_id": user_id})
-    return user_data.get("banned", False) if user_data else False
-
-    dbcol.update_one(
-        {"_id": user_id}, 
-        {"$set": {
-            "free_premium": False,
-            "usertype": "Free",
-            "uploadlimit": 2147483648,  # 2GB
-            "prexdate": None
-        }}
-    )
 def set_free_premium_config(plan, duration_days):
     """Set global free premium configuration"""
     config_data = {"_id": "free_premium_config", "plan": plan, "duration_days": duration_days, "active": True}
@@ -290,7 +283,7 @@ def disable_free_premium():
 def apply_free_premium_to_user(user_id, plan, duration_days):
     """Apply free premium to a specific user"""
     from helper.date import add_custom_date
-    
+
     # Set plan limits based on plan type
     if plan == "🪙 Basic":
         limit = 21474836500  # 20GB
@@ -300,10 +293,10 @@ def apply_free_premium_to_user(user_id, plan, duration_days):
         limit = 107374182400  # 100GB
     else:
         limit = 2147483652  # Default 2GB
-    
+
     # Calculate expiry date
     expiry_date = add_custom_date(duration_days)
-    
+
     # Update user data
     uploadlimit(user_id, limit)
     usertype(user_id, plan)
@@ -315,7 +308,6 @@ def remove_free_premium_from_user(user_id):
     usertype(user_id, "Free")
     dbcol.update_one({"_id": user_id}, {"$set": {"prexdate": None, "free_premium": False}})
 
-
-
-    
-
+def daily(chat_id, date):
+    """Update daily usage date"""
+    dbcol.update_one({"_id": chat_id}, {"$set": {"daily": date}})
