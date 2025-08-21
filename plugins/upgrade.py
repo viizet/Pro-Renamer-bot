@@ -23,7 +23,7 @@ Daily Upload limit 100GB
 Price 🌎 3.00$  per Month
 
 Payment Details :-
-<b>➜  :</b> <code>bc1qgar4mxqtswzq529we5hde9gnu6uzu9f0du6aek</code>
+<b>➜ BITCOIN :</b> <code>bc1qgar4mxqtswzq529we5hde9gnu6uzu9f0du6aek</code>
 
 After Payment Send Screenshots Of Payment To Admin @viizet"""
     
@@ -55,7 +55,8 @@ Daily Upload limit 100GB
 Price  🌎 3.00$  per Month
 
 Payment Details :-
-<b>➜ UPI ID :</b> <code>bc1qgar4mxqtswzq529we5hde9gnu6uzu9f0du6aek</code>
+<b>➜ BITCOIN :</b> <code>bc1qgar4mxqtswzq529we5hde9gnu6uzu9f0du6aek</code>
+
 After Payment Send Screenshots Of Payment To Admin @Viizet"""
     
     keybord = InlineKeyboardMarkup([
