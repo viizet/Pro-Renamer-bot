@@ -311,20 +311,33 @@ async def admin_panel(bot, message):
     await message.reply_text(admin_text, quote=True, reply_markup=keyboard)
 
 
-@Client.on_callback_query(filters.regex("admin_stats"))
+# Global variable to store last refresh time and content
+last_refresh = {}
+
+@Client.on_callback_query(filters.regex("admin_stats|refresh_stats"))
 async def admin_stats_callback(bot, callback_query):
-    # Redirect to users command functionality
+    import time
     from helper.database import get_user_statistics
     from helper.progress import humanbytes
     
-    botdata(int(botid))
-    data = find_one(int(botid))
-    total_rename = data["total_rename"] if data and "total_rename" in data else 0
-    total_size = data["total_size"] if data and "total_size" in data else 0
+    user_id = callback_query.from_user.id
+    current_time = time.time()
     
-    stats = get_user_statistics()
+    # Check cooldown (2 seconds between refreshes)
+    if callback_query.data == "refresh_stats":
+        if user_id in last_refresh and current_time - last_refresh[user_id]['time'] < 2:
+            await callback_query.answer("⏳ Please wait a moment before refreshing again!", show_alert=True)
+            return
     
-    text = f"""<b>📊 BOT STATISTICS</b>
+    try:
+        botdata(int(botid))
+        data = find_one(int(botid))
+        total_rename = data["total_rename"] if data and "total_rename" in data else 0
+        total_size = data["total_size"] if data and "total_size" in data else 0
+        
+        stats = get_user_statistics()
+        
+        text = f"""<b>📊 BOT STATISTICS</b>
 
 <b>👥 USER STATISTICS:</b>
 • <b>Total Users:</b> {stats['total_users']}
@@ -338,13 +351,29 @@ async def admin_stats_callback(bot, callback_query):
 
 <b>🤖 Bot ID:</b> <code>{botid}</code>"""
 
-    keyboard = InlineKeyboardMarkup([
-        [InlineKeyboardButton("🔄 Refresh", callback_data="refresh_stats")],
-        [InlineKeyboardButton("⬅️ Back", callback_data="admin_back"),
-         InlineKeyboardButton("✖️ Close", callback_data="cancel")]
-    ])
-    
-    await callback_query.message.edit_text(text, reply_markup=keyboard)
+        keyboard = InlineKeyboardMarkup([
+            [InlineKeyboardButton("🔄 Refresh", callback_data="refresh_stats")],
+            [InlineKeyboardButton("⬅️ Back", callback_data="admin_back"),
+             InlineKeyboardButton("✖️ Close", callback_data="cancel")]
+        ])
+        
+        # Check if content has changed
+        if user_id in last_refresh and last_refresh[user_id]['content'] == text:
+            if callback_query.data == "refresh_stats":
+                await callback_query.answer("📊 Statistics are already up to date!", show_alert=True)
+                return
+        
+        # Update last refresh data
+        last_refresh[user_id] = {'time': current_time, 'content': text}
+        
+        # Edit message with new content
+        await callback_query.message.edit_text(text, reply_markup=keyboard)
+        
+        if callback_query.data == "refresh_stats":
+            await callback_query.answer("✅ Statistics refreshed!")
+            
+    except Exception as e:
+        await callback_query.answer(f"❌ Error refreshing: {str(e)}", show_alert=True)
 
 
 @Client.on_callback_query(filters.regex("admin_back"))
