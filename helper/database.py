@@ -317,10 +317,14 @@ def apply_free_premium_to_user(user_id, plan, duration_days):
     return True
 
 def remove_free_premium_from_user(user_id):
-    """Remove free premium from a user"""
-    uploadlimit(user_id, 2147483652)  # Reset to 2GB
-    usertype(user_id, "Free")
-    dbcol.update_one({"_id": user_id}, {"$set": {"prexdate": None, "free_premium": False}})
+    """Remove free premium from a user (only if they are free premium, not paid premium)"""
+    user_data = find_one(user_id)
+    if user_data and user_data.get("free_premium", False) and not user_data.get("paid_premium", False):
+        uploadlimit(user_id, 2147483652)  # Reset to 2GB
+        usertype(user_id, "Free")
+        dbcol.update_one({"_id": user_id}, {"$set": {"prexdate": None, "free_premium": False}})
+        return True
+    return False
 
 def daily(chat_id, date):
     """Update daily usage date"""
