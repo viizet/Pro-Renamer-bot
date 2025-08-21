@@ -15,14 +15,31 @@ from config import *
 token = BOT_TOKEN
 botid = token.split(':')[0]
 
-# Function to check if a user is banned (assuming you have a database for this)
+# Function to check if a user is banned
 def is_user_banned(user_id):
-    # Replace this with your actual ban checking logic
-    # For example, querying a database for banned user IDs
-    banned_users = get_banned_users() # Assume this function exists and returns a list of banned user IDs
-    return user_id in banned_users
+    from helper.database import find_one
+    user_data = find_one(user_id)
+    if user_data:
+        return user_data.get("banned", False)
+    return False
 
-# Placeholder function for getting banned users
+# Ban check middleware - Add this before other handlers
+@Client.on_message(filters.private & ~filters.user(ADMIN))
+async def ban_check(client, message):
+    user_id = message.from_user.id
+    
+    if is_user_banned(user_id):
+        await message.reply_text(
+            "🚫 **You are banned from using this bot!**\n\n"
+            "Your access has been restricted by the administrator.\n\n"
+            "**Contact Admin:** @viizet",
+            quote=True
+        )
+        return
+    
+    # If not banned, continue to other handlers
+    message.continue_propagation()
+
 def get_banned_users():
     # Replace this with your actual database query to get banned user IDs
     # For demonstration purposes, returning an empty list
@@ -69,8 +86,18 @@ async def start(bot, message):
 @Client.on_message((filters.private & (filters.document | filters.audio | filters.video)) | filters.channel & (filters.document | filters.audio | filters.video))
 async def send_doc(client, message):
     user_id = message.chat.id
+    
+    # Check if user is banned (skip for admin)
+    if message.from_user.id != ADMIN and is_user_banned(message.from_user.id):
+        await message.reply_text(
+            "🚫 **You are banned from using this bot!**\n\n"
+            "Your access has been restricted by the administrator.\n\n"
+            "**Contact Admin:** @viizet",
+            quote=True
+        )
+        return
+    
     old = insert(int(user_id))
-
     user_id = message.from_user.id
 
     botdata(int(botid))
