@@ -15,7 +15,7 @@ class script(object):
 
 <b>📊 Other Commands:</b>
 • /myplan - View your plan
-• /top10 - View top 10 users
+• /upgrade - View premium plans
 • /ping - Check bot speed
 • /donate - Support developer"""
 
@@ -46,11 +46,11 @@ class script(object):
 
 If You Like My Bots & Projects, You Can 🎁 Donate Me Any Amount In Crypto.
 
-<b>💰 Bitcoin:</b> <code>bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh</code>
+<b>💰 Bitcoin:</b> <code>soon</code>
 
-<b>💰 Ethereum:</b> <code>0x1A4b905FD8F8C5A2d295B6b9c3c9c1B8aE5b5C6D</code>
+<b>💰 Ethereum:</b> <code>soon</code>
 
-<b>💰 USDT (TRC20):</b> <code>TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t</code>
+<b>💰 USDT (TRC20):</b> <code>soon</code>
 
 <b>📸 Send Screenshot After Donation To Activate Your Premium Plan</b>
 """
@@ -73,9 +73,9 @@ If You Like My Bots & Projects, You Can 🎁 Donate Me Any Amount In Crypto.
 
 For Example :-
 
-<code>By @Madflix_Bots</code>
+<code>By @viizet</code>
 
-💬 For Any Help Contact @MadflixOfficials
+💬 For Any Help Contact @viizet
 """
 
 
@@ -83,7 +83,6 @@ For Example :-
 
 
 
-# Jishu Developer 
+# vizet Developer 
 # Don't Remove Credit 🥺
-# Telegram Channel @Madflix_Bots
-# Developer @JishuDeveloper
+# Developer @viizet
