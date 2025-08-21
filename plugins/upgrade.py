@@ -12,25 +12,23 @@ Price 0
 
 **🪙 Basic**
 Daily  Upload  limit 20GB
-Price Rs 49  ind /🌎 0.59$  per Month
+Price 🌎 0.50$  per Month
 
 **⚡ Standard**
 Daily Upload limit 50GB
-Price Rs 99  ind /🌎 1.19$  per Month
+Price 🌎 1.50$  per Month
 
 **💎 Pro**
 Daily Upload limit 100GB
-Price Rs 179  ind /🌎 2.16$  per Month
+Price 🌎 3.00$  per Month
 
 Payment Details :-
-<b>➜ UPI ID :</b> <code>madflixofficial@axl</code>
-<b>➜ PayPal :</b> <a href='https://www.paypal.me/jishudeveloper'>Click Here</a>
-<b>➜ QR Code :</b> <a href='https://telegra.ph/QR-Payment-07-24-4'>Click Here</a>
+<b>➜  :</b> <code>bc1qgar4mxqtswzq529we5hde9gnu6uzu9f0du6aek</code>
 
-After Payment Send Screenshots Of Payment To Admin @MadflixOfficials"""
+After Payment Send Screenshots Of Payment To Admin @viizet"""
     
     keybord = InlineKeyboardMarkup([
-        [InlineKeyboardButton("🦋 Admin", url = "https://t.me/calladminrobot"),
+        [InlineKeyboardButton("🦋 Admin", url = "https://t.me/Viizet"),
         InlineKeyboardButton("✖️ Cancel", callback_data="cancel")]
         ])
     
@@ -46,22 +44,19 @@ Price 0
 
 **🪙 Basic**
 Daily  Upload  limit 20GB
-Price Rs 49  ind /🌎 0.59$  per Month
+Price  🌎 0.50$  per Month
 
 **⚡ Standard**
 Daily Upload limit 50GB
-Price Rs 99  ind /🌎 1.19$  per Month
+Price  🌎 1.50$  per Month
 
 **💎 Pro**
 Daily Upload limit 100GB
-Price Rs 179  ind /🌎 2.16$  per Month
+Price  🌎 3.00$  per Month
 
 Payment Details :-
-<b>➜ UPI ID :</b> <code>madflixofficial@axl</code>
-<b>➜ PayPal :</b> <a href='https://www.paypal.me/jishudeveloper'>Click Here</a>
-<b>➜ QR Code :</b> <a href='https://telegra.ph/QR-Payment-07-24-4'>Click Here</a>
-
-After Payment Send Screenshots Of Payment To Admin @MadflixOfficials"""
+<b>➜ UPI ID :</b> <code>bc1qgar4mxqtswzq529we5hde9gnu6uzu9f0du6aek</code>
+After Payment Send Screenshots Of Payment To Admin @Viizet"""
     
     keybord = InlineKeyboardMarkup([
         [InlineKeyboardButton("🦋 Admin", url = "https://t.me/calladminrobot"),
@@ -74,8 +69,6 @@ After Payment Send Screenshots Of Payment To Admin @MadflixOfficials"""
     
     
     
-# Jishu Developer 
-# Don't Remove Credit 🥺
-# Telegram Channel @Madflix_Bots
-# Back-Up Channel @JishuBotz
-# Developer @JishuDeveloper & @MadflixOfficials
+
+
+# Developer @viizet
