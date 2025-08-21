@@ -268,3 +268,192 @@ async def vip3(bot,update):
 # Viizet Developer 
 # Telegram Channel @Phioza
 # Developer @viizet
+@Client.on_message(filters.private & filters.user(ADMIN) & filters.command(["admin"]))
+async def admin_panel(bot, message):
+    admin_text = """<b>🔧 ADMIN CONTROL PANEL</b>
+
+<b>👥 User Management:</b>
+• /users - View bot statistics
+• /broadcast - Send message to all users
+• /warn [user_id] [message] - Warn user
+• /ban [user_id] [reason] - Ban user
+• /unban [user_id] - Unban user
+• /top10 - Top 10 active users
+
+<b>💎 Premium Management:</b>
+• /addpremium - Add premium to user
+• /free - Manage free premium system
+• /removefree - Remove free premium
+
+<b>🛠️ System Commands:</b>
+• /restart - Restart the bot
+• /allcommand - Show all commands
+• /ping - Check bot response time
+
+<b>👨‍💻 Admin:</b> @viizet
+<b>📊 Channel:</b> @Phioza"""
+
+    keyboard = InlineKeyboardMarkup([
+        [InlineKeyboardButton("📊 Statistics", callback_data="admin_stats"),
+         InlineKeyboardButton("👥 Users", callback_data="admin_users")],
+        [InlineKeyboardButton("💎 Premium", callback_data="admin_premium"),
+         InlineKeyboardButton("🚫 Bans", callback_data="admin_bans")],
+        [InlineKeyboardButton("🔄 Restart Bot", callback_data="admin_restart"),
+         InlineKeyboardButton("📢 Broadcast", callback_data="admin_broadcast")],
+        [InlineKeyboardButton("✖️ Close", callback_data="cancel")]
+    ])
+    
+    await message.reply_text(admin_text, quote=True, reply_markup=keyboard)
+
+
+@Client.on_callback_query(filters.regex("admin_stats"))
+async def admin_stats_callback(bot, callback_query):
+    # Redirect to users command functionality
+    from helper.database import get_user_statistics
+    from helper.progress import humanbytes
+    
+    botdata(int(botid))
+    data = find_one(int(botid))
+    total_rename = data["total_rename"] if data and "total_rename" in data else 0
+    total_size = data["total_size"] if data and "total_size" in data else 0
+    
+    stats = get_user_statistics()
+    
+    text = f"""<b>📊 BOT STATISTICS</b>
+
+<b>👥 USER STATISTICS:</b>
+• <b>Total Users:</b> {stats['total_users']}
+• <b>Premium Users:</b> {stats['premium_users']}
+• <b>Free Users:</b> {stats['free_users']}
+• <b>Banned Users:</b> {stats['banned_users']}
+
+<b>📁 FILE STATISTICS:</b>
+• <b>Total Files Renamed:</b> {total_rename}
+• <b>Total Size Processed:</b> {humanbytes(int(total_size)) if total_size else "0 B"}
+
+<b>🤖 Bot ID:</b> <code>{botid}</code>"""
+
+    keyboard = InlineKeyboardMarkup([
+        [InlineKeyboardButton("🔄 Refresh", callback_data="refresh_stats")],
+        [InlineKeyboardButton("⬅️ Back", callback_data="admin_back"),
+         InlineKeyboardButton("✖️ Close", callback_data="cancel")]
+    ])
+    
+    await callback_query.message.edit_text(text, reply_markup=keyboard)
+
+
+@Client.on_callback_query(filters.regex("admin_back"))
+async def admin_back(bot, callback_query):
+    admin_text = """<b>🔧 ADMIN CONTROL PANEL</b>
+
+<b>👥 User Management:</b>
+• /users - View bot statistics
+• /broadcast - Send message to all users
+• /warn [user_id] [message] - Warn user
+• /ban [user_id] [reason] - Ban user
+• /unban [user_id] - Unban user
+• /top10 - Top 10 active users
+
+<b>💎 Premium Management:</b>
+• /addpremium - Add premium to user
+• /free - Manage free premium system
+• /removefree - Remove free premium
+
+<b>🛠️ System Commands:</b>
+• /restart - Restart the bot
+• /allcommand - Show all commands
+• /ping - Check bot response time
+
+<b>👨‍💻 Admin:</b> @viizet
+<b>📊 Channel:</b> @Phioza"""
+
+    keyboard = InlineKeyboardMarkup([
+        [InlineKeyboardButton("📊 Statistics", callback_data="admin_stats"),
+         InlineKeyboardButton("👥 Users", callback_data="admin_users")],
+        [InlineKeyboardButton("💎 Premium", callback_data="admin_premium"),
+         InlineKeyboardButton("🚫 Bans", callback_data="admin_bans")],
+        [InlineKeyboardButton("🔄 Restart Bot", callback_data="admin_restart"),
+         InlineKeyboardButton("📢 Broadcast", callback_data="admin_broadcast")],
+        [InlineKeyboardButton("✖️ Close", callback_data="cancel")]
+    ])
+    
+    await callback_query.message.edit_text(admin_text, reply_markup=keyboard)
+
+
+@Client.on_callback_query(filters.regex("admin_restart"))
+async def admin_restart(bot, callback_query):
+    await callback_query.message.edit_text("🔄 Restarting bot... Please wait!")
+    import os, sys
+    await asyncio.sleep(2)
+    os.execl(sys.executable, sys.executable, *sys.argv)
+
+
+@Client.on_callback_query(filters.regex("admin_broadcast"))
+async def admin_broadcast(bot, callback_query):
+    await callback_query.message.edit_text(
+        "📢 **Broadcast Instructions:**\n\n"
+        "1. Reply to any message with `/broadcast` command\n"
+        "2. The replied message will be sent to all users\n\n"
+        "**Example:**\n"
+        "Reply to a message: `/broadcast`",
+        reply_markup=InlineKeyboardMarkup([[
+            InlineKeyboardButton("⬅️ Back", callback_data="admin_back")
+        ]])
+    )
+
+
+@Client.on_callback_query(filters.regex("admin_users|admin_premium|admin_bans"))
+async def admin_info(bot, callback_query):
+    data = callback_query.data
+    
+    if data == "admin_users":
+        text = """<b>👥 USER MANAGEMENT COMMANDS</b>
+
+• `/users` - View detailed bot statistics
+• `/warn [user_id] [message]` - Send warning
+• `/ban [user_id] [reason]` - Ban user  
+• `/unban [user_id]` - Unban user
+• `/top10` - View top 10 users
+
+**Example:**
+`/warn 123456789 Please follow rules`
+`/ban 123456789 Spamming bot`
+`/unban 123456789`"""
+    
+    elif data == "admin_premium":
+        text = """<b>💎 PREMIUM MANAGEMENT COMMANDS</b>
+
+• `/addpremium` - Upgrade user to premium
+• `/free` - Manage free premium system
+• `/removefree` - Remove free premium
+
+**Premium Plans:**
+• 🪙 Basic - 20GB/day
+• ⚡ Standard - 50GB/day  
+• 💎 Pro - 100GB/day
+
+**Example:**
+Reply to user message: `/addpremium`"""
+    
+    else:  # admin_bans
+        text = """<b>🚫 BAN MANAGEMENT</b>
+
+**Ban User:**
+`/ban [user_id] [reason]`
+
+**Unban User:**  
+`/unban [user_id]`
+
+**Check Statistics:**
+Use `/users` to see banned user count
+
+**Example:**
+`/ban 123456789 Violated terms`
+`/unban 123456789`"""
+
+    keyboard = InlineKeyboardMarkup([[
+        InlineKeyboardButton("⬅️ Back", callback_data="admin_back"),
+        InlineKeyboardButton("✖️ Close", callback_data="cancel")
+    ]])
+    
+    await callback_query.message.edit_text(text, reply_markup=keyboard)
