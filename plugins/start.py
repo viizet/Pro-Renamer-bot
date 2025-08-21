@@ -15,24 +15,39 @@ from config import *
 token = BOT_TOKEN
 botid = token.split(':')[0]
 
+# Function to check if a user is banned (assuming you have a database for this)
+def is_user_banned(user_id):
+    # Replace this with your actual ban checking logic
+    # For example, querying a database for banned user IDs
+    banned_users = get_banned_users() # Assume this function exists and returns a list of banned user IDs
+    return user_id in banned_users
 
-
+# Placeholder function for getting banned users
+def get_banned_users():
+    # Replace this with your actual database query to get banned user IDs
+    # For demonstration purposes, returning an empty list
+    return []
 
 
 @Client.on_message(filters.private & filters.command(["start"]))
-async def start(client, message):
+async def start(bot, message):
+    # Check if user is banned
+    if is_user_banned(message.from_user.id):
+        await message.reply_text("🚫 **You are banned from using this bot!**\n\nContact admin: @viizet")
+        return
+
     user_id = message.chat.id
     old = insert(int(user_id))
-    
+
     try:
         id = message.text.split(' ')[1]
     except IndexError:
         id = None
 
-    
-    
+
+
     text = f"""Hello {message.from_user.mention} \n\n➻ This Is An Advanced And Yet Powerful Rename Bot.\n\n➻ Using This Bot You Can Rename And Change Thumbnail Of Your Files.\n\n➻ You Can Also Convert Video To File Aɴᴅ File To Video.\n\n➻ This Bot Also Supports Custom Thumbnail And Custom Caption.\n\n<b>Bot Is Made By @viizet</b>"""
-    
+
     button = InlineKeyboardMarkup([
         [InlineKeyboardButton("📢 Updates", url="https://t.me/Phioza"),
         InlineKeyboardButton("💬 Support", url="https://t.me/Phioza")],
@@ -40,14 +55,14 @@ async def start(client, message):
         InlineKeyboardButton("❤️‍🩹 About", callback_data='about')],
         [InlineKeyboardButton("🧑‍💻 Developer 🧑‍💻", url="https://t.me/viizet")]
         ])
-    
+
     await message.reply_photo(
         photo=START_PIC,
         caption=text,
         reply_markup=button,
         quote=True
         )
-    return    
+    return
 
 
 
@@ -55,9 +70,9 @@ async def start(client, message):
 async def send_doc(client, message):
     user_id = message.chat.id
     old = insert(int(user_id))
-        
+
     user_id = message.from_user.id
-		
+
     botdata(int(botid))
     bot_data = find_one(int(botid))
     prrename = bot_data['total_rename']
@@ -68,7 +83,7 @@ async def send_doc(client, message):
     daily = user_deta["daily"]
     user_type = user_deta["usertype"]
 
-    
+
         # Forward a single message
     media = await client.get_messages(message.chat.id, message.id)
     file = media.document or media.video or media.audio
@@ -94,7 +109,7 @@ async def send_doc(client, message):
         # Check if user has premium or free premium
         is_free_premium = user_deta.get("free_premium", False)
         has_premium = buy_date and check_expi(buy_date) if buy_date else False
-        
+
         if STRING_SESSION and (has_premium or is_free_premium):
             await message.reply_text(f"""__What Do You Want Me To Do With This File ?__\n\n**File Name :** `{filename}`\n**File Size :** {humanize.naturalsize(file.file_size)}\n**DC ID :** {dcid}""", reply_to_message_id=message.id, reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("📝 Rename", callback_data="rename"), InlineKeyboardButton("✖️ Cancel", callback_data="cancel")]]))
             total_rename(int(botid), prrename)
@@ -109,7 +124,7 @@ async def send_doc(client, message):
             if pre_check == False:
                 uploadlimit(message.from_user.id, 2147483648)
                 usertype(message.from_user.id, "Free")
-        
+
         filesize = humanize.naturalsize(file.file_size)
         fileid = file.file_id
         total_rename(int(botid), prrename)
@@ -117,6 +132,3 @@ async def send_doc(client, message):
         await message.reply_text(f"""__What Do You Want Me To Do With This File ?__\n\n**File Name :** `{filename}`\n**File Size :** {filesize}\n**DC ID :** {dcid}""", reply_to_message_id=message.id, reply_markup=InlineKeyboardMarkup(
             [[InlineKeyboardButton("📝 Rename", callback_data="rename"),
               InlineKeyboardButton("✖️ Cancel", callback_data="cancel")]]))
-              
-              
-              
