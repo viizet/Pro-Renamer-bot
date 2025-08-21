@@ -48,6 +48,7 @@ START_PIC=custom_start_image_url
 - `/del_caption` - Delete caption
 - `/myplan` - View subscription plan
 - `/upgrade` - View premium plans
+- `/Help` - Get help
 - `/ping` - Check bot status
 
 ## 🔧 Admin Commands
@@ -59,6 +60,7 @@ START_PIC=custom_start_image_url
 - `/ceasepower` - Downgrade user
 - `/resetpower` - Reset user to default
 - `/top10` - View top 10 most active users
+- `/removefree` - Remove usar free premium
 - `/allcommand` - Show all commands
 
 ## 💎 Premium Plans
