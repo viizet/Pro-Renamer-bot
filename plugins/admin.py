@@ -50,6 +50,108 @@ async def warn(c, m):
         await m.reply_text("❌ Invalid user ID format!\n\n**Usage:** `/warn <user_id> <message>`\n**Example:** `/warn 123456789 Please follow rules`")
     except Exception as e:
         await m.reply_text(f"❌ Unexpected error: {str(e)}")
+
+
+@Client.on_message(filters.private & filters.user(ADMIN) & filters.command(["ban"]))
+async def ban_user_cmd(bot, message):
+    if len(message.command) < 3:
+        await message.reply_text("**Usage:** /ban <user_id> <reason>\n\n**Example:** `/ban 123456789 Spamming the bot`")
+        return
+    
+    try:
+        user_id = int(message.command[1])
+        reason = " ".join(message.command[2:])
+        
+        # First check if user exists in database
+        from helper.database import find_one, ban_user
+        user_data = find_one(user_id)
+        if not user_data:
+            await message.reply_text(f"❌ User {user_id} not found in database!\n\nThe user must start the bot first before you can ban them.")
+            return
+        
+        # Check if user is already banned
+        if user_data.get("banned", False):
+            await message.reply_text(f"⚠️ User {user_id} is already banned!")
+            return
+        
+        # Try to get user info to verify the user exists
+        try:
+            user_info = await bot.get_users(user_id)
+            user_name = user_info.first_name
+        except Exception:
+            await message.reply_text(f"❌ Invalid user ID {user_id}!")
+            return
+        
+        # Ban the user
+        ban_user(user_id, reason)
+        
+        # Send ban notification to user
+        try:
+            await bot.send_message(
+                chat_id=user_id, 
+                text=f"🚫 **You have been banned from the bot!**\n\n**Reason:** {reason}\n\n**Contact Admin:** @viizet"
+            )
+        except Exception:
+            pass  # User might have blocked the bot
+        
+        await message.reply_text(f"✅ User {user_name} ({user_id}) has been banned successfully!\n\n**Reason:** {reason}")
+        
+    except ValueError:
+        await message.reply_text("❌ Invalid user ID format!\n\n**Usage:** `/ban <user_id> <reason>`")
+    except Exception as e:
+        await message.reply_text(f"❌ Unexpected error: {str(e)}")
+
+
+@Client.on_message(filters.private & filters.user(ADMIN) & filters.command(["unban"]))
+async def unban_user_cmd(bot, message):
+    if len(message.command) < 2:
+        await message.reply_text("**Usage:** /unban <user_id>\n\n**Example:** `/unban 123456789`")
+        return
+    
+    try:
+        user_id = int(message.command[1])
+        
+        # Check if user exists in database
+        from helper.database import find_one, unban_user, is_user_banned
+        user_data = find_one(user_id)
+        if not user_data:
+            await message.reply_text(f"❌ User {user_id} not found in database!")
+            return
+        
+        # Check if user is banned
+        if not is_user_banned(user_id):
+            await message.reply_text(f"⚠️ User {user_id} is not banned!")
+            return
+        
+        # Try to get user info
+        try:
+            user_info = await bot.get_users(user_id)
+            user_name = user_info.first_name
+        except Exception:
+            user_name = "Unknown User"
+        
+        # Unban the user
+        unban_user(user_id)
+        
+        # Send unban notification to user
+        try:
+            await bot.send_message(
+                chat_id=user_id, 
+                text=f"✅ **You have been unbanned!**\n\nYou can now use the bot again.\n\n**Contact Admin:** @viizet"
+            )
+        except Exception:
+            pass  # User might have blocked the bot
+        
+        await message.reply_text(f"✅ User {user_name} ({user_id}) has been unbanned successfully!")
+        
+    except ValueError:
+        await message.reply_text("❌ Invalid user ID format!\n\n**Usage:** `/unban <user_id>`")
+    except Exception as e:
+        await message.reply_text(f"❌ Unexpected error: {str(e)}")
+
+        await m.reply_text("❌ Invalid user ID format!\n\n**Usage:** `/warn <user_id> <message>`\n**Example:** `/warn 123456789 Please follow rules`")
+    except Exception as e:
+        await m.reply_text(f"❌ Unexpected error: {str(e)}")
             
             
 
@@ -66,26 +168,7 @@ async def buypremium(bot, message):
     
     
 
-@Client.on_message((filters.channel | filters.private) & filters.user(ADMIN) & filters.command(["ceasepower"]))
-async def ceasepremium(bot, message):
-    button = InlineKeyboardMarkup([
-        [InlineKeyboardButton("Limit 1GB", callback_data="cp1"),
-        InlineKeyboardButton("All Power Cease", callback_data="cp2")],
-        [InlineKeyboardButton("✖️ Cancel ✖️",callback_data = "cancel")]
-        ])
-	
-    await message.reply_text("😁 Power Cease Mode...", quote=True, reply_markup=button)
 
-
-
-@Client.on_message((filters.channel | filters.private) & filters.user(ADMIN) & filters.command(["resetpower"]))
-async def resetpower(bot, message):
-    button = InlineKeyboardMarkup([
-        [InlineKeyboardButton("✅ Yes",callback_data = "dft"),
-        InlineKeyboardButton("❌ No",callback_data = "cancel")]
-        ])
-        
-    await message.reply_text(text=f"Do You Really Want To Reset Daily Limit To Default Data Limit 2GB ?", quote=True, reply_markup=button)
     
 
 
@@ -109,12 +192,12 @@ async def allcommand(bot, message):
 
 <b>🔧 ADMIN COMMANDS:</b>
 • /users - View total user count
-• /allids - List all user IDs
+
 • /broadcast - Broadcast message to all users
 • /warn - Send warning to specific user
 • /addpremium - Upgrade user to premium
-• /ceasepower - Downgrade user capacity
-• /resetpower - Reset user to default plan
+• /ban - Ban user with reason
+• /unban - Unban user
 • /restart - Restart the bot
 • /admin - Show admin panel
 • /allcommand - Show all bot commands (this command)
@@ -173,64 +256,7 @@ async def vip3(bot,update):
 
 
 
-# CEASE POWER MODE 
-@Client.on_callback_query(filters.regex('cp1'))
-async def cp1(bot,update):
-    try:
-        reply_text = update.message.reply_to_message.text
-        parts = reply_text.split()
-        if len(parts) >= 2:
-            user_id = int(parts[1])
-        else:
-            await update.message.edit("❌ Invalid command format")
-            return
-        
-        uploadlimit(user_id, 2147483652)
-        usertype(user_id, "⚠️ Account Downgraded")
-        addpre(user_id)
-        await update.message.edit("✅ User downgraded to 2GB limit successfully")
-        await bot.send_message(user_id, f"⚠️ Your account has been downgraded to <b>2GB limit</b>.\n\nCheck your plan: /myplan\n\n<b>Contact Admin:</b> @viizet")
-    except Exception as e:
-        await update.message.edit(f"❌ Error: {str(e)}")
 
-@Client.on_callback_query(filters.regex('cp2'))
-async def cp2(bot,update):
-    try:
-        reply_text = update.message.reply_to_message.text
-        parts = reply_text.split()
-        if len(parts) >= 2:
-            user_id = int(parts[1])
-        else:
-            await update.message.edit("❌ Invalid command format")
-            return
-        
-        uploadlimit(user_id, 0)
-        usertype(user_id, "⚠️ Account Downgraded")
-        addpre(user_id)
-        await update.message.edit("✅ User downgraded to 0GB limit successfully")
-        await bot.send_message(user_id, f"⚠️ Your account has been downgraded to <b>0GB limit</b>.\n\nCheck your plan: /myplan\n\n<b>Contact Admin:</b> @viizet")
-    except Exception as e:
-        await update.message.edit(f"❌ Error: {str(e)}")
-
-# RESET POWER MODE
-@Client.on_callback_query(filters.regex('dft'))
-async def dft(bot,update):
-    try:
-        reply_text = update.message.reply_to_message.text
-        parts = reply_text.split()
-        if len(parts) >= 2:
-            user_id = int(parts[1])
-        else:
-            await update.message.edit("❌ Invalid command format")
-            return
-        
-        uploadlimit(user_id, 2147483652)
-        usertype(user_id, "🆓 Free")
-        addpre(user_id)
-        await update.message.edit("✅ User reset to default 2GB plan successfully")
-        await bot.send_message(user_id, f"✅ Your account has been reset to default plan.\n\nCheck your plan: /myplan\n\n<b>Contact Admin:</b> @viizet")
-    except Exception as e:
-        await update.message.edit(f"❌ Error: {str(e)}")
 
 
 
