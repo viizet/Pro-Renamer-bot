@@ -58,8 +58,5 @@ async def start(client, message):
 
 
 
-# Jishu Developer 
+# viizet Developer 
 # Don't Remove Credit 🥺
-# Telegram Channel @Madflix_Bots
-# Back-Up Channel @JishuBotz
-# Developer @JishuDeveloper & @MadflixOfficials
