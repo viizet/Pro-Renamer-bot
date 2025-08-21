@@ -59,7 +59,3 @@ async def query_metadata(bot: Client, query: CallbackQuery):
 
 
 
-# Jishu Developer 
-# Don't Remove Credit 🥺
-# Telegram Channel @JishuBotz
-# Developer @JishuDeveloper
