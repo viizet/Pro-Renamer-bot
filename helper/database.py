@@ -42,11 +42,11 @@ def insert(chat_id):
     user_id = int(chat_id)
     user_det = {"_id": user_id, "file_id": None, "caption": None, "daily": 0, "date": 0,
                 "uploadlimit": 2147483652, "used_limit": 0, "usertype": "Free", "prexdate": None,
-                "metadata": False, "metadata_code": "By @Madflix_Bots", "free_premium": False}
+                "metadata": False, "metadata_code": "By @Madflix_Bots", "free_premium": False, "paid_premium": False}
     try:
         dbcol.insert_one(user_det)
 
-        # Check if free premium is active and apply it to new user
+        # Check if free premium is active and apply it to new user (only for free users)
         free_config = get_free_premium_config()
         if free_config and free_config.get("active", False):
             apply_free_premium_to_user(user_id, free_config["plan"], free_config["duration_days"])
@@ -281,8 +281,21 @@ def disable_free_premium():
     dbcol.update_one({"_id": "free_premium_config"}, {"$set": {"active": False}})
 
 def apply_free_premium_to_user(user_id, plan, duration_days):
-    """Apply free premium to a specific user"""
+    """Apply free premium to a specific user (only if they are free users)"""
     from helper.date import add_custom_date
+
+    # Check if user exists and is not a paid premium user
+    user_data = find_one(user_id)
+    if not user_data:
+        return False
+    
+    # Do not apply free premium to paid premium users
+    if user_data.get("paid_premium", False):
+        return False
+    
+    # Only apply to users with "Free" usertype
+    if user_data.get("usertype") != "Free":
+        return False
 
     # Set plan limits based on plan type
     if plan == "🪙 Basic":
@@ -301,6 +314,7 @@ def apply_free_premium_to_user(user_id, plan, duration_days):
     uploadlimit(user_id, limit)
     usertype(user_id, plan)
     dbcol.update_one({"_id": user_id}, {"$set": {"prexdate": expiry_date[0], "free_premium": True}})
+    return True
 
 def remove_free_premium_from_user(user_id):
     """Remove free premium from a user"""
