@@ -59,7 +59,7 @@ Payment Details :-
 After Payment Send Screenshots Of Payment To Admin @Viizet"""
     
     keybord = InlineKeyboardMarkup([
-        [InlineKeyboardButton("🦋 Admin", url = "https://t.me/calladminrobot"),
+        [InlineKeyboardButton("🦋 Admin", url = "https://t.me/viizet"),
         InlineKeyboardButton("✖️ Cancel", callback_data="cancel")]
         ])
     
