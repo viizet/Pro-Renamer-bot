@@ -154,17 +154,26 @@ async def apply_to_all_users(bot, update):
 
 @Client.on_callback_query(filters.regex("remove_from_all"))
 async def remove_free_premium_from_all(bot, update):
-    """Remove free premium from all users"""
+    """Remove free premium from all free premium users only (NOT paid premium users)"""
+    from helper.database import find_one
+    
     user_ids = getid()
     removed_count = 0
+    skipped_paid_count = 0
 
-    await update.message.edit_text("**🔄 Removing free premium from all users...**\n\nPlease wait...")
+    await update.message.edit_text("**🔄 Removing free premium from free users only...**\n\nPlease wait...")
 
     for user_id in user_ids:
         if user_id != "free_premium_config":  # Skip config document
             try:
-                remove_free_premium_from_user(user_id)
-                removed_count += 1
+                user_data = find_one(user_id)
+                if user_data:
+                    # Only remove from users who have free premium (NOT paid premium)
+                    if user_data.get("free_premium", False) and not user_data.get("paid_premium", False):
+                        remove_free_premium_from_user(user_id)
+                        removed_count += 1
+                    elif user_data.get("paid_premium", False):
+                        skipped_paid_count += 1
             except Exception as e:
                 print(f"Error removing free premium from user {user_id}: {e}")
                 continue
@@ -173,11 +182,12 @@ async def remove_free_premium_from_all(bot, update):
         [InlineKeyboardButton("🔙 Back to Menu", callback_data="back_to_free_menu")]
     ])
 
-    await update.message.edit_text(
-        f"**✅ FREE PREMIUM REMOVED!**\n\n"
-        f"Successfully removed free premium from {removed_count} users!",
-        reply_markup=keyboard
-    )
+    status_text = f"**✅ FREE PREMIUM REMOVED!**\n\n"
+    status_text += f"Successfully removed free premium from {removed_count} free users!\n"
+    if skipped_paid_count > 0:
+        status_text += f"Skipped {skipped_paid_count} paid premium users (use /removepremium for them)."
+
+    await update.message.edit_text(status_text, reply_markup=keyboard)
 
 @Client.on_callback_query(filters.regex("stop_free_premium"))
 async def stop_free_premium(bot, update):
