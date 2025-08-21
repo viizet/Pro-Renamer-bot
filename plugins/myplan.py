@@ -36,9 +36,10 @@ async def start(client, message):
         if pre_check == False:
             uploadlimit(message.from_user.id, 2147483652)
             usertype(message.from_user.id, "Free")
-    # Check if user has free premium
+    # Check if user has free premium (but not paid premium)
     is_free_premium = _newus.get("free_premium", False)
-    premium_badge = " 🎁" if is_free_premium else ""
+    is_paid_premium = _newus.get("paid_premium", False)
+    premium_badge = " 🎁" if (is_free_premium and not is_paid_premium) else ""
     
     if ends == None:
         text = f"<b>User ID :</b> <code>{message.from_user.id}</code> \n<b>Name :</b> {message.from_user.mention} \n\n<b>🏷 Plan :</b> {user}{premium_badge} \n\n✓ Upload 2GB Files \n✓ Daily Upload : {humanbytes(limit)} \n✓ Today Used : {humanbytes(used)} \n✓ Remain : {humanbytes(remain)} \n✓ Timeout : 2 Minutes \n✓ Parallel process : Unlimited \n✓ Time Gap : Yes \n\n<b>Validity :</b> Lifetime"
