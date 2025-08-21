@@ -210,45 +210,7 @@ async def dft(bot,update):
 
 
 
-@Client.on_message(filters.private & filters.user(ADMIN) & filters.command(["top10"]))
-async def top10_admin(bot, message):
-    try:
-        # Get top 10 users by usage (you can modify this query based on your needs)
-        pipeline = [
-            {"$match": {"_id": {"$ne": "free_premium_config"}}},
-            {"$sort": {"used_limit": -1}},
-            {"$limit": 10}
-        ]
-        top_users = list(dbcol.aggregate(pipeline))
-        
-        if not top_users:
-            await message.reply_text("❌ No users found!")
-            return
-            
-        text = "🏆 **TOP 10 USERS**\n\n"
-        for i, user in enumerate(top_users, 1):
-            user_id = user.get("_id", "Unknown")
-            used_limit = user.get("used_limit", 0)
-            user_type = user.get("usertype", "Free")
-            
-            # Try to get user info
-            try:
-                user_info = await bot.get_users(user_id)
-                name = user_info.first_name
-            except:
-                name = "Unknown"
-            
-            text += f"**{i}.** {name} (`{user_id}`)\n"
-            text += f"   **Type:** {user_type}\n"
-            text += f"   **Used:** {humanbytes(used_limit)}\n\n"
-        
-        button = InlineKeyboardMarkup([
-            [InlineKeyboardButton("✖️ Close", callback_data="cancel")]
-        ])
-        
-        await message.reply_text(text, reply_markup=button, quote=True)
-    except Exception as e:
-        await message.reply_text(f"❌ Error: {str(e)}")
+
 
 # Viizet Developer 
 # Telegram Channel @Phioza
