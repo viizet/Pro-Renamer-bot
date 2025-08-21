@@ -76,7 +76,18 @@ async def donate(bot,update):
 
 @Client.on_callback_query(filters.regex('home'))
 async def home_callback_handler(bot, query):
-    text = f"""Hello {query.from_user.mention} \n\n➻ This Is An Advanced And Yet Powerful Rename Bot.\n\n➻ Using This Bot You Can Rename And Change Thumbnail Of Your Files.\n\n➻ You Can Also Convert Video To File Aɴᴅ File To Video.\n\n➻ This Bot Also Supports Custom Thumbnail And Custom Caption.\n\n<b>Bot Is Made By @viizet</b>"""
+    text = f"""Hello {query.from_user.mention} 👋
+
+🤖 **File Rename Bot**
+
+✨ **Features:**
+• Rename files & change thumbnails
+• Convert video ↔ file
+• Custom captions & metadata
+
+💎 **Premium:** 4GB uploads available
+
+<b>Made by @viizet</b>"""
     keybord = InlineKeyboardMarkup([  
                     [InlineKeyboardButton("📢 Updates", url="https://t.me/Phioza"),
                     InlineKeyboardButton("💬 Support", url="https://t.me/Phioza")],
