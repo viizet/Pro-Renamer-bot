@@ -1,18 +1,34 @@
-
 from pyrogram import Client, filters
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from helper.database import find_one, dbcol
 from helper.progress import humanbytes
+from config import ADMIN
 
-@Client.on_message(filters.command(["top10"]))
+@Client.on_message(filters.private & filters.user(ADMIN) & filters.command(["top10"]))
 async def top10_users(bot, message):
     try:
         # Get top 10 users by total renamed files (uploads)
         pipeline = [
             {"$match": {"_id": {"$ne": "free_premium_config"}}},
             {"$addFields": {
-                "total_rename_int": {"$toInt": {"$ifNull": ["$total_rename", "0"]}},
-                "used_limit_int": {"$toInt": {"$ifNull": ["$used_limit", "0"]}}
+                "total_rename_int": {
+                    "$toLong": {
+                        "$convert": {
+                            "input": {"$ifNull": ["$total_rename", "0"]},
+                            "to": "long",
+                            "onError": 0
+                        }
+                    }
+                },
+                "used_limit_int": {
+                    "$toLong": {
+                        "$convert": {
+                            "input": {"$ifNull": ["$used_limit", "0"]},
+                            "to": "long",
+                            "onError": 0
+                        }
+                    }
+                }
             }},
             {"$sort": {"total_rename_int": -1, "used_limit_int": -1}},
             {"$limit": 10}
@@ -36,14 +52,16 @@ async def top10_users(bot, message):
             if isinstance(used_limit, str):
                 used_limit = int(used_limit) if used_limit.isdigit() else 0
             
-            # Try to get user info (only show first name for privacy)
+            # Try to get user info including username
             try:
                 user_info = await bot.get_users(user_id)
                 name = user_info.first_name[:15] + "..." if len(user_info.first_name) > 15 else user_info.first_name
+                username = f"@{user_info.username}" if user_info.username else "No username"
             except:
                 name = "Unknown User"
+                username = "No username"
             
-            text += f"**{i}.** {name}\n"
+            text += f"**{i}.** {name} ({username})\n"
             text += f"   **📁 Files Uploaded:** {total_rename}\n"
             text += f"   **📊 Data Used:** {humanbytes(used_limit)}\n"
             text += f"   **👤 Plan:** {user_type}\n\n"
