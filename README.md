@@ -60,7 +60,9 @@ START_PIC=custom_start_image_url
 - `/ceasepower` - Downgrade user
 - `/resetpower` - Reset user to default
 - `/top10` - View top 10 most active users
-- `/removefree` - Remove usar free premium
+- `/free` - Manage free premium
+- `/admin` - Show admin panel
+- `/removefree` - Remove free premium from user
 - `/allcommand` - Show all commands
 
 ## 💎 Premium Plans
