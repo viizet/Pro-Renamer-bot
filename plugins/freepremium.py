@@ -258,8 +258,3 @@ async def remove_free_premium_cmd(bot, message):
         await message.reply_text(f"❌ **Error:** {str(e)}", quote=True)
 
 
-# Jishu Developer 
-# Don't Remove Credit 🥺
-# Telegram Channel @Madflix_Bots
-# Back-Up Channel @JishuBotz
-# Developer @JishuDeveloper & @MadflixOfficials
