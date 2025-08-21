@@ -197,6 +197,74 @@ def apply_free_premium_to_user(user_id, plan, duration_days):
 
 def remove_free_premium_from_user(user_id):
     """Remove free premium from a user"""
+
+
+def get_user_statistics():
+    """Get detailed user statistics"""
+    try:
+        # Count total users (excluding config documents)
+        total_users = dbcol.count_documents({"_id": {"$ne": "free_premium_config"}})
+        
+        # Count premium users (users with premium plans or free premium)
+        premium_users = dbcol.count_documents({
+            "_id": {"$ne": "free_premium_config"},
+            "$or": [
+                {"usertype": {"$regex": "Basic|Standard|Pro", "$options": "i"}},
+                {"free_premium": True}
+            ]
+        })
+        
+        # Count free users (users with Free usertype and no premium status)
+        free_users = dbcol.count_documents({
+            "_id": {"$ne": "free_premium_config"},
+            "usertype": "Free",
+            "$or": [
+                {"free_premium": {"$exists": False}},
+                {"free_premium": False}
+            ]
+        })
+        
+        # Count banned users
+        banned_users = dbcol.count_documents({
+            "_id": {"$ne": "free_premium_config"},
+            "banned": True
+        })
+        
+        return {
+            "total_users": total_users,
+            "premium_users": premium_users,
+            "free_users": free_users,
+            "banned_users": banned_users
+        }
+    except Exception as e:
+        print(f"Error getting user statistics: {e}")
+        return {
+            "total_users": 0,
+            "premium_users": 0,
+            "free_users": 0,
+            "banned_users": 0
+        }
+
+def ban_user(user_id, reason="No reason provided"):
+    """Ban a user"""
+    dbcol.update_one(
+        {"_id": user_id},
+        {"$set": {"banned": True, "ban_reason": reason}},
+        upsert=True
+    )
+
+def unban_user(user_id):
+    """Unban a user"""
+    dbcol.update_one(
+        {"_id": user_id},
+        {"$set": {"banned": False, "ban_reason": None}}
+    )
+
+def is_user_banned(user_id):
+    """Check if user is banned"""
+    user_data = dbcol.find_one({"_id": user_id})
+    return user_data.get("banned", False) if user_data else False
+
     dbcol.update_one(
         {"_id": user_id}, 
         {"$set": {
