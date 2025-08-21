@@ -115,7 +115,7 @@ async def change_free_premium(bot, update):
 
 @Client.on_callback_query(filters.regex("apply_to_all"))
 async def apply_to_all_users(bot, update):
-    """Apply free premium to all existing users"""
+    """Apply free premium to all existing free users only"""
     config = get_free_premium_config()
 
     if not config or not config.get("active", False):
@@ -125,15 +125,20 @@ async def apply_to_all_users(bot, update):
     # Get all user IDs
     user_ids = getid()
     applied_count = 0
+    skipped_count = 0
 
-    await update.message.edit_text("**🔄 Applying free premium to all users...**\n\nPlease wait...")
+    await update.message.edit_text("**🔄 Applying free premium to free users only...**\n\nPlease wait...")
 
     for user_id in user_ids:
         if user_id != "free_premium_config":  # Skip config document
             try:
-                apply_free_premium_to_user(user_id, config["plan"], config["duration_days"])
-                applied_count += 1
+                success = apply_free_premium_to_user(user_id, config["plan"], config["duration_days"])
+                if success:
+                    applied_count += 1
+                else:
+                    skipped_count += 1
             except:
+                skipped_count += 1
                 continue
 
     keyboard = InlineKeyboardMarkup([
@@ -142,7 +147,8 @@ async def apply_to_all_users(bot, update):
 
     await update.message.edit_text(
         f"**✅ FREE PREMIUM APPLIED!**\n\n"
-        f"Successfully applied {config['plan']} for {config['duration_days']} days to {applied_count} users!",
+        f"Successfully applied {config['plan']} for {config['duration_days']} days to {applied_count} free users!\n"
+        f"Skipped {skipped_count} paid premium users.",
         reply_markup=keyboard
     )
 
