@@ -224,10 +224,13 @@ async def allcommand(bot, message):
 async def vip1(bot,update):
     id = update.message.reply_to_message.text.split("/addpremium")
     user_id = id[1].replace(" ", "")
+    from helper.database import dbcol
     inlimit  = 21474836500
     uploadlimit(int(user_id),21474836500)
     usertype(int(user_id),"🪙 Basic")
     addpre(int(user_id))
+    # Mark as paid premium and remove free premium
+    dbcol.update_one({"_id": int(user_id)}, {"$set": {"paid_premium": True, "free_premium": False}})
     await update.message.edit("Added Successfully To Premium Upload Limit 20 GB")
     await bot.send_message(user_id, f"Hey {update.from_user.mention} \n\nYou Are Upgraded To <b>🪙 Basic</b>. Check Your Plan Here /myplan")
 
@@ -237,10 +240,13 @@ async def vip1(bot,update):
 async def vip2(bot,update):
     id = update.message.reply_to_message.text.split("/addpremium")
     user_id = id[1].replace(" ", "")
+    from helper.database import dbcol
     inlimit = 53687091200
     uploadlimit(int(user_id), 53687091200)
     usertype(int(user_id),"⚡ Standard")
     addpre(int(user_id))
+    # Mark as paid premium and remove free premium
+    dbcol.update_one({"_id": int(user_id)}, {"$set": {"paid_premium": True, "free_premium": False}})
     await update.message.edit("Added Successfully To Premium Upload Limit 50 GB")
     await bot.send_message(user_id, f"Hey {update.from_user.mention} \n\nYou Are Upgraded To <b>⚡ Standard</b>. Check Your Plan Here /myplan")
 
@@ -250,10 +256,13 @@ async def vip2(bot,update):
 async def vip3(bot,update):
     id = update.message.reply_to_message.text.split("/addpremium")
     user_id = id[1].replace(" ", "")
+    from helper.database import dbcol
     inlimit = 107374182400
     uploadlimit(int(user_id), 107374182400)
     usertype(int(user_id),"💎 Pro")
     addpre(int(user_id))
+    # Mark as paid premium and remove free premium
+    dbcol.update_one({"_id": int(user_id)}, {"$set": {"paid_premium": True, "free_premium": False}})
     await update.message.edit("Added Successfully To Premium Upload Limit 100 GB")
     await bot.send_message(user_id, f"Hey {update.from_user.mention} \n\nYou Are Upgraded To <b>💎 Pro</b>. Check Your Plan Here /myplan")
 
