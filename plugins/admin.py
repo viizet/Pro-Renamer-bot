@@ -105,7 +105,7 @@ async def allcommand(bot, message):
 • /upgrade - View premium plans
 • /donate - Support the developer
 • /help - Get help information
-• /top10 - View top 10 users
+
 
 <b>🔧 ADMIN COMMANDS:</b>
 • /users - View total user count
