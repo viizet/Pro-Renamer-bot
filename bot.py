@@ -14,7 +14,7 @@ web_app = Flask(__name__)
 
 @web_app.route('/')
 def hello_world():
-    return '@JishuDeveloper - Bot is running!'
+    return '@viizet - Bot is running!'
 
 @web_app.route('/health')
 def health():
@@ -44,8 +44,8 @@ else:
 
 
 
-# Jishu Developer 
+# VIIZET Developer 
 # Don't Remove Credit 🥺
-# Telegram Channel @Madflix_Bots
-# Back-Up Channel @JishuBotz
-# Developer @JishuDeveloper
+# Telegram Channel @Phioza
+# Back-Up Channel @Phioza
+# Developer @viizet
