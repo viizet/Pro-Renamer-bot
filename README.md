@@ -4,20 +4,46 @@ A powerful Telegram bot for renaming files with custom thumbnails, premium featu
 
 ## ✨ Features
 
-- **File Renaming** - Rename any file type with custom names
-- **Custom Thumbnails** - Set thumbnails for videos and documents  
-- **Custom Captions** - Add personalized captions to files
-- **Format Conversion** - Convert videos to documents and vice versa
-- **Premium Plans** - Multiple subscription tiers (Free, Basic, Standard, Pro)
-- **Admin Controls** - User management with ban/unban functionality
-- **Statistics Dashboard** - Real-time user statistics with refresh
-- **Free Premium System** - Automated premium distribution
+🚀 **Fast File Renaming** - Rename files quickly and efficiently
+📁 **4GB File Support** - Handle large files with premium upgrade
+🖼️ **Custom Thumbnails** - Set permanent custom thumbnails
+📝 **Custom Captions** - Add personalized captions to files
+📢 **Broadcast System** - Send messages to all users (Admin only)
+🔄 **File Conversion** - Convert between video and file formats
+⚡ **Unlimited Renaming** - No limits on concurrent operations
+🎨 **Custom Start Picture** - Personalized bot interface
+💎 **Premium Plans** - Multiple subscription tiers (Free, Basic, Standard, Pro)
+🛡️ **Admin Controls** - User management with ban/unban functionality
+📊 **Statistics Dashboard** - Real-time user statistics with refresh
+🎁 **Free Premium System** - Automated premium distribution
+
+## 🚀 Hosting Platforms
+
+✅ **This bot works on multiple hosting platforms:**
+
+- **🟢 Replit** - Ready to deploy (current platform)
+- **🟣 Render** - Configured with Procfile
+- **🟡 Heroku** - Configured with app.json and buildpacks
+- **🔵 Docker** - Dockerfile and docker-compose included
+- **⚫ VPS/Cloud** - Works on any Linux server
 
 ## 🚀 Quick Setup
 
+### For Replit:
 1. **Fork** this repository to Replit
 2. **Configure** environment variables in Secrets tab
 3. **Click Run** to start the bot
+
+### For Render/Heroku:
+1. **Deploy** using the respective platform's deployment methods
+2. **Set** environment variables in platform settings
+3. **Start** the worker process automatically
+
+### For Docker/VPS:
+1. **Clone** the repository
+2. **Install** dependencies: `pip install -r requirements.txt`
+3. **Set** environment variables
+4. **Run** with: `python3 bot.py`
 
 ## ⚙️ Environment Variables
 
@@ -41,13 +67,13 @@ START_PIC=custom_start_image_url
 
 ## 💎 Premium Plans
 
-- **🆓 Free** - 2GB daily upload limit
-- **🪙 Basic** - 20GB daily upload limit
-- **⚡ Standard** - 50GB daily upload limit  
-- **💎 Pro** - 100GB daily upload limit
+- **🆓 Free** - 15GB daily upload limit, 2GB max file size
+- **🪙 Basic** - 60GB daily upload limit, 2GB max file size
+- **⚡ Standard** - 60GB daily upload limit, 4GB max file size  
+- **💎 Pro** - 150GB daily upload limit, 4GB max file size
 
 ### Premium Benefits
-✅ High priority processing • ✅ Upload large files (4GB) • ✅ No timeout delays • ✅ Unlimited parallel processing
+✅ High priority processing • ✅ Upload large files (4GB for Standard/Pro) • ✅ No timeout delays • ✅ Unlimited parallel processing
 
 ## 👥 User Commands
 
@@ -82,7 +108,7 @@ START_PIC=custom_start_image_url
 - **Framework:** Pyrogram v2
 - **Database:** MongoDB
 - **Language:** Python 3.12+
-- **Deployment:** Replit Ready
+- **Deployment:** Rander Ready
 - **Web Server:** Flask health checks
 
 ## 🔒 Security Features
@@ -119,9 +145,29 @@ The admin panel provides:
 
 ## 🚀 Getting Started
 
-1. **Deploy** - Fork to Replit and set environment variables
+### Platform-Specific Instructions:
+
+**Replit:**
+1. **Deploy** - Fork to Replit and set environment variables in Secrets
 2. **Configure** - Set up MongoDB connection
 3. **Start** - Click Run button
+
+**Render:**
+1. **Connect** your GitHub repository to Render
+2. **Set** environment variables in Render dashboard
+3. **Deploy** - Automatic deployment with Procfile configuration
+
+**Heroku:**
+1. **Deploy** using Heroku CLI or GitHub integration
+2. **Configure** environment variables via Heroku Config Vars
+3. **Enable** worker dyno for bot operation
+
+**Docker/VPS:**
+1. **Clone** repository and install dependencies
+2. **Set** environment variables in system or .env file
+3. **Run** with `python3 bot.py` or use Docker containers
+
+### Common Setup:
 4. **Admin** - Add your user ID to ADMIN variable
 5. **Premium** - Configure free premium system as needed
 
