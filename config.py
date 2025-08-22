@@ -45,8 +45,8 @@ START_PIC = os.environ.get("START_PIC", "https://graph.org/file/ad48ac09b1e6f30d
 
 
 
-# Jishu Developer 
+# VIIZET Developer 
 # Don't Remove Credit 🥺
-# Telegram Channel @Madflix_Bots
-# Backup Channel @JishuBotz
-# Developer @JishuDeveloper
+# Telegram Channel @Phioza
+# Backup Channel @Phioza
+# Developer @viizet
