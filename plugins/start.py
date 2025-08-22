@@ -63,18 +63,7 @@ async def start(bot, message):
 
 
 
-    text = f"""Hello {message.from_user.mention} 👋
-
-🤖 **File Rename Bot**
-
-✨ **Features:**
-• Rename files & change thumbnails
-• Convert video ↔ file
-• Custom captions & metadata
-
-💎 **Premium:** 4GB uploads available
-
-<b>Made by @viizet</b>"""
+    text = f"""Hello {message.from_user.mention} \n\n➻ This Is An Advanced And Yet Powerful Rename Bot.\n\n➻ Using This Bot You Can Rename And Change Thumbnail Of Your Files.\n\n➻ You Can Also Convert Video To File Aɴᴅ File To Video.\n\n➻ This Bot Also Supports Custom Thumbnail And Custom Caption.\n\n<b>Bot Is Made By @viizet</b>"""
 
     button = InlineKeyboardMarkup([
         [InlineKeyboardButton("📢 Updates", url="https://t.me/Phioza"),
@@ -143,17 +132,17 @@ async def send_doc(client, message):
     if remain < int(file.file_size):
         await message.reply_text(f"100% Of Daily {humanbytes(limit)} Data Quota Exhausted.\n\n<b>File Size Detected :</b> {humanbytes(file.file_size)}\n<b>Used Daily Limit :</b> {humanbytes(used)}\n\nYou Have Only <b>{humanbytes(remain)}</b> Left On Your Account.\n\nIf U Want To Rename Large File Upgrade Your Plan", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("💳 Upgrade", callback_data="upgrade")]]))
         return
-    # Check if user has premium or free premium BEFORE checking file size
-    is_free_premium = user_deta.get("free_premium", False)
-    has_premium = buy_date and check_expi(buy_date) if buy_date else False
-    
     if value < file.file_size:
+        # Check if user has premium or free premium
+        is_free_premium = user_deta.get("free_premium", False)
+        has_premium = buy_date and check_expi(buy_date) if buy_date else False
+
         if STRING_SESSION and (has_premium or is_free_premium):
             await message.reply_text(f"""__What Do You Want Me To Do With This File ?__\n\n**File Name :** `{filename}`\n**File Size :** {humanize.naturalsize(file.file_size)}\n**DC ID :** {dcid}""", reply_to_message_id=message.id, reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("📝 Rename", callback_data="rename"), InlineKeyboardButton("✖️ Cancel", callback_data="cancel")]]))
             total_rename(int(botid), prrename)
             total_size(int(botid), prsize, file.file_size)
         else:
-            await message.reply_text(f"**Can't upload files bigger than {humanize.naturalsize(value)}**\n\n**File Name:** `{filename}`\n**File Size:** {humanize.naturalsize(file.file_size)}\n\nYour Plan Doesn't Allow To Upload Files That Are Larger Than 2GB.\n\nUpgrade Your Plan To Rename Files Larger Than 2GB.", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("💳 Upgrade", callback_data="upgrade")]]))
+            await message.reply_text("You Can't Upload More Than 2GB File.\n\nYour Plan Doesn't Allow To Upload Files That Are Larger Than 2GB.\n\nUpgrade Your Plan To Rename Files Larger Than 2GB.", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("💳 Upgrade", callback_data="upgrade")]]))
             return
     else:
         # Check if premium expired and reset to free if needed
