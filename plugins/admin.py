@@ -273,7 +273,7 @@ async def allcommand(bot, message):
     await message.reply_text(commands_text, quote=True, reply_markup=button)
 
 
-# PREMIUM POWER MODE @JISHUDEVELOPER
+# PREMIUM POWER MODE @viizet
 @Client.on_callback_query(filters.regex('vip1'))
 async def vip1(bot,update):
     id = update.message.reply_to_message.text.split("/addpremium")
