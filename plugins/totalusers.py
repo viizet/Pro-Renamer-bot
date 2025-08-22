@@ -78,8 +78,3 @@ async def refresh_stats(client, callback_query):
         await callback_query.answer(f"❌ Error refreshing: {str(e)}", show_alert=True)
 
 
-# Jishu Developer 
-# Don't Remove Credit 🥺
-# Telegram Channel @Madflix_Bots
-# Back-Up Channel @JishuBotz
-# Developer @JishuDeveloper & @MadflixOfficials
