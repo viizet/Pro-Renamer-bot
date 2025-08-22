@@ -281,7 +281,7 @@ def disable_free_premium():
     dbcol.update_one({"_id": "free_premium_config"}, {"$set": {"active": False}})
 
 def apply_free_premium_to_user(user_id, plan, duration_days):
-    """Apply free premium to a specific user (only if they are free users)"""
+    """Apply free premium to a specific user (only if they are free users or existing free premium users)"""
     from helper.date import add_custom_date
 
     # Check if user exists and is not a paid premium user
@@ -293,8 +293,12 @@ def apply_free_premium_to_user(user_id, plan, duration_days):
     if user_data.get("paid_premium", False):
         return False
     
-    # Only apply to users with "Free" usertype
-    if user_data.get("usertype") != "Free":
+    # Only apply to users with "Free" usertype OR existing free premium users
+    current_usertype = user_data.get("usertype")
+    has_free_premium = user_data.get("free_premium", False)
+    
+    # Skip if user has paid premium or if they're not free/free-premium users
+    if current_usertype != "Free" and not has_free_premium:
         return False
 
     # Set plan limits based on plan type
