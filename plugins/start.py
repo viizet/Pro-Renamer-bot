@@ -138,13 +138,41 @@ async def send_doc(client, message):
         has_premium = buy_date and check_expi(buy_date) if buy_date else False
 
         if STRING_SESSION and (has_premium or is_free_premium):
+            # Check plan-specific file size limits for premium users
+            user_plan = user_deta.get("usertype", "Free")
+            max_file_size = 2147483648  # 2GB default
+            
+            # Basic plan: 2GB max file size
+            if "Basic" in user_plan:
+                max_file_size = 2147483648  # 2GB
+            # Standard and Pro plans: 4GB max file size  
+            elif "Standard" in user_plan or "Pro" in user_plan:
+                max_file_size = 4294967296  # 4GB
+                
+            if file.file_size > max_file_size:
+                size_limit = "2GB" if "Basic" in user_plan else "4GB"
+                await message.reply_text(f"❌ **File Too Large!**\n\nCan't upload files bigger than **{size_limit}**\n\n**File Size:** {humanize.naturalsize(file.file_size)}\n**Your Plan:** {user_plan}\n**Max File Size:** {size_limit}\n\nUpgrade to Standard or Pro for 4GB file support.", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("💳 Upgrade", callback_data="upgrade")]]))
+                return
+                
             await message.reply_text(f"""__What Do You Want Me To Do With This File ?__\n\n**File Name :** `{filename}`\n**File Size :** {humanize.naturalsize(file.file_size)}\n**DC ID :** {dcid}""", reply_to_message_id=message.id, reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("📝 Rename", callback_data="rename"), InlineKeyboardButton("✖️ Cancel", callback_data="cancel")]]))
             total_rename(int(botid), prrename)
             total_size(int(botid), prsize, file.file_size)
         else:
-            await message.reply_text("You Can't Upload More Than 2GB File.\n\nYour Plan Doesn't Allow To Upload Files That Are Larger Than 2GB.\n\nUpgrade Your Plan To Rename Files Larger Than 2GB.", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("💳 Upgrade", callback_data="upgrade")]]))
+            await message.reply_text("❌ **File Too Large!**\n\nCan't upload files bigger than **2GB**\n\n**File Size:** {}\n**Your Plan:** Free\n**Max File Size:** 2GB\n\nUpgrade Your Plan To Rename Files Larger Than 2GB.".format(humanize.naturalsize(file.file_size)), reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("💳 Upgrade", callback_data="upgrade")]]))
             return
     else:
+        # For files under 2GB, check if Basic users are trying to upload files over 2GB
+        is_free_premium = user_deta.get("free_premium", False)
+        has_premium = buy_date and check_expi(buy_date) if buy_date else False
+        user_plan = user_deta.get("usertype", "Free")
+        
+        # Basic plan users have 2GB file size limit even for smaller overall files
+        if (has_premium or is_free_premium) and "Basic" in user_plan:
+            basic_limit = 2147483648  # 2GB
+            if file.file_size > basic_limit:
+                await message.reply_text(f"❌ **File Too Large!**\n\nCan't upload files bigger than **2GB**\n\n**File Size:** {humanize.naturalsize(file.file_size)}\n**Your Plan:** {user_plan}\n**Max File Size:** 2GB\n\nUpgrade to Standard or Pro for 4GB file support.", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("💳 Upgrade", callback_data="upgrade")]]))
+                return
+
         # Check if premium expired and reset to free if needed
         if buy_date:
             pre_check = check_expi(buy_date)
