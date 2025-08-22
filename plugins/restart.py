@@ -16,7 +16,7 @@ async def stop_button(bot, message):
 
 
 
-# viizet Jishu Developer 
+# viizet  
 # Don't Remove Credit 🥺
 # Telegram Channel @Phioza
 # Back-Up Channel @Phioza
