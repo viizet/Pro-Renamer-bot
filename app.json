@@ -56,7 +56,7 @@
         
         "DATABASE_NAME":{ 
             "description":"Your Mongo DB Database Name",
-            "value": "JishuBotz",
+            "value": "viizet",
             "required": false
         },
         
