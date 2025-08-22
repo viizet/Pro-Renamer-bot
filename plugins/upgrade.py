@@ -6,21 +6,27 @@ from pyrogram import Client , filters
 
 @Client.on_callback_query(filters.regex('upgrade'))
 async def upgrade(bot,update):
-    text = """**Free Plan User**
-Daily  Upload limit 2GB
-Price 0
+    text = """**📢 Upload Limits & Plans**
 
-**🪙 Basic**
-Daily  Upload  limit 20GB
-Price 🌎 0.50$  per Month
+**✅ Free Users**
+Daily Upload Limit: 15GB
+Max File Size: 2GB
+Price: Free
 
-**⚡ Standard**
-Daily Upload limit 50GB
-Price 🌎 1.50$  per Month
+**🪙 Basic Users**
+Daily Upload Limit: 60GB
+Max File Size: 2GB
+Price: 🌎 0.50$ per Month
 
-**💎 Pro**
-Daily Upload limit 100GB
-Price 🌎 3.00$  per Month
+**⚡ Standard Users**
+Daily Upload Limit: 60GB
+Max File Size: 4GB
+Price: 🌎 1.50$ per Month
+
+**💎 Pro Users**
+Daily Upload Limit: 150GB
+Max File Size: 4GB
+Price: 🌎 3.00$ per Month
 
 Payment Details :-
 <b>➜ BITCOIN :</b> <code>Soon</code>
@@ -38,21 +44,27 @@ After Payment Send Screenshots Of Payment To Admin @viizet"""
 
 @Client.on_message(filters.private & filters.command(["upgrade"]))
 async def upgradecm(bot,message):
-    text = """**Free Plan User**
-Daily  Upload limit 2GB
-Price 0
+    text = """**📢 Upload Limits & Plans**
 
-**🪙 Basic**
-Daily  Upload  limit 20GB
-Price  🌎 0.50$  per Month
+**✅ Free Users**
+Daily Upload Limit: 15GB
+Max File Size: 2GB
+Price: Free
 
-**⚡ Standard**
-Daily Upload limit 50GB
-Price  🌎 1.50$  per Month
+**🪙 Basic Users**
+Daily Upload Limit: 60GB
+Max File Size: 2GB
+Price: 🌎 0.50$ per Month
 
-**💎 Pro**
-Daily Upload limit 100GB
-Price  🌎 3.00$  per Month
+**⚡ Standard Users**
+Daily Upload Limit: 60GB
+Max File Size: 4GB
+Price: 🌎 1.50$ per Month
+
+**💎 Pro Users**
+Daily Upload Limit: 150GB
+Max File Size: 4GB
+Price: 🌎 3.00$ per Month
 
 Payment Details :-
 <b>➜ BITCOIN :</b> <code>Soon</code>
