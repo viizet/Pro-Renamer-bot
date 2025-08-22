@@ -4,17 +4,17 @@ A powerful Telegram bot for renaming files with custom thumbnails, premium featu
 
 ## ✨ Features
 
-🚀 **Fast File Renaming** - Rename files quickly and efficiently
-📁 **4GB File Support** - Handle large files with premium upgrade
-🖼️ **Custom Thumbnails** - Set permanent custom thumbnails
-📝 **Custom Captions** - Add personalized captions to files
-📢 **Broadcast System** - Send messages to all users (Admin only)
-🔄 **File Conversion** - Convert between video and file formats
-⚡ **Unlimited Renaming** - No limits on concurrent operations
-🎨 **Custom Start Picture** - Personalized bot interface
-💎 **Premium Plans** - Multiple subscription tiers (Free, Basic, Standard, Pro)
-🛡️ **Admin Controls** - User management with ban/unban functionality
-📊 **Statistics Dashboard** - Real-time user statistics with refresh
+🚀 **Fast File Renaming** - Rename files quickly and efficiently  
+📁 **4GB File Support** - Handle large files with premium upgrade  
+🖼️ **Custom Thumbnails** - Set permanent custom thumbnails  
+📝 **Custom Captions** - Add personalized captions to files  
+📢 **Broadcast System** - Send messages to all users (Admin only)  
+🔄 **File Conversion** - Convert between video and file formats  
+⚡ **Unlimited Renaming** - No limits on concurrent operations  
+🎨 **Custom Start Picture** - Personalized bot interface  
+💎 **Premium Plans** - Multiple subscription tiers (Free, Basic, Standard, Pro)  
+🛡️ **Admin Controls** - User management with ban/unban functionality  
+📊 **Statistics Dashboard** - Real-time user statistics with refresh  
 🎁 **Free Premium System** - Automated premium distribution
 
 ## 🚀 Hosting Platforms
@@ -108,7 +108,7 @@ START_PIC=custom_start_image_url
 - **Framework:** Pyrogram v2
 - **Database:** MongoDB
 - **Language:** Python 3.12+
-- **Deployment:** Rander Ready
+- **Deployment:** Replit Ready
 - **Web Server:** Flask health checks
 
 ## 🔒 Security Features
@@ -139,7 +139,7 @@ The admin panel provides:
 
 ## 📞 Support
 
-- **Developer:** [@viizet](https://t.me/viizet)
+- **Developer:** [@VIIZET](https://t.me/VIIZET)
 - **Channel:** [@Phioza](https://t.me/Phioza)
 - **Support:** [@Phioza](https://t.me/Phioza)
 
@@ -168,8 +168,8 @@ The admin panel provides:
 3. **Run** with `python3 bot.py` or use Docker containers
 
 ### Common Setup:
-4. **Admin** - Add your user ID to ADMIN variable
-5. **Premium** - Configure free premium system as needed
+1. **Admin** - Add your user ID to ADMIN variable
+2. **Premium** - Configure free premium system as needed
 
 ## 📝 License
 
@@ -177,9 +177,8 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 ## 🙏 Credits
 
-Made with ❤️ by [@viizet](https://t.me/viizet)
+Made with ❤️ by [@VIIZET](https://t.me/VIIZET)
 
 ---
-
 
 ⚠️ **Important:** Keep credentials secure • Regular database backups recommended • Monitor performance through admin panel
