@@ -34,7 +34,7 @@ async def start(client, message):
     if ends:
         pre_check = check_expi(ends)
         if pre_check == False:
-            uploadlimit(message.from_user.id, 2147483652)
+            uploadlimit(message.from_user.id, 16106127360)  # 15GB for free users
             usertype(message.from_user.id, "Free")
     # Check if user has free premium (but not paid premium)
     is_free_premium = _newus.get("free_premium", False)
@@ -42,13 +42,22 @@ async def start(client, message):
     premium_badge = " 🎁" if (is_free_premium and not is_paid_premium) else ""
     
     if ends == None:
-        text = f"<b>User ID :</b> <code>{message.from_user.id}</code> \n<b>Name :</b> {message.from_user.mention} \n\n<b>🏷 Plan :</b> {user}{premium_badge} \n\n✓ Upload 2GB Files \n✓ Daily Upload : {humanbytes(limit)} \n✓ Today Used : {humanbytes(used)} \n✓ Remain : {humanbytes(remain)} \n✓ Timeout : 2 Minutes \n✓ Parallel process : Unlimited \n✓ Time Gap : Yes \n\n<b>Validity :</b> Lifetime"
+        text = f"<b>User ID :</b> <code>{message.from_user.id}</code> \n<b>Name :</b> {message.from_user.mention} \n\n<b>🏷 Plan :</b> {user}{premium_badge} \n\n✓ Max File Size: 2GB \n✓ Daily Upload : {humanbytes(limit)} \n✓ Today Used : {humanbytes(used)} \n✓ Remain : {humanbytes(remain)} \n✓ Timeout : 2 Minutes \n✓ Parallel process : Unlimited \n✓ Time Gap : Yes \n\n<b>Validity :</b> Lifetime"
     else:
         normal_date = datetime.fromtimestamp(ends).strftime('%Y-%m-%d')
         plan_info = f"{user}{premium_badge}"
         if is_free_premium:
             plan_info += " (Free Premium)"
-        text = f"<b>User ID :</b> <code>{message.from_user.id}</code> \n<b>Name :</b> {message.from_user.mention} \n\n<b>🏷 Plan :</b> {plan_info} \n\n✓ High Priority \n✓ Upload 4GB Files \n✓ Daily Upload : {humanbytes(limit)} \n✓ Today Used : {humanbytes(used)} \n✓ Remain : {humanbytes(remain)} \n✓ Timeout : 0 Second \n✓ Parallel process : Unlimited \n✓ Time Gap : Yes \n\n<b>Your Plan Ends On :</b> {normal_date}"
+        
+        # Determine max file size based on plan
+        if "Basic" in user:
+            max_file_size = "2GB"
+        elif "Standard" in user or "Pro" in user:
+            max_file_size = "4GB"
+        else:
+            max_file_size = "2GB"
+            
+        text = f"<b>User ID :</b> <code>{message.from_user.id}</code> \n<b>Name :</b> {message.from_user.mention} \n\n<b>🏷 Plan :</b> {plan_info} \n\n✓ High Priority \n✓ Max File Size: {max_file_size} \n✓ Daily Upload : {humanbytes(limit)} \n✓ Today Used : {humanbytes(used)} \n✓ Remain : {humanbytes(remain)} \n✓ Timeout : 0 Second \n✓ Parallel process : Unlimited \n✓ Time Gap : Yes \n\n<b>Your Plan Ends On :</b> {normal_date}"
 
     if user == "Free":
         await message.reply(text, quote=True, reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("💳 Upgrade", callback_data="upgrade"), InlineKeyboardButton("✖️ Cancel", callback_data="cancel")]]))
