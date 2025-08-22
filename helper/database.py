@@ -41,7 +41,7 @@ def total_size(chat_id, total_size, now_file_size):
 def insert(chat_id):
     user_id = int(chat_id)
     user_det = {"_id": user_id, "file_id": None, "caption": None, "daily": 0, "date": 0,
-                "uploadlimit": 2147483652, "used_limit": 0, "usertype": "Free", "prexdate": None,
+                "uploadlimit": 16106127360, "used_limit": 0, "usertype": "Free", "prexdate": None,
                 "metadata": False, "metadata_code": "By @Madflix_Bots", "free_premium": False, "paid_premium": False}
     try:
         dbcol.insert_one(user_det)
@@ -246,13 +246,13 @@ def apply_free_premium_to_user(user_id, plan, duration_days):
 
     # Set premium limits based on plan
     if "Basic" in plan:
-        limit = 21474836480  # 20GB
+        limit = 64424509440  # 60GB
     elif "Standard" in plan:
-        limit = 53687091200  # 50GB
+        limit = 64424509440  # 60GB
     elif "Pro" in plan:
-        limit = 107374182400  # 100GB
+        limit = 161061273600  # 150GB
     else:
-        limit = 21474836480  # Default to Basic
+        limit = 64424509440  # Default to Basic
 
     dbcol.update_one(
         {"_id": user_id}, 
@@ -303,13 +303,13 @@ def apply_free_premium_to_user(user_id, plan, duration_days):
 
     # Set plan limits based on plan type
     if plan == "🪙 Basic":
-        limit = 21474836500  # 20GB
+        limit = 64424509440  # 60GB
     elif plan == "⚡ Standard":
-        limit = 53687091200  # 50GB
+        limit = 64424509440  # 60GB
     elif plan == "💎 Pro":
-        limit = 107374182400  # 100GB
+        limit = 161061273600  # 150GB
     else:
-        limit = 2147483652  # Default 2GB
+        limit = 16106127360  # Default 15GB
 
     # Calculate expiry date
     expiry_date = add_custom_date(duration_days)
@@ -324,7 +324,7 @@ def remove_free_premium_from_user(user_id):
     """Remove free premium from a user (only if they are free premium, not paid premium)"""
     user_data = find_one(user_id)
     if user_data and user_data.get("free_premium", False) and not user_data.get("paid_premium", False):
-        uploadlimit(user_id, 2147483652)  # Reset to 2GB
+        uploadlimit(user_id, 16106127360)  # Reset to 15GB (correct free user limit)
         usertype(user_id, "Free")
         dbcol.update_one({"_id": user_id}, {"$set": {"prexdate": None, "free_premium": False}})
         return True
