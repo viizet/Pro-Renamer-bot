@@ -88,6 +88,7 @@ async def doc(bot, update):
 
     # Metadata
     _bool_metadata = find(int(message.chat.id))[2]
+    metadata_path = None
     if _bool_metadata:
         metadata = find(int(message.chat.id))[3]
         metadata_path = f"Metadata/{new_filename}"
@@ -95,10 +96,28 @@ async def doc(bot, update):
     else:
         await ms.edit("🚀 Mode Changing...  ⚡")
 
+    # Rename the downloaded file to the new filename
     splitpath = path.split("/downloads/")
-    dow_file_name = splitpath[1]
-    old_file_name = f"downloads/{dow_file_name}"
-    os.rename(old_file_name, file_path)
+    if len(splitpath) > 1:
+        dow_file_name = splitpath[1]
+        old_file_name = f"downloads/{dow_file_name}"
+        if os.path.exists(old_file_name):
+            os.rename(old_file_name, file_path)
+        elif os.path.exists(path):
+            os.rename(path, file_path)
+    else:
+        if os.path.exists(path):
+            os.rename(path, file_path)
+    
+    # Verify file exists and has size
+    if not os.path.exists(file_path):
+        await ms.edit("❌ Error: File not found after processing")
+        return
+    
+    if os.path.getsize(file_path) == 0:
+        await ms.edit("❌ Error: File size is 0 bytes")
+        os.remove(file_path)
+        return
     user_id = int(update.message.chat.id)
     data = find(user_id)
 
@@ -140,6 +159,8 @@ async def doc(bot, update):
             await ms.delete()
 
             os.remove(file_path)
+            if metadata_path and os.path.exists(metadata_path):
+                os.remove(metadata_path)
             try: os.remove(ph_path)
             except: pass
 
@@ -148,6 +169,8 @@ async def doc(bot, update):
             used_limit(update.from_user.id, neg_used)
             await ms.edit(str(e))
             os.remove(file_path)
+            if metadata_path and os.path.exists(metadata_path):
+                os.remove(metadata_path)
             try: os.remove(ph_path)
             except: return
     else:
@@ -161,12 +184,17 @@ async def doc(bot, update):
                                     progress_args=("🚀 Try To Uploading...  ⚡", ms, c_time))
             await ms.delete()
             os.remove(file_path)
+            if metadata_path and os.path.exists(metadata_path):
+                os.remove(metadata_path)
 
         except Exception as e:
             neg_used = used - int(file.file_size)
             used_limit(update.from_user.id, neg_used)
             await ms.edit(str(e))
-            os.remove(file_path)
+            if os.path.exists(file_path):
+                os.remove(file_path)
+            if metadata_path and os.path.exists(metadata_path):
+                os.remove(metadata_path)
 
 
 # -------------- VID & AUD same change (resize_thumb replace)
@@ -205,7 +233,8 @@ async def vid(bot, update):
             return
         
         # Metadata Adding Code
-        _bool_metadata = find(int(message.chat.id))[2] 
+        _bool_metadata = find(int(message.chat.id))[2]
+        metadata_path = None
         
         if _bool_metadata:
             metadata = find(int(message.chat.id))[3]
@@ -214,10 +243,28 @@ async def vid(bot, update):
         else:
             await ms.edit("🚀 Mode Changing...  ⚡") 
 
+        # Rename the downloaded file to the new filename
         splitpath = path.split("/downloads/")
-        dow_file_name = splitpath[1]
-        old_file_name = f"downloads/{dow_file_name}"
-        os.rename(old_file_name, file_path)
+        if len(splitpath) > 1:
+            dow_file_name = splitpath[1]
+            old_file_name = f"downloads/{dow_file_name}"
+            if os.path.exists(old_file_name):
+                os.rename(old_file_name, file_path)
+            elif os.path.exists(path):
+                os.rename(path, file_path)
+        else:
+            if os.path.exists(path):
+                os.rename(path, file_path)
+        
+        # Verify file exists and has size
+        if not os.path.exists(file_path):
+            await ms.edit("❌ Error: File not found after processing")
+            return
+        
+        if os.path.getsize(file_path) == 0:
+            await ms.edit("❌ Error: File size is 0 bytes")
+            os.remove(file_path)
+            return
         user_id = int(update.message.chat.id)
         data = find(user_id)
         
