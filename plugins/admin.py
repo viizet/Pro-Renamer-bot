@@ -186,7 +186,7 @@ async def removepremium(bot, message):
 
     try:
         user_id = int(message.command[1])
-        
+
         # Check if user exists
         user_data = find_one(user_id)
         if not user_data:
@@ -203,7 +203,7 @@ async def removepremium(bot, message):
         uploadlimit(user_id, 2147483652)  # Reset to 2GB
         usertype(user_id, "Free")
         dbcol.update_one({"_id": user_id}, {"$set": {"prexdate": None, "paid_premium": False}})
-        
+
         await message.reply_text(f"✅ **Paid premium removed from user:** `{user_id}`", quote=True)
 
         # Notify the user
@@ -249,7 +249,7 @@ async def allcommand(bot, message):
 
 <b>👥 User Management:</b>
 • /warn [user_id] [message] - Send warning to user
-• /ban [user_id] [reason] - Ban user with reason
+• /ban [user_id] [reason] - Ban user
 • /unban [user_id] - Unban user
 • /broadcast - Broadcast message to all users
 
@@ -257,7 +257,7 @@ async def allcommand(bot, message):
 • /addpremium - Upgrade user to premium (paid premium)
 • /removepremium [user_id] - Remove paid premium from user
 • /free - Manage free premium system settings
-• /removefree [user_id] - Remove free premium from user
+• /removefree [user_id] - Remove free premium
 
 <b>🛠️ System Commands:</b>
 • /restart - Restart the bot
@@ -279,13 +279,16 @@ async def vip1(bot,update):
     id = update.message.reply_to_message.text.split("/addpremium")
     user_id = id[1].replace(" ", "")
     from helper.database import dbcol
-    inlimit  = 21474836500
-    uploadlimit(int(user_id),21474836500)
+    # Original limits were 2GB for Basic, 50GB for Standard, 100GB for Pro.
+    # Updated to 15GB Free, 60GB Basic, 60GB Standard, 150GB Pro.
+    # Here, we handle the 'Basic' plan upgrade.
+    inlimit  = 64424509440  # 60GB for Basic users
+    uploadlimit(int(user_id),64424509440) # Set to 60GB
     usertype(int(user_id),"🪙 Basic")
     addpre(int(user_id))
     # Mark as paid premium and remove free premium
-    dbcol.update_one({"_id": int(user_id)}, {"$set": {"paid_premium": True, "free_premium": False}})
-    await update.message.edit("Added Successfully To Premium Upload Limit 20 GB")
+    dbcol.update_one({"_id": int(user_id)}, {"$set": {"paid_premium": True, "free_premium": False, "upload_limit_gb": 60}}) # Explicitly set limit in GB
+    await update.message.edit("Added Successfully To Premium Upload Limit 60 GB")
     await bot.send_message(user_id, f"Hey {update.from_user.mention} \n\nYou Are Upgraded To <b>🪙 Basic</b>. Check Your Plan Here /myplan")
 
 
@@ -295,13 +298,13 @@ async def vip2(bot,update):
     id = update.message.reply_to_message.text.split("/addpremium")
     user_id = id[1].replace(" ", "")
     from helper.database import dbcol
-    inlimit = 53687091200
-    uploadlimit(int(user_id), 53687091200)
+    inlimit = 64424509440 # 60GB for Standard users
+    uploadlimit(int(user_id), 64424509440) # Set to 60GB
     usertype(int(user_id),"⚡ Standard")
     addpre(int(user_id))
     # Mark as paid premium and remove free premium
-    dbcol.update_one({"_id": int(user_id)}, {"$set": {"paid_premium": True, "free_premium": False}})
-    await update.message.edit("Added Successfully To Premium Upload Limit 50 GB")
+    dbcol.update_one({"_id": int(user_id)}, {"$set": {"paid_premium": True, "free_premium": False, "upload_limit_gb": 60}}) # Explicitly set limit in GB
+    await update.message.edit("Added Successfully To Premium Upload Limit 60 GB")
     await bot.send_message(user_id, f"Hey {update.from_user.mention} \n\nYou Are Upgraded To <b>⚡ Standard</b>. Check Your Plan Here /myplan")
 
 
@@ -311,13 +314,13 @@ async def vip3(bot,update):
     id = update.message.reply_to_message.text.split("/addpremium")
     user_id = id[1].replace(" ", "")
     from helper.database import dbcol
-    inlimit = 107374182400
-    uploadlimit(int(user_id), 107374182400)
+    inlimit = 161061273600 # 150GB for Pro users
+    uploadlimit(int(user_id), 161061273600) # Set to 150GB
     usertype(int(user_id),"💎 Pro")
     addpre(int(user_id))
     # Mark as paid premium and remove free premium
-    dbcol.update_one({"_id": int(user_id)}, {"$set": {"paid_premium": True, "free_premium": False}})
-    await update.message.edit("Added Successfully To Premium Upload Limit 100 GB")
+    dbcol.update_one({"_id": int(user_id)}, {"$set": {"paid_premium": True, "free_premium": False, "upload_limit_gb": 150}}) # Explicitly set limit in GB
+    await update.message.edit("Added Successfully To Premium Upload Limit 150 GB")
     await bot.send_message(user_id, f"Hey {update.from_user.mention} \n\nYou Are Upgraded To <b>💎 Pro</b>. Check Your Plan Here /myplan")
 
 
@@ -494,7 +497,7 @@ async def admin_broadcast(bot, callback_query):
         "1. Reply to any message with `/broadcast` command\n"
         "2. The replied message will be sent to all users\n\n"
         "**Example:**\n"
-        "Reply to a message: `/broadcast`",
+        "Reply to a user message: `/broadcast`",
         reply_markup=InlineKeyboardMarkup([[
             InlineKeyboardButton("⬅️ Back", callback_data="admin_back")
         ]])
@@ -528,12 +531,13 @@ async def admin_info(bot, callback_query):
 • `/removepremium` - Remove paid premium
 
 **Premium Plans:**
-• 🪙 Basic - 20GB/day
-• ⚡ Standard - 50GB/day  
-• 💎 Pro - 100GB/day
+• <b>Free User:</b> 15GB Daily Upload Limit, 2GB Max File Size
+• <b>🪙 Basic:</b> 60GB Daily Upload Limit, 2GB Max File Size
+• <b>⚡ Standard:</b> 60GB Daily Upload Limit, 4GB Max File Size  
+• <b>💎 Pro:</b> 150GB Daily Upload Limit, 4GB Max File Size
 
 **Example:**
-Reply to user message: `/addpremium`"""
+Reply to user message with `/addpremium` to upgrade."""
 
     else:  # admin_bans
         text = """<b>🚫 BAN MANAGEMENT</b>
