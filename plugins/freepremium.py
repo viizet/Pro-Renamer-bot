@@ -49,9 +49,10 @@ async def free_premium_menu(bot, message):
 async def start_free_premium(bot, update):
     """Start configuring free premium"""
     keyboard = InlineKeyboardMarkup([
-        [InlineKeyboardButton("🪙 Basic (20GB)", callback_data="select_plan_basic")],
-        [InlineKeyboardButton("⚡ Standard (50GB)", callback_data="select_plan_standard")],
-        [InlineKeyboardButton("💎 Pro (100GB)", callback_data="select_plan_pro")],
+        [InlineKeyboardButton("📊 View Plans Comparison", callback_data="view_plans_comparison")],
+        [InlineKeyboardButton("🪙 Basic (60GB)", callback_data="select_plan_basic")],
+        [InlineKeyboardButton("⚡ Standard (60GB)", callback_data="select_plan_standard")],
+        [InlineKeyboardButton("💎 Pro (150GB)", callback_data="select_plan_pro")],
         [InlineKeyboardButton("🔙 Back", callback_data="back_to_free_menu")]
     ])
 
@@ -62,9 +63,40 @@ async def start_free_premium(bot, update):
 
 @Client.on_callback_query(filters.regex("select_plan_(.+)"))
 async def select_plan(bot, update):
-    """Plan selection handler"""
+    """Plan selection handler with detailed plan info"""
     plan_key = update.data.split("_")[-1]
     plan_name = PLAN_MAP[plan_key]
+
+    # Detailed plan information
+    plan_details = {
+        "basic": {
+            "daily_limit": "60GB",
+            "max_file": "2GB",
+            "price": "$0.50/month",
+            "features": "• High Priority Processing\n• Timeout: 0 Seconds\n• Parallel Process: Unlimited\n• Time Gap: Yes"
+        },
+        "standard": {
+            "daily_limit": "60GB", 
+            "max_file": "4GB",
+            "price": "$1.50/month",
+            "features": "• High Priority Processing\n• Timeout: 0 Seconds\n• Parallel Process: Unlimited\n• Time Gap: Yes"
+        },
+        "pro": {
+            "daily_limit": "150GB",
+            "max_file": "4GB", 
+            "price": "$3.00/month",
+            "features": "• Highest Priority Processing\n• Timeout: 0 Seconds\n• Parallel Process: Unlimited\n• Time Gap: Yes"
+        }
+    }
+
+    details = plan_details[plan_key]
+    
+    plan_info_text = f"**📋 PLAN DETAILS: {plan_name}**\n\n"
+    plan_info_text += f"**Daily Upload Limit:** {details['daily_limit']}\n"
+    plan_info_text += f"**Max File Size:** {details['max_file']}\n"
+    plan_info_text += f"**Original Price:** {details['price']}\n\n"
+    plan_info_text += f"**Features:**\n{details['features']}\n\n"
+    plan_info_text += "**Choose duration for free premium:**"
 
     keyboard = InlineKeyboardMarkup([
         [InlineKeyboardButton("1 Day", callback_data=f"select_duration_{plan_key}_1day")],
@@ -75,10 +107,7 @@ async def select_plan(bot, update):
         [InlineKeyboardButton("🔙 Back", callback_data="start_free_premium")]
     ])
 
-    await update.message.edit_text(
-        f"**🎁 SELECT DURATION FOR {plan_name}**\n\nChoose how long the free premium should last:",
-        reply_markup=keyboard
-    )
+    await update.message.edit_text(plan_info_text, reply_markup=keyboard)
 
 @Client.on_callback_query(filters.regex("select_duration_(.+)_(.+)"))
 async def select_duration(bot, update):
@@ -222,6 +251,58 @@ async def confirm_stop_free(bot, update):
         reply_markup=keyboard
     )
 
+@Client.on_callback_query(filters.regex("view_plans_comparison"))
+async def view_plans_comparison(bot, update):
+    """Show detailed comparison of all plans"""
+    comparison_text = """**📊 DETAILED PLANS COMPARISON**
+
+**🆓 FREE PLAN**
+• Daily Upload Limit: 15GB
+• Max File Size: 2GB
+• Timeout: 2 Minutes
+• Parallel Process: Unlimited
+• Time Gap: Yes
+• Validity: Lifetime
+• Price: FREE
+
+**🪙 BASIC PLAN**
+• Daily Upload Limit: 60GB
+• Max File Size: 2GB
+• High Priority Processing
+• Timeout: 0 Seconds
+• Parallel Process: Unlimited
+• Time Gap: Yes
+• Price: $0.50 per Month
+
+**⚡ STANDARD PLAN**
+• Daily Upload Limit: 60GB
+• Max File Size: 4GB
+• High Priority Processing
+• Timeout: 0 Seconds
+• Parallel Process: Unlimited
+• Time Gap: Yes
+• Price: $1.50 per Month
+
+**💎 PRO PLAN**
+• Daily Upload Limit: 150GB
+• Max File Size: 4GB
+• Highest Priority Processing
+• Timeout: 0 Seconds
+• Parallel Process: Unlimited
+• Time Gap: Yes
+• Price: $3.00 per Month
+
+Select which plan to offer as free premium:"""
+
+    keyboard = InlineKeyboardMarkup([
+        [InlineKeyboardButton("🪙 Basic (60GB)", callback_data="select_plan_basic")],
+        [InlineKeyboardButton("⚡ Standard (60GB)", callback_data="select_plan_standard")], 
+        [InlineKeyboardButton("💎 Pro (150GB)", callback_data="select_plan_pro")],
+        [InlineKeyboardButton("🔙 Back", callback_data="start_free_premium")]
+    ])
+
+    await update.message.edit_text(comparison_text, reply_markup=keyboard)
+
 @Client.on_callback_query(filters.regex("back_to_free_menu"))
 async def back_to_free_menu(bot, update):
     """Go back to main free premium menu"""
@@ -274,3 +355,61 @@ async def remove_free_premium_cmd(bot, message):
         await message.reply_text(f"❌ **Error:** {str(e)}", quote=True)
 
 
+# Command to show detailed plan information for all users
+@Client.on_message(filters.private & filters.command(["free"]))
+async def show_plans_info(bot, message):
+    """Show detailed information about all available plans"""
+    text = """**📢 DETAILED UPLOAD LIMITS & PLANS**
+
+**✅ FREE USERS**
+• Daily Upload Limit: 15GB
+• Max File Size: 2GB
+• Timeout: 2 Minutes
+• Parallel Process: Unlimited
+• Time Gap: Yes
+• Validity: Lifetime
+• Price: FREE
+
+**🪙 BASIC USERS**
+• Daily Upload Limit: 60GB
+• Max File Size: 2GB
+• High Priority Processing
+• Timeout: 0 Seconds
+• Parallel Process: Unlimited
+• Time Gap: Yes
+• Price: 🌎 $0.50 per Month
+
+**⚡ STANDARD USERS**
+• Daily Upload Limit: 60GB
+• Max File Size: 4GB
+• High Priority Processing
+• Timeout: 0 Seconds
+• Parallel Process: Unlimited
+• Time Gap: Yes
+• Price: 🌎 $1.50 per Month
+
+**💎 PRO USERS**
+• Daily Upload Limit: 150GB
+• Max File Size: 4GB
+• Highest Priority Processing
+• Timeout: 0 Seconds
+• Parallel Process: Unlimited
+• Time Gap: Yes
+• Price: 🌎 $3.00 per Month
+
+**📝 Features Comparison:**
+✓ All plans support unlimited parallel processing
+✓ Premium plans get priority processing
+✓ Standard & Pro plans support larger files (4GB)
+✓ Pro plan offers the highest daily upload limit
+
+**💳 Want to upgrade?** Use /upgrade command
+**📊 Check your current plan:** Use /myplan command"""
+
+    keyboard = InlineKeyboardMarkup([
+        [InlineKeyboardButton("💳 Upgrade Plan", callback_data="upgrade")],
+        [InlineKeyboardButton("📊 My Current Plan", url="https://t.me/{bot.username}?start=myplan")],
+        [InlineKeyboardButton("✖️ Close", callback_data="cancel")]
+    ])
+
+    await message.reply_text(text, reply_markup=keyboard, quote=True)
