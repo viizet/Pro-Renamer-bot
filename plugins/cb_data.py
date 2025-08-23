@@ -316,7 +316,7 @@ async def vid(bot, update):
         if value < file.file_size:
             await ms.edit("🚀 Try To Upload...  ⚡")
             try:
-                filw = await app.send_video(LOG_CHANNEL, video=metadata_path if _bool_metadata else file_path, thumb=ph_path, duration=duration, width=width, height=height, caption=caption, progress=progress_for_pyrogram, progress_args=("🚀 Try To Uploading...  ⚡",  ms, c_time))
+                filw = await app.send_video(LOG_CHANNEL, video=metadata_path if _bool_metadata else file_path, thumb=ph_path, duration=duration, width=width, height=height, caption=caption, progress=progress_for_pyrogram, progress_args=("🚀 Uploading Video...   ⚡",  ms, c_time))
                 from_chat = filw.chat.id
                 mg_id = filw.id
                 time.sleep(2)
