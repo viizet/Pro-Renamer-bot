@@ -165,11 +165,7 @@ async def send_doc(client, message):
                 await message.reply_text(f"❌ **File Too Large!**\n\nCan't upload files bigger than **{size_limit}**\n\n**File Size:** {humanize.naturalsize(file.file_size)}\n**Your Plan:** {user_plan}\n**Max File Size:** {size_limit}\n\nUpgrade to Standard or Pro for 4GB file support.", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("💳 Upgrade", callback_data="upgrade")]]))
                 return
                 
-            # Get file extension and mime type
-            file_extension = filename.split('.')[-1] if '.' in filename else 'Unknown'
-            mime_type = getattr(file, 'mime_type', 'None')
-            
-            await message.reply_text(f"""🗂️ **Media Info :**\n\n◈ **File Name :** {filename}\n◈ **File Size :** {humanize.naturalsize(file.file_size)}\n◈ **File Extension :** {file_extension}\n◈ **Mime Type :** {mime_type}\n◈ **DC ID :** {dcid}\n\n__Please Enter The New Filename__""", reply_to_message_id=message.id, reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("📝 Rename", callback_data="rename"), InlineKeyboardButton("✖️ Cancel", callback_data="cancel")]]))
+            await message.reply_text(f"""__What Do You Want Me To Do With This File ?__\n\n**File Name :** `{filename}`\n**File Size :** {humanize.naturalsize(file.file_size)}\n**DC ID :** {dcid}""", reply_to_message_id=message.id, reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("📝 Rename", callback_data="rename"), InlineKeyboardButton("✖️ Cancel", callback_data="cancel")]]))
             total_rename(int(botid), prrename)
             total_size(int(botid), prsize, file.file_size)
         else:
@@ -199,10 +195,6 @@ async def send_doc(client, message):
         fileid = file.file_id
         total_rename(int(botid), prrename)
         total_size(int(botid), prsize, file.file_size)
-        # Get file extension and mime type
-        file_extension = filename.split('.')[-1] if '.' in filename else 'Unknown'
-        mime_type = getattr(file, 'mime_type', 'None')
-        
-        await message.reply_text(f"""🗂️ **Media Info :**\n\n◈ **File Name :** {filename}\n◈ **File Size :** {filesize}\n◈ **File Extension :** {file_extension}\n◈ **Mime Type :** {mime_type}\n◈ **DC ID :** {dcid}\n\n__Please Enter The New Filename__""", reply_to_message_id=message.id, reply_markup=InlineKeyboardMarkup(
+        await message.reply_text(f"""__What Do You Want Me To Do With This File ?__\n\n**File Name :** `{filename}`\n**File Size :** {filesize}\n**DC ID :** {dcid}""", reply_to_message_id=message.id, reply_markup=InlineKeyboardMarkup(
             [[InlineKeyboardButton("📝 Rename", callback_data="rename"),
               InlineKeyboardButton("✖️ Cancel", callback_data="cancel")]]))
