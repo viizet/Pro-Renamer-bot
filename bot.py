@@ -21,7 +21,8 @@ def health():
     return 'OK'
 
 def run_flask():
-    web_app.run(host='0.0.0.0', port=5000, debug=False)
+    from waitress import serve
+    serve(web_app, host='0.0.0.0', port=5000, threads=6)
 
 bot = Client("Renamer", bot_token=BOT_TOKEN, api_id=API_ID, api_hash=API_HASH, plugins=dict(root='plugins'))
 
