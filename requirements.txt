@@ -9,3 +9,4 @@ dnspython
 Flask
 gunicorn
 aiohttp
+waitress
