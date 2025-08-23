@@ -42,9 +42,14 @@ async def cancel(bot, update):
 
 @Client.on_callback_query(filters.regex('rename'))
 async def rename(bot, update):
-    date_fa = str(update.message.date)
-    pattern = '%Y-%m-%d %H:%M:%S'
-    date = int(time.mktime(time.strptime(date_fa, pattern)))
+    # Use current timestamp if message date is None
+    if update.message.date:
+        date_fa = str(update.message.date)
+        pattern = '%Y-%m-%d %H:%M:%S'
+        date = int(time.mktime(time.strptime(date_fa, pattern)))
+    else:
+        date = int(time.time())
+    
     chat_id = update.message.chat.id
     id = update.message.reply_to_message_id
     await update.message.delete()
