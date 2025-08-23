@@ -92,22 +92,22 @@ async def doc(bot, update):
     if _bool_metadata:
         metadata = find(int(message.chat.id))[3]
         metadata_path = f"Metadata/{new_filename}"
-        await add_metadata(path, metadata_path, metadata, ms)
+        try:
+            await add_metadata(path, metadata_path, metadata, ms)
+        except Exception as e:
+            await ms.edit(f"❌ Metadata processing failed: {str(e)}")
+            if os.path.exists(path):
+                os.remove(path)
+            return
     else:
         await ms.edit("🚀 Mode Changing...  ⚡")
 
     # Rename the downloaded file to the new filename
-    splitpath = path.split("/downloads/")
-    if len(splitpath) > 1:
-        dow_file_name = splitpath[1]
-        old_file_name = f"downloads/{dow_file_name}"
-        if os.path.exists(old_file_name):
-            os.rename(old_file_name, file_path)
-        elif os.path.exists(path):
-            os.rename(path, file_path)
+    if os.path.exists(path):
+        os.rename(path, file_path)
     else:
-        if os.path.exists(path):
-            os.rename(path, file_path)
+        await ms.edit("❌ Error: Downloaded file not found")
+        return
     
     # Verify file exists and has size
     if not os.path.exists(file_path):
@@ -239,22 +239,22 @@ async def vid(bot, update):
         if _bool_metadata:
             metadata = find(int(message.chat.id))[3]
             metadata_path = f"Metadata/{new_filename}"
-            await add_metadata(path, metadata_path, metadata, ms)
+            try:
+                await add_metadata(path, metadata_path, metadata, ms)
+            except Exception as e:
+                await ms.edit(f"❌ Metadata processing failed: {str(e)}")
+                if os.path.exists(path):
+                    os.remove(path)
+                return
         else:
             await ms.edit("🚀 Mode Changing...  ⚡") 
 
         # Rename the downloaded file to the new filename
-        splitpath = path.split("/downloads/")
-        if len(splitpath) > 1:
-            dow_file_name = splitpath[1]
-            old_file_name = f"downloads/{dow_file_name}"
-            if os.path.exists(old_file_name):
-                os.rename(old_file_name, file_path)
-            elif os.path.exists(path):
-                os.rename(path, file_path)
+        if os.path.exists(path):
+            os.rename(path, file_path)
         else:
-            if os.path.exists(path):
-                os.rename(path, file_path)
+            await ms.edit("❌ Error: Downloaded file not found")
+            return
         
         # Verify file exists and has size
         if not os.path.exists(file_path):
