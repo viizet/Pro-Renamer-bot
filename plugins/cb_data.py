@@ -225,7 +225,7 @@ async def vid(bot, update):
         used_limit(update.from_user.id, total_used)
         
         try:
-            path = await bot.download_media(message=file, progress=progress_for_pyrogram, progress_args=("🚀 Try To Downloading...  ⚡",  ms, c_time))
+            path = await bot.download_media(message=file, progress=progress_for_pyrogram, progress_args=("🚀 Downloading Media...   ⚡",  ms, c_time))
         except Exception as e:
             neg_used = used - int(file.file_size)
             used_limit(update.from_user.id, neg_used)
