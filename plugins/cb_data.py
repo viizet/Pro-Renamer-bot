@@ -82,13 +82,26 @@ async def doc(bot, update):
     used_limit(update.from_user.id, total_used)
 
     try:
+        # Download directly to the target filename
         path = await bot.download_media(message=file,
+                                        file_name=file_path,
                                         progress=progress_for_pyrogram,
                                         progress_args=("🚀 Try To Downloading...  ⚡", ms, c_time))
     except Exception as e:
         neg_used = used - int(file.file_size)
         used_limit(update.from_user.id, neg_used)
         await ms.edit(str(e))
+        return
+
+    # Verify download was successful
+    if not path or not os.path.exists(path):
+        await ms.edit("❌ Error: Download failed")
+        return
+    
+    if os.path.getsize(path) == 0:
+        await ms.edit("❌ Error: Downloaded file is 0 bytes")
+        if os.path.exists(path):
+            os.remove(path)
         return
 
     # Metadata
@@ -107,21 +120,17 @@ async def doc(bot, update):
     else:
         await ms.edit("🚀 Mode Changing...  ⚡")
 
-    # Rename the downloaded file to the new filename
-    if os.path.exists(path):
-        os.rename(path, file_path)
-    else:
-        await ms.edit("❌ Error: Downloaded file not found")
-        return
+    # Use the correct file path for upload
+    final_file_path = metadata_path if _bool_metadata else path
     
-    # Verify file exists and has size
-    if not os.path.exists(file_path):
+    # Verify final file exists and has size
+    if not os.path.exists(final_file_path):
         await ms.edit("❌ Error: File not found after processing")
         return
     
-    if os.path.getsize(file_path) == 0:
+    if os.path.getsize(final_file_path) == 0:
         await ms.edit("❌ Error: File size is 0 bytes")
-        os.remove(file_path)
+        os.remove(final_file_path)
         return
     user_id = int(update.message.chat.id)
     data = find(user_id)
@@ -152,7 +161,7 @@ async def doc(bot, update):
         await ms.edit("🚀 Try To Upload...  ⚡")
         try:
             filw = await app.send_document(LOG_CHANNEL,
-                                           document=metadata_path if _bool_metadata else file_path,
+                                           document=final_file_path,
                                            thumb=ph_path,
                                            caption=caption,
                                            progress=progress_for_pyrogram,
@@ -163,7 +172,9 @@ async def doc(bot, update):
             await bot.copy_message(update.from_user.id, from_chat, mg_id)
             await ms.delete()
 
-            os.remove(file_path)
+            # Clean up files
+            if os.path.exists(path):
+                os.remove(path)
             if metadata_path and os.path.exists(metadata_path):
                 os.remove(metadata_path)
             try: os.remove(ph_path)
@@ -173,7 +184,9 @@ async def doc(bot, update):
             neg_used = used - int(file.file_size)
             used_limit(update.from_user.id, neg_used)
             await ms.edit(str(e))
-            os.remove(file_path)
+            # Clean up files on error
+            if os.path.exists(path):
+                os.remove(path)
             if metadata_path and os.path.exists(metadata_path):
                 os.remove(metadata_path)
             try: os.remove(ph_path)
@@ -182,13 +195,15 @@ async def doc(bot, update):
         await ms.edit("🚀 Try To Upload...  ⚡")
         try:
             await bot.send_document(update.from_user.id,
-                                    document=metadata_path if _bool_metadata else file_path,
+                                    document=final_file_path,
                                     thumb=ph_path,
                                     caption=caption,
                                     progress=progress_for_pyrogram,
                                     progress_args=("🚀 Try To Uploading...  ⚡", ms, c_time))
             await ms.delete()
-            os.remove(file_path)
+            # Clean up files
+            if os.path.exists(path):
+                os.remove(path)
             if metadata_path and os.path.exists(metadata_path):
                 os.remove(metadata_path)
 
@@ -196,8 +211,9 @@ async def doc(bot, update):
             neg_used = used - int(file.file_size)
             used_limit(update.from_user.id, neg_used)
             await ms.edit(str(e))
-            if os.path.exists(file_path):
-                os.remove(file_path)
+            # Clean up files on error
+            if os.path.exists(path):
+                os.remove(path)
             if metadata_path and os.path.exists(metadata_path):
                 os.remove(metadata_path)
 
@@ -230,11 +246,26 @@ async def vid(bot, update):
         used_limit(update.from_user.id, total_used)
         
         try:
-            path = await bot.download_media(message=file, progress=progress_for_pyrogram, progress_args=("🚀 Try To Downloading...  ⚡",  ms, c_time))
+            # Download directly to the target filename
+            path = await bot.download_media(message=file, 
+                                            file_name=file_path,
+                                            progress=progress_for_pyrogram, 
+                                            progress_args=("🚀 Try To Downloading...  ⚡",  ms, c_time))
         except Exception as e:
             neg_used = used - int(file.file_size)
             used_limit(update.from_user.id, neg_used)
             await ms.edit(str(e))
+            return
+        
+        # Verify download was successful
+        if not path or not os.path.exists(path):
+            await ms.edit("❌ Error: Download failed")
+            return
+        
+        if os.path.getsize(path) == 0:
+            await ms.edit("❌ Error: Downloaded file is 0 bytes")
+            if os.path.exists(path):
+                os.remove(path)
             return
         
         # Metadata Adding Code
@@ -254,22 +285,8 @@ async def vid(bot, update):
         else:
             await ms.edit("🚀 Mode Changing...  ⚡") 
 
-        # Rename the downloaded file to the new filename
-        if os.path.exists(path):
-            os.rename(path, file_path)
-        else:
-            await ms.edit("❌ Error: Downloaded file not found")
-            return
-        
-        # Verify file exists and has size
-        if not os.path.exists(file_path):
-            await ms.edit("❌ Error: File not found after processing")
-            return
-        
-        if os.path.getsize(file_path) == 0:
-            await ms.edit("❌ Error: File size is 0 bytes")
-            os.remove(file_path)
-            return
+        # Use the correct file path for upload
+        final_file_path = metadata_path if _bool_metadata else path
         user_id = int(update.message.chat.id)
         data = find(user_id)
         
@@ -286,7 +303,7 @@ async def vid(bot, update):
         
         # Get original video metadata
         try:
-            metadata_parser = extractMetadata(createParser(file_path))
+            metadata_parser = extractMetadata(createParser(path))
             if metadata_parser and metadata_parser.has("duration"):
                 duration = metadata_parser.get('duration').seconds
             if metadata_parser and metadata_parser.has("width"):
@@ -311,7 +328,7 @@ async def vid(bot, update):
             c_time = time.time()
         else:
             try:
-                ph_path_ = await take_screen_shot(file_path, os.path.dirname(os.path.abspath(file_path)), random.randint(0, duration - 1))
+                ph_path_ = await take_screen_shot(path, os.path.dirname(os.path.abspath(path)), random.randint(0, duration - 1))
                 width, height, ph_path = await fix_thumb(ph_path_)
             except Exception as e:
                 ph_path = None
@@ -321,14 +338,18 @@ async def vid(bot, update):
         if value < file.file_size:
             await ms.edit("🚀 Try To Upload...  ⚡")
             try:
-                filw = await app.send_video(LOG_CHANNEL, video=metadata_path if _bool_metadata else file_path, thumb=ph_path, duration=duration, width=width, height=height, caption=caption, progress=progress_for_pyrogram, progress_args=("🚀 Try To Uploading...  ⚡",  ms, c_time))
+                filw = await app.send_video(LOG_CHANNEL, video=final_file_path, thumb=ph_path, duration=duration, width=width, height=height, caption=caption, progress=progress_for_pyrogram, progress_args=("🚀 Try To Uploading...  ⚡",  ms, c_time))
                 from_chat = filw.chat.id
                 mg_id = filw.id
                 time.sleep(2)
                 await bot.copy_message(update.from_user.id, from_chat, mg_id)
                 await ms.delete()
                 
-                os.remove(file_path)
+                # Clean up files
+                if os.path.exists(path):
+                    os.remove(path)
+                if metadata_path and os.path.exists(metadata_path):
+                    os.remove(metadata_path)
                 try:
                     os.remove(ph_path)
                 except:
@@ -338,7 +359,11 @@ async def vid(bot, update):
                 neg_used = used - int(file.file_size)
                 used_limit(update.from_user.id, neg_used)
                 await ms.edit(str(e))
-                os.remove(file_path)
+                # Clean up files on error
+                if os.path.exists(path):
+                    os.remove(path)
+                if metadata_path and os.path.exists(metadata_path):
+                    os.remove(metadata_path)
                 try:
                     os.remove(ph_path)
                 except:
@@ -347,16 +372,24 @@ async def vid(bot, update):
             await ms.edit("🚀 Try To Upload...  ⚡")
             c_time = time.time()
             try:
-                await bot.send_video(update.from_user.id, video=metadata_path if _bool_metadata else file_path, thumb=ph_path, duration=duration, width=width, height=height, caption=caption, progress=progress_for_pyrogram, progress_args=("🚀 Try To Uploading...  ⚡",  ms, c_time))
+                await bot.send_video(update.from_user.id, video=final_file_path, thumb=ph_path, duration=duration, width=width, height=height, caption=caption, progress=progress_for_pyrogram, progress_args=("🚀 Try To Uploading...  ⚡",  ms, c_time))
                 await ms.delete()
                 
-                os.remove(file_path)
+                # Clean up files
+                if os.path.exists(path):
+                    os.remove(path)
+                if metadata_path and os.path.exists(metadata_path):
+                    os.remove(metadata_path)
                 
             except Exception as e:
                 neg_used = used - int(file.file_size)
                 used_limit(update.from_user.id, neg_used)
                 await ms.edit(str(e))
-                os.remove(file_path)
+                # Clean up files on error
+                if os.path.exists(path):
+                    os.remove(path)
+                if metadata_path and os.path.exists(metadata_path):
+                    os.remove(metadata_path)
                 return
                 
     except Exception as e:
