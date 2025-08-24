@@ -27,16 +27,16 @@ def is_user_banned(user_id):
 @Client.on_message(filters.private & ~filters.user(ADMIN))
 async def ban_check(client, message):
     user_id = message.from_user.id
-    
+
     if is_user_banned(user_id):
         await message.reply_text(
-            "🚫 **You are banned from using this bot!**\n\n"
-            "Your access has been restricted by the administrator.\n\n"
-            "**Contact Admin:** @viizet",
+            "🚫 **Access Restricted**\n\n"
+            "Your account has been temporarily suspended.\n"
+            "Contact admin for assistance: @viizet",
             quote=True
         )
         return
-    
+
     # If not banned, continue to other handlers
     message.continue_propagation()
 
@@ -50,7 +50,10 @@ def get_banned_users():
 async def start(bot, message):
     # Check if user is banned
     if is_user_banned(message.from_user.id):
-        await message.reply_text("🚫 **You are banned from using this bot!**\n\nContact admin: @viizet")
+        await message.reply_text("🚫 **Access Restricted**\n\n"
+            "Your account has been temporarily suspended.\n"
+            "Contact admin for assistance: @viizet",
+            quote=True)
         return
 
     user_id = message.chat.id
@@ -70,7 +73,6 @@ async def start(bot, message):
 ✨ **Features:**
 • Rename files & change thumbnails
 • Convert video ↔ file
-• Custom captions & metadata
 
 💎 **Premium:** 4GB uploads available
 
@@ -97,17 +99,17 @@ async def start(bot, message):
 @Client.on_message((filters.private & (filters.document | filters.audio | filters.video)) | filters.channel & (filters.document | filters.audio | filters.video))
 async def send_doc(client, message):
     user_id = message.chat.id
-    
+
     # Check if user is banned (skip for admin)
     if message.from_user.id != ADMIN and is_user_banned(message.from_user.id):
         await message.reply_text(
-            "🚫 **You are banned from using this bot!**\n\n"
-            "Your access has been restricted by the administrator.\n\n"
-            "**Contact Admin:** @viizet",
+            "🚫 **Access Restricted**\n\n"
+            "Your account has been temporarily suspended.\n"
+            "Contact admin for assistance: @viizet",
             quote=True
         )
         return
-    
+
     old = insert(int(user_id))
     user_id = message.from_user.id
 
@@ -152,23 +154,23 @@ async def send_doc(client, message):
             # Check plan-specific file size limits for premium users
             user_plan = user_deta.get("usertype", "Free")
             max_file_size = 2147483648  # 2GB default
-            
+
             # Basic plan: 2GB max file size
             if "Basic" in user_plan:
                 max_file_size = 2147483648  # 2GB
             # Standard and Pro plans: 4GB max file size  
             elif "Standard" in user_plan or "Pro" in user_plan:
                 max_file_size = 4294967296  # 4GB
-                
+
             if file.file_size > max_file_size:
                 size_limit = "2GB" if "Basic" in user_plan else "4GB"
                 await message.reply_text(f"❌ **File Too Large!**\n\nCan't upload files bigger than **{size_limit}**\n\n**File Size:** {humanize.naturalsize(file.file_size)}\n**Your Plan:** {user_plan}\n**Max File Size:** {size_limit}\n\nUpgrade to Standard or Pro for 4GB file support.", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("💳 Upgrade", callback_data="upgrade")]]))
                 return
-                
+
             # Get file extension and mime type
             file_extension = filename.split('.')[-1] if '.' in filename else 'Unknown'
             mime_type = getattr(file, 'mime_type', 'None')
-            
+
             await message.reply_text(f"""🗂️ **Media Info :**\n\n◈ **File Name :** {filename}\n◈ **File Size :** {humanize.naturalsize(file.file_size)}\n◈ **File Extension :** {file_extension}\n◈ **Mime Type :** {mime_type}\n◈ **DC ID :** {dcid}\n\n**Please Enter The New Filename **""", reply_to_message_id=message.id, reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("📝 Rename", callback_data="rename"), InlineKeyboardButton("✖️ Cancel", callback_data="cancel")]]))
             total_rename(int(botid), prrename)
             total_size(int(botid), prsize, file.file_size)
@@ -180,7 +182,7 @@ async def send_doc(client, message):
         is_free_premium = user_deta.get("free_premium", False)
         has_premium = buy_date and check_expi(buy_date) if buy_date else False
         user_plan = user_deta.get("usertype", "Free")
-        
+
         # Basic plan users have 2GB file size limit even for smaller overall files
         if (has_premium or is_free_premium) and "Basic" in user_plan:
             basic_limit = 2147483648  # 2GB
@@ -202,7 +204,7 @@ async def send_doc(client, message):
         # Get file extension and mime type
         file_extension = filename.split('.')[-1] if '.' in filename else 'Unknown'
         mime_type = getattr(file, 'mime_type', 'None')
-        
+
         await message.reply_text(f"""🗂️ **Media Info :**\n\n◈ **File Name :** {filename}\n◈ **File Size :** {filesize}\n◈ **File Extension :** {file_extension}\n◈ **Mime Type :** {mime_type}\n◈ **DC ID :** {dcid}\n\n**Please Enter The New Filename **""", reply_to_message_id=message.id, reply_markup=InlineKeyboardMarkup(
             [[InlineKeyboardButton("📝 Rename", callback_data="rename"),
               InlineKeyboardButton("✖️ Cancel", callback_data="cancel")]]))
