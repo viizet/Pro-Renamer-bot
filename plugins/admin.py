@@ -289,7 +289,7 @@ async def vip1(bot,update):
     # Mark as paid premium and remove free premium
     dbcol.update_one({"_id": int(user_id)}, {"$set": {"paid_premium": True, "free_premium": False, "upload_limit_gb": 60}}) # Explicitly set limit in GB
     await update.message.edit("Added Successfully To Premium Upload Limit 60 GB")
-    await bot.send_message(user_id, f"Hey {update.from_user.mention} \n\nYou Are Upgraded To <b>🪙 Basic</b>. Check Your Plan Here /myplan")
+    await bot.send_message(user_id, f"🎉 Congratulations! You've been upgraded to Premium!\n\nPlan: 🪙 Basic\nDuration: 1 Year\nMax size Upload 2GB\nUpload Limit: 60GB\n\n✨ Enjoy your premium features!\nCheck your plan: /myplan")
 
 
 
@@ -305,7 +305,7 @@ async def vip2(bot,update):
     # Mark as paid premium and remove free premium
     dbcol.update_one({"_id": int(user_id)}, {"$set": {"paid_premium": True, "free_premium": False, "upload_limit_gb": 60}}) # Explicitly set limit in GB
     await update.message.edit("Added Successfully To Premium Upload Limit 60 GB")
-    await bot.send_message(user_id, f"Hey {update.from_user.mention} \n\nYou Are Upgraded To <b>⚡ Standard</b>. Check Your Plan Here /myplan")
+    await bot.send_message(user_id, f"🎉 Congratulations! You've been upgraded to Premium!\n\nPlan: ⚡ Standard\nDuration: 1 Year\nMax size Upload 4GB\nUpload Limit: 60GB\n\n✨ Enjoy your premium features!\nCheck your plan: /myplan")
 
 
 
@@ -321,7 +321,7 @@ async def vip3(bot,update):
     # Mark as paid premium and remove free premium
     dbcol.update_one({"_id": int(user_id)}, {"$set": {"paid_premium": True, "free_premium": False, "upload_limit_gb": 150}}) # Explicitly set limit in GB
     await update.message.edit("Added Successfully To Premium Upload Limit 150 GB")
-    await bot.send_message(user_id, f"Hey {update.from_user.mention} \n\nYou Are Upgraded To <b>💎 Pro</b>. Check Your Plan Here /myplan")
+    await bot.send_message(user_id, f"🎉 Congratulations! You've been upgraded to Premium!\n\nPlan: 💎 Pro\nDuration: 1 Year\nMax size Upload 4GB\nUpload Limit: 150GB\n\n✨ Enjoy your premium features!\nCheck your plan: /myplan")
 
 
 
