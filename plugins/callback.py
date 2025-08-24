@@ -94,11 +94,11 @@ async def home_callback_handler(bot, query):
         InlineKeyboardButton("❤️‍🩹 About", callback_data='about')],
         [InlineKeyboardButton("🧑‍💻 Developer 🧑‍💻", url="https://t.me/viizet")]
         ])
-    await query.message.edit_text(text=text, reply_markup=keybord)
 
-
-
-
-
-
-
+    try:
+        await query.message.edit_text(text = text,reply_markup = keybord)
+    except Exception as e:
+        if "MESSAGE_NOT_MODIFIED" in str(e):
+            await query.answer("Already on home page!", show_alert=False)
+        else:
+            print(f"Error in home_callback_handler: {e}")
