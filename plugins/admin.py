@@ -10,9 +10,6 @@ token = BOT_TOKEN
 botid = token.split(':')[0]
 
 
-
-
-
 @Client.on_message(filters.private & filters.user(ADMIN) & filters.command(["warn"]))
 async def warn(c, m):
     if len(m.command) < 3:
@@ -41,7 +38,7 @@ async def warn(c, m):
         # Send warning message
         try:
             await c.send_message(
-                chat_id=user_id, 
+                chat_id=user_id,
                 text=f"⚠️ **Warning from Admin (@viizet):**\n\n{reason}\n\n**Note:** Please follow bot rules to avoid restrictions."
             )
             await m.reply_text(f"✅ Warning sent successfully to {user_name} ({user_id})!")
@@ -93,7 +90,7 @@ async def ban_user_cmd(bot, message):
         # Send ban notification to user
         try:
             await bot.send_message(
-                chat_id=user_id, 
+                chat_id=user_id,
                 text=f"🚫 **You have been banned from the bot!**\n\n**Reason:** {reason}\n\n**Contact Admin:** @viizet"
             )
         except Exception:
@@ -141,7 +138,7 @@ async def unban_user_cmd(bot, message):
         # Send unban notification to user
         try:
             await bot.send_message(
-                chat_id=user_id, 
+                chat_id=user_id,
                 text=f"✅ **You have been unbanned!**\n\nYou can now use the bot again.\n\n**Contact Admin:** @viizet"
             )
         except Exception:
@@ -159,22 +156,16 @@ async def unban_user_cmd(bot, message):
         await m.reply_text(f"❌ Unexpected error: {str(e)}")
 
 
-
 @Client.on_message(filters.private & filters.user(ADMIN) & filters.command(["addpremium"]))
 async def buypremium(bot, message):
     button = InlineKeyboardMarkup([
-        [InlineKeyboardButton("🪙 Basic", callback_data="paid_plan_basic"),
-        InlineKeyboardButton("⚡ Standard", callback_data="paid_plan_standard")],
-        [InlineKeyboardButton("💎 Pro", callback_data="paid_plan_pro")],
+        [InlineKeyboardButton("🪙 Basic", callback_data="vip1"),
+        InlineKeyboardButton("⚡ Standard", callback_data="vip2")],
+        [InlineKeyboardButton("💎 Pro", callback_data="vip3")],
         [InlineKeyboardButton("✖️ Cancel ✖️",callback_data = "cancel")]
         ])
 
     await message.reply_text("🦋 Select Plan To Upgrade...", quote=True, reply_markup=button)
-
-
-
-
-
 
 
 @Client.on_message(filters.private & filters.user(ADMIN) & filters.command(["removepremium"]))
@@ -198,16 +189,18 @@ async def removepremium(bot, message):
             await message.reply_text(f"❌ User {user_id} doesn't have paid premium!", quote=True)
             return
 
-        # Remove premium using the dedicated function
-        from helper.database import remove_paid_premium_from_user
-        remove_paid_premium_from_user(user_id)
+        # Remove premium
+        from helper.database import dbcol
+        uploadlimit(user_id, 2147483652)  # Reset to 2GB
+        usertype(user_id, "Free")
+        dbcol.update_one({"_id": user_id}, {"$set": {"prexdate": None, "paid_premium": False}})
 
         await message.reply_text(f"✅ **Paid premium removed from user:** `{user_id}`", quote=True)
 
         # Notify the user
         try:
             await bot.send_message(
-                user_id, 
+                user_id,
                 "⚠️ **Your premium subscription has been removed by admin.**\n\nYou are now on the Free plan. Check /myplan for details."
             )
         except:
@@ -226,7 +219,7 @@ async def allcommand(bot, message):
 <b>👥 USER COMMANDS:</b>
 • /start - Start the bot and see welcome message
 • /viewthumb - View current thumbnail
-• /delthumb - Delete current thumbnail  
+• /delthumb - Delete current thumbnail
 • /set_caption - Set custom caption
 • /see_caption - View current caption
 • /del_caption - Delete custom caption
@@ -240,7 +233,7 @@ async def allcommand(bot, message):
 <b>🔧 ADMIN COMMANDS:</b>
 
 <b>📊 Statistics & Management:</b>
-• /users - View detailed bot statistics
+• /stats - View bot statistics and user categories
 • /admin - Show interactive admin panel
 • /top10 - Show top 10 active users
 • /allcommand - Show all bot commands (this command)
@@ -250,6 +243,7 @@ async def allcommand(bot, message):
 • /ban [user_id] [reason] - Ban user
 • /unban [user_id] - Unban user
 • /broadcast - Broadcast message to all users
+• /listall - View all users by category
 
 <b>💎 Premium Management:</b>
 • /addpremium - Upgrade user to premium (paid premium)
@@ -271,151 +265,55 @@ async def allcommand(bot, message):
     await message.reply_text(commands_text, quote=True, reply_markup=button)
 
 
-# PAID PREMIUM PLAN SELECTION
-@Client.on_callback_query(filters.regex('paid_plan_(.+)'))
-async def paid_plan_selection(bot, update):
-    plan = update.data.split('_')[-1]
-    
-    plan_details = {
-        "basic": {
-            "name": "🪙 Basic",
-            "daily_limit": "60GB",
-            "max_file": "2GB",
-            "price": "$0.50/month"
-        },
-        "standard": {
-            "name": "⚡ Standard", 
-            "daily_limit": "60GB",
-            "max_file": "4GB",
-            "price": "$1.50/month"
-        },
-        "pro": {
-            "name": "💎 Pro",
-            "daily_limit": "150GB",
-            "max_file": "4GB", 
-            "price": "$3.00/month"
-        }
-    }
-    
-    details = plan_details[plan]
-    
-    plan_info_text = f"**📋 PAID PREMIUM PLAN: {details['name']}**\n\n"
-    plan_info_text += f"**Daily Upload Limit:** {details['daily_limit']}\n"
-    plan_info_text += f"**Max File Size:** {details['max_file']}\n"
-    plan_info_text += f"**Price:** {details['price']}\n\n"
-    plan_info_text += "**Choose duration:**"
-
-    keyboard = InlineKeyboardMarkup([
-        [InlineKeyboardButton("1 Day", callback_data=f"paid_duration_{plan}_1day")],
-        [InlineKeyboardButton("1 Week", callback_data=f"paid_duration_{plan}_7days")],
-        [InlineKeyboardButton("1 Month", callback_data=f"paid_duration_{plan}_30days")],
-        [InlineKeyboardButton("3 Months", callback_data=f"paid_duration_{plan}_90days")],
-        [InlineKeyboardButton("6 Months", callback_data=f"paid_duration_{plan}_180days")],
-        [InlineKeyboardButton("1 Year", callback_data=f"paid_duration_{plan}_365days")],
-        [InlineKeyboardButton("🔙 Back", callback_data="back_to_paid_plans")]
-    ])
-
-    await update.message.edit_text(plan_info_text, reply_markup=keyboard)
-
-@Client.on_callback_query(filters.regex("back_to_paid_plans"))
-async def back_to_paid_plans(bot, update):
-    button = InlineKeyboardMarkup([
-        [InlineKeyboardButton("🪙 Basic", callback_data="paid_plan_basic"),
-        InlineKeyboardButton("⚡ Standard", callback_data="paid_plan_standard")],
-        [InlineKeyboardButton("💎 Pro", callback_data="paid_plan_pro")],
-        [InlineKeyboardButton("✖️ Cancel ✖️",callback_data = "cancel")]
-        ])
-
-    await update.message.edit_text("🦋 Select Plan To Upgrade...", reply_markup=button)
-
-# PAID PREMIUM DURATION SELECTION AND ACTIVATION
-@Client.on_callback_query(filters.regex('paid_duration_(.+)_(.+)'))
-async def paid_duration_selection(bot, update):
-    parts = update.data.split('_')
-    plan = parts[2]
-    duration_days = int(parts[3].replace('days', '').replace('day', ''))
-    
+# PREMIUM POWER MODE @viizet
+@Client.on_callback_query(filters.regex('vip1'))
+async def vip1(bot,update):
     id = update.message.reply_to_message.text.split("/addpremium")
-    user_id = int(id[1].replace(" ", ""))
-    
+    user_id = id[1].replace(" ", "")
     from helper.database import dbcol
-    from helper.date import add_custom_date
-    
-    # Plan configurations
-    plan_configs = {
-        "basic": {
-            "name": "🪙 Basic",
-            "limit": 64424509440,  # 60GB
-            "limit_gb": 60,
-            "max_file": "2GB"
-        },
-        "standard": {
-            "name": "⚡ Standard",
-            "limit": 64424509440,  # 60GB  
-            "limit_gb": 60,
-            "max_file": "4GB"
-        },
-        "pro": {
-            "name": "💎 Pro",
-            "limit": 161061273600,  # 150GB
-            "limit_gb": 150,
-            "max_file": "4GB"
-        }
-    }
-    
-    config = plan_configs[plan]
-    
-    # Calculate expiry date
-    expiry_date = add_custom_date(duration_days)
-    
-    # Convert date string to timestamp for consistency
-    import time
-    expiry_timestamp = int(time.mktime(time.strptime(expiry_date[0], '%Y-%m-%d')))
-    
-    # Apply paid premium
-    uploadlimit(user_id, config["limit"])
-    usertype(user_id, config["name"])
-    
-    # Mark as paid premium and remove free premium, set custom expiry
-    dbcol.update_one({"_id": user_id}, {
-        "$set": {
-            "paid_premium": True, 
-            "free_premium": False, 
-            "upload_limit_gb": config["limit_gb"],
-            "prexdate": expiry_timestamp,
-            "paid_premium_duration": duration_days
-        }
-    })
-    
-    # Duration text formatting
-    if duration_days == 1:
-        duration_text = "1 Day"
-    elif duration_days == 7:
-        duration_text = "1 Week"
-    elif duration_days == 30:
-        duration_text = "1 Month"
-    elif duration_days == 90:
-        duration_text = "3 Months"
-    elif duration_days == 180:
-        duration_text = "6 Months"
-    elif duration_days == 365:
-        duration_text = "1 Year"
-    else:
-        duration_text = f"{duration_days} Days"
-    
-    await update.message.edit_text(f"✅ Added Successfully To Paid Premium!\n\nPlan: {config['name']}\nDuration: {duration_text}\nUpload Limit: {config['limit_gb']}GB")
-    
-    # Notify user
-    await bot.send_message(
-        user_id, 
-        f"🎉 Congratulations! You've been upgraded to Paid Premium!\n\n"
-        f"Plan: {config['name']}\n"
-        f"Duration: {duration_text}\n"
-        f"Max File Size: {config['max_file']}\n"
-        f"Upload Limit: {config['limit_gb']}GB\n\n"
-        f"✨ Enjoy your premium features!\n"
-        f"Check your plan: /myplan"
-    )
+    # Original limits were 2GB for Basic, 50GB for Standard, 100GB for Pro.
+    # Updated to 15GB Free, 60GB Basic, 60GB Standard, 150GB Pro.
+    # Here, we handle the 'Basic' plan upgrade.
+    inlimit  = 64424509440  # 60GB for Basic users
+    uploadlimit(int(user_id),64424509440) # Set to 60GB
+    usertype(int(user_id),"🪙 Basic")
+    addpre(int(user_id))
+    # Mark as paid premium and remove free premium
+    dbcol.update_one({"_id": user_id}, {"$set": {"paid_premium": True, "free_premium": False, "upload_limit_gb": 60}}) # Explicitly set limit in GB
+    await update.message.edit("Added Successfully To Premium Upload Limit 60 GB")
+    await bot.send_message(user_id, f"Hey {update.from_user.mention} \n\nYou Are Upgraded To <b>🪙 Basic</b>. Check Your Plan Here /myplan")
+
+
+
+@Client.on_callback_query(filters.regex('vip2'))
+async def vip2(bot,update):
+    id = update.message.reply_to_message.text.split("/addpremium")
+    user_id = id[1].replace(" ", "")
+    from helper.database import dbcol
+    inlimit = 64424509440 # 60GB for Standard users
+    uploadlimit(int(user_id), 64424509440) # Set to 60GB
+    usertype(int(user_id),"⚡ Standard")
+    addpre(int(user_id))
+    # Mark as paid premium and remove free premium
+    dbcol.update_one({"_id": int(user_id)}, {"$set": {"paid_premium": True, "free_premium": False, "upload_limit_gb": 60}}) # Explicitly set limit in GB
+    await update.message.edit("Added Successfully To Premium Upload Limit 60 GB")
+    await bot.send_message(user_id, f"Hey {update.from_user.mention} \n\nYou Are Upgraded To <b>⚡ Standard</b>. Check Your Plan Here /myplan")
+
+
+
+@Client.on_callback_query(filters.regex('vip3'))
+async def vip3(bot,update):
+    id = update.message.reply_to_message.text.split("/addpremium")
+    user_id = id[1].replace(" ", "")
+    from helper.database import dbcol
+    inlimit = 161061273600 # 150GB for Pro users
+    uploadlimit(int(user_id), 161061273600) # Set to 150GB
+    usertype(int(user_id),"💎 Pro")
+    addpre(int(user_id))
+    # Mark as paid premium and remove free premium
+    dbcol.update_one({"_id": int(user_id)}, {"$set": {"paid_premium": True, "free_premium": False, "upload_limit_gb": 150}}) # Explicitly set limit in GB
+    await update.message.edit("Added Successfully To Premium Upload Limit 150 GB")
+    await bot.send_message(user_id, f"Hey {update.from_user.mention} \n\nYou Are Upgraded To <b>💎 Pro</b>. Check Your Plan Here /myplan")
 
 
 
@@ -429,8 +327,7 @@ async def paid_duration_selection(bot, update):
 
 
 
-
-# Viizet Developer 
+# Viizet Developer
 # Telegram Channel @Phioza
 # Developer @viizet
 @Client.on_message(filters.private & filters.user(ADMIN) & filters.command(["admin"]))
@@ -438,12 +335,13 @@ async def admin_panel(bot, message):
     admin_text = """<b>🔧 ADMIN CONTROL PANEL</b>
 
 <b>👥 User Management:</b>
-• /users - View bot statistics
+• /stats - View bot statistics and user categories
 • /broadcast - Send message to all users
 • /warn [user_id] [message] - Warn user
 • /ban [user_id] [reason] - Ban user
 • /unban [user_id] - Unban user
-• /top10 - Top 10 active users
+• /top10 - View top 10 users
+• /listall - View all users by category
 
 <b>💎 Premium Management:</b>
 • /addpremium - Add premium to user
@@ -542,12 +440,13 @@ async def admin_back(bot, callback_query):
     admin_text = """<b>🔧 ADMIN CONTROL PANEL</b>
 
 <b>👥 User Management:</b>
-• /users - View bot statistics
+• /stats - View bot statistics and user categories
 • /broadcast - Send message to all users
 • /warn [user_id] [message] - Warn user
 • /ban [user_id] [reason] - Ban user
 • /unban [user_id] - Unban user
-• /top10 - Top 10 active users
+• /top10 - View top 10 users
+• /listall - View all users by category
 
 <b>💎 Premium Management:</b>
 • /addpremium - Add premium to user
@@ -605,9 +504,11 @@ async def admin_info(bot, callback_query):
     if data == "admin_users":
         text = """<b>👥 USER MANAGEMENT COMMANDS</b>
 
-• `/users` - View detailed bot statistics
+• `/stats` - View detailed bot statistics
+• `/broadcast` - Send message to all users
+• `/listall` - View all users by category
 • `/warn [user_id] [message]` - Send warning
-• `/ban [user_id] [reason]` - Ban user  
+• `/ban [user_id] [reason]` - Ban user
 • `/unban [user_id]` - Unban user
 • `/top10` - View top 10 users
 
@@ -627,7 +528,7 @@ async def admin_info(bot, callback_query):
 **Premium Plans:**
 • <b>Free User:</b> 15GB Daily Upload Limit, 2GB Max File Size
 • <b>🪙 Basic:</b> 60GB Daily Upload Limit, 2GB Max File Size
-• <b>⚡ Standard:</b> 60GB Daily Upload Limit, 4GB Max File Size  
+• <b>⚡ Standard:</b> 60GB Daily Upload Limit, 4GB Max File Size
 • <b>💎 Pro:</b> 150GB Daily Upload Limit, 4GB Max File Size
 
 **Example:**
@@ -639,7 +540,7 @@ Reply to user message with `/addpremium` to upgrade."""
 **Ban User:**
 `/ban [user_id] [reason]`
 
-**Unban User:**  
+**Unban User:**
 `/unban [user_id]`
 
 **Check Statistics:**
