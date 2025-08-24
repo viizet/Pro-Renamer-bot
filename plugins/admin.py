@@ -243,7 +243,6 @@ async def allcommand(bot, message):
 • /ban [user_id] [reason] - Ban user
 • /unban [user_id] - Unban user
 • /broadcast - Broadcast message to all users
-• /listall - View all users by category
 
 <b>💎 Premium Management:</b>
 • /addpremium - Upgrade user to premium (paid premium)
@@ -341,7 +340,6 @@ async def admin_panel(bot, message):
 • /ban [user_id] [reason] - Ban user
 • /unban [user_id] - Unban user
 • /top10 - View top 10 users
-• /listall - View all users by category
 
 <b>💎 Premium Management:</b>
 • /addpremium - Add premium to user
@@ -446,7 +444,6 @@ async def admin_back(bot, callback_query):
 • /ban [user_id] [reason] - Ban user
 • /unban [user_id] - Unban user
 • /top10 - View top 10 users
-• /listall - View all users by category
 
 <b>💎 Premium Management:</b>
 • /addpremium - Add premium to user
@@ -504,9 +501,8 @@ async def admin_info(bot, callback_query):
     if data == "admin_users":
         text = """<b>👥 USER MANAGEMENT COMMANDS</b>
 
-• `/stats` - View detailed bot statistics
+• `/stats` - View detailed bot statistics and user categories
 • `/broadcast` - Send message to all users
-• `/listall` - View all users by category
 • `/warn [user_id] [message]` - Send warning
 • `/ban [user_id] [reason]` - Ban user
 • `/unban [user_id]` - Unban user
