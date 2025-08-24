@@ -24,13 +24,16 @@ async def start(client, message):
         daily_(message.from_user.id, epcho)
         used_limit(message.from_user.id, 0)
     _newus = find_one(message.from_user.id)
-    used = max(0, int(_newus["used_limit"]))  # Ensure used is never negative
+    used_raw = _newus.get("used_limit", 0)
+    # Handle None, negative values, or any other invalid data
+    if used_raw is None or used_raw < 0:
+        used = 0
+        used_limit(message.from_user.id, 0)  # Reset in database
+    else:
+        used = int(used_raw)
+    
     limit = _newus["uploadlimit"]
     remain = int(limit) - int(used)
-    
-    # If used was negative, reset it to 0 in database
-    if int(_newus["used_limit"]) < 0:
-        used_limit(message.from_user.id, 0)
     user = _newus["usertype"]
     ends = _newus["prexdate"]
     if ends:
@@ -61,7 +64,10 @@ async def start(client, message):
     premium_badge = " 🎁" if (is_free_premium and not is_paid_premium) else ""
     
     if ends == None:
-        text = f"<b>User ID :</b> <code>{message.from_user.id}</code> \n<b>Name :</b> {message.from_user.mention} \n\n<b>🏷 Plan :</b> {user}{premium_badge} \n\n✓ Max File Size: 2GB \n✓ Daily Upload : {humanbytes(limit)} \n✓ Today Used : {humanbytes(used)} \n✓ Remain : {humanbytes(remain)} \n✓ Timeout : 2 Minutes \n✓ Parallel process : Unlimited \n✓ Time Gap : Yes \n\n<b>Validity :</b> Lifetime"
+        # Format usage display - show "0 B" when usage is 0
+        used_display = "0 B" if used == 0 else humanbytes(used)
+        
+        text = f"<b>User ID :</b> <code>{message.from_user.id}</code> \n<b>Name :</b> {message.from_user.mention} \n\n<b>🏷 Plan :</b> {user}{premium_badge} \n\n✓ Max File Size: 2GB \n✓ Daily Upload : {humanbytes(limit)} \n✓ Today Used : {used_display} \n✓ Remain : {humanbytes(remain)} \n✓ Timeout : 2 Minutes \n✓ Parallel process : Unlimited \n✓ Time Gap : Yes \n\n<b>Validity :</b> Lifetime"
     else:
         # Handle timestamp conversion properly
         if isinstance(ends, str):
@@ -89,7 +95,10 @@ async def start(client, message):
         else:
             max_file_size = "2GB"
             
-        text = f"<b>User ID :</b> <code>{message.from_user.id}</code> \n<b>Name :</b> {message.from_user.mention} \n\n<b>🏷 Plan :</b> {plan_info} \n\n✓ High Priority \n✓ Max File Size: {max_file_size} \n✓ Daily Upload : {humanbytes(limit)} \n✓ Today Used : {humanbytes(used)} \n✓ Remain : {humanbytes(remain)} \n✓ Timeout : 0 Second \n✓ Parallel process : Unlimited \n✓ Time Gap : Yes \n\n<b>Your Plan Ends On :</b> {normal_date}"
+        # Format usage display - show "0 B" when usage is 0
+    used_display = "0 B" if used == 0 else humanbytes(used)
+    
+    text = f"<b>User ID :</b> <code>{message.from_user.id}</code> \n<b>Name :</b> {message.from_user.mention} \n\n<b>🏷 Plan :</b> {plan_info} \n\n✓ High Priority \n✓ Max File Size: {max_file_size} \n✓ Daily Upload : {humanbytes(limit)} \n✓ Today Used : {used_display} \n✓ Remain : {humanbytes(remain)} \n✓ Timeout : 0 Second \n✓ Parallel process : Unlimited \n✓ Time Gap : Yes \n\n<b>Your Plan Ends On :</b> {normal_date}"
 
     if user == "Free":
         await message.reply(text, quote=True, reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("💳 Upgrade", callback_data="upgrade"), InlineKeyboardButton("✖️ Cancel", callback_data="cancel")]]))
