@@ -268,6 +268,9 @@ def apply_free_premium_to_user(user_id, plan, duration_days):
 
 def remove_free_premium_from_user(user_id):
     """Remove free premium from a user"""
+    uploadlimit(user_id, 16106127360)  # Reset to 15GB for free users
+    usertype(user_id, "Free")
+    dbcol.update_one({"_id": user_id}, {"$set": {"free_premium": False, "prexdate": None}})
 
 def set_free_premium_config(plan, duration_days):
     """Set global free premium configuration"""
