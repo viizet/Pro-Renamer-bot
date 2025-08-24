@@ -88,10 +88,11 @@ START_PIC=custom_start_image_url
 ## 🔧 Admin Commands
 
 **User Management:**
-- `/users` - View bot statistics
+- `/stats` - View bot statistics and user categories
 - `/ban` / `/unban` - Manage user access
 - `/broadcast` - Send message to all users
 - `/top10` - View most active users
+- `/warn` - Send warnings to users
 
 **Premium Management:**
 - `/addpremium` - Add paid premium
@@ -102,6 +103,7 @@ START_PIC=custom_start_image_url
 **System:**
 - `/admin` - Admin control panel
 - `/restart` - Restart bot
+- `/allcommand` - Show all available commands
 
 ## 🛠️ Tech Stack
 
