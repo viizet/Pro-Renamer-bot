@@ -9,7 +9,19 @@ from helper.progress import humanbytes
 @Client.on_message(filters.private & filters.user(ADMIN) & filters.command(["stats"]))
 async def stats_menu(bot, message):
     """Main listall menu with user category buttons"""
+    from helper.database import botdata, find_one
+    from config import BOT_TOKEN
+    
+    # Get user statistics
     stats = get_user_statistics()
+    
+    # Get bot file statistics
+    token = BOT_TOKEN
+    botid = token.split(':')[0]
+    botdata(int(botid))
+    data = find_one(int(botid))
+    total_rename = data["total_rename"] if data and "total_rename" in data else 0
+    total_size = data["total_size"] if data and "total_size" in data else 0
     
     status_text = f"""**📊 USER MANAGEMENT PANEL**
 
@@ -18,6 +30,10 @@ async def stats_menu(bot, message):
 💎 Premium Users: {stats['premium_users']}
 🆓 Free Users: {stats['free_users']}
 🚫 Banned Users: {stats['banned_users']}
+
+**📁 FILE STATISTICS:**
+• Total Files Renamed: {total_rename}
+• Total Size Processed: {humanbytes(int(total_size)) if total_size else "0 B"}
 
 **Select category to view users:**"""
 
@@ -184,7 +200,19 @@ async def list_all_users(bot, update):
 @Client.on_callback_query(filters.regex("refresh_listall"))
 async def refresh_listall(bot, update):
     """Refresh the listall menu"""
+    from helper.database import botdata, find_one
+    from config import BOT_TOKEN
+    
+    # Get user statistics
     stats = get_user_statistics()
+    
+    # Get bot file statistics
+    token = BOT_TOKEN
+    botid = token.split(':')[0]
+    botdata(int(botid))
+    data = find_one(int(botid))
+    total_rename = data["total_rename"] if data and "total_rename" in data else 0
+    total_size = data["total_size"] if data and "total_size" in data else 0
     
     status_text = f"""**📊 USER MANAGEMENT PANEL**
 
@@ -193,6 +221,10 @@ async def refresh_listall(bot, update):
 💎 Premium Users: {stats['premium_users']}
 🆓 Free Users: {stats['free_users']}
 🚫 Banned Users: {stats['banned_users']}
+
+**📁 FILE STATISTICS:**
+• Total Files Renamed: {total_rename}
+• Total Size Processed: {humanbytes(int(total_size)) if total_size else "0 B"}
 
 **Select category to view users:**"""
 
