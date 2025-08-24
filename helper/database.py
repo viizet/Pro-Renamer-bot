@@ -41,7 +41,7 @@ def total_size(chat_id, total_size, now_file_size):
 def insert(chat_id):
     user_id = int(chat_id)
     user_det = {"_id": user_id, "file_id": None, "caption": None, "daily": 0, "date": 0,
-                "uploadlimit": 16106127360, "used_limit": 0, "usertype": "Free", "prexdate": None,
+                "uploadlimit": 10737418240, "used_limit": 0, "usertype": "Free", "prexdate": None,
                 "metadata": False, "metadata_code": "By @Madflix_Bots", "free_premium": False, "paid_premium": False}
     try:
         dbcol.insert_one(user_det)
@@ -259,7 +259,7 @@ def apply_free_premium_to_user(user_id, plan, duration_days):
     elif "Standard" in plan:
         limit = 64424509440  # 60GB
     elif "Pro" in plan:
-        limit = 161061273600  # 150GB
+        limit = 999999999999999999  # Unlimited (very large number)
     else:
         limit = 64424509440  # Default to Basic
 
@@ -275,7 +275,7 @@ def apply_free_premium_to_user(user_id, plan, duration_days):
 
 def remove_free_premium_from_user(user_id):
     """Remove free premium from a user"""
-    uploadlimit(user_id, 16106127360)  # Reset to 15GB for free users
+    uploadlimit(user_id, 10737418240)  # Reset to 10GB for free users
     usertype(user_id, "Free")
     dbcol.update_one({"_id": user_id}, {"$set": {"free_premium": False, "prexdate": None}})
 
@@ -300,15 +300,15 @@ def apply_free_premium_to_user(user_id, plan, duration_days):
     user_data = find_one(user_id)
     if not user_data:
         return False
-    
+
     # Do not apply free premium to paid premium users
     if user_data.get("paid_premium", False):
         return False
-    
+
     # Only apply to users with "Free" usertype OR existing free premium users
     current_usertype = user_data.get("usertype")
     has_free_premium = user_data.get("free_premium", False)
-    
+
     # Skip if user has paid premium or if they're not free/free-premium users
     if current_usertype != "Free" and not has_free_premium:
         return False
@@ -319,9 +319,9 @@ def apply_free_premium_to_user(user_id, plan, duration_days):
     elif plan == "⚡ Standard":
         limit = 64424509440  # 60GB
     elif plan == "💎 Pro":
-        limit = 161061273600  # 150GB
+        limit = 999999999999999999  # Unlimited (very large number)
     else:
-        limit = 16106127360  # Default 15GB
+        limit = 10737418240  # Default 10GB
 
     # Calculate expiry date
     expiry_date = add_custom_date(duration_days)
@@ -336,7 +336,7 @@ def remove_free_premium_from_user(user_id):
     """Remove free premium from a user (only if they are free premium, not paid premium)"""
     user_data = find_one(user_id)
     if user_data and user_data.get("free_premium", False) and not user_data.get("paid_premium", False):
-        uploadlimit(user_id, 16106127360)  # Reset to 15GB (correct free user limit)
+        uploadlimit(user_id, 10737418240)  # 10GB for free users
         usertype(user_id, "Free")
         dbcol.update_one({"_id": user_id}, {"$set": {"prexdate": None, "free_premium": False}})
         return True
