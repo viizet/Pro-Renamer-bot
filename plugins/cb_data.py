@@ -18,14 +18,31 @@ app = Client("viizet", api_id=API_ID, api_hash=API_HASH, session_string=STRING_S
 # --------- Helper function for resizing thumbs (aspect ratio safe)
 def resize_thumb(ph_path):
     try:
+        if not os.path.exists(ph_path):
+            print(f"Thumbnail file not found: {ph_path}")
+            return False
+        
+        if os.path.getsize(ph_path) == 0:
+            print(f"Thumbnail file is empty: {ph_path}")
+            os.remove(ph_path)
+            return False
+            
         img = Image.open(ph_path).convert("RGB")
         w, h = img.size
         new_width = 320
         new_height = int((h / w) * new_width)
-        img = img.resize((new_width, new_height), Image.ANTIALIAS)
+        img = img.resize((new_width, new_height), Image.LANCZOS)
         img.save(ph_path, "JPEG")
+        return True
     except Exception as e:
         print("Thumb resize error:", e)
+        # Remove corrupted thumbnail file
+        try:
+            if os.path.exists(ph_path):
+                os.remove(ph_path)
+        except:
+            pass
+        return False
 
 
 @Client.on_callback_query(filters.regex('cancel'))
@@ -112,12 +129,26 @@ async def doc(bot, update):
     # Verify file exists and has size
     if not os.path.exists(file_path):
         await ms.edit("❌ Error: File not found after processing")
+        # Reset used limit on error
+        neg_used = used - int(file.file_size)
+        used_limit(update.from_user.id, neg_used)
         return
     
-    if os.path.getsize(file_path) == 0:
-        await ms.edit("❌ Error: File size is 0 bytes")
+    actual_file_size = os.path.getsize(file_path)
+    if actual_file_size == 0:
+        await ms.edit("❌ Error: Downloaded file is corrupted (0 bytes). Please try again.")
         os.remove(file_path)
+        # Reset used limit on error
+        neg_used = used - int(file.file_size)
+        used_limit(update.from_user.id, neg_used)
         return
+    
+    # Verify file size matches expected size (allow small variance for metadata)
+    expected_size = int(file.file_size)
+    size_difference = abs(actual_file_size - expected_size)
+    if size_difference > (expected_size * 0.1):  # Allow 10% variance
+        await ms.edit(f"⚠️ Warning: File size mismatch detected.\nExpected: {humanbytes(expected_size)}\nActual: {humanbytes(actual_file_size)}")
+        # Continue with upload but log the issue
     user_id = int(update.message.chat.id)
     data = find(user_id)
 
@@ -135,8 +166,18 @@ async def doc(bot, update):
         caption = f"**{new_filename}**"
 
     if thumb:
-        ph_path = await bot.download_media(thumb)
-        resize_thumb(ph_path)
+        try:
+            ph_path = await bot.download_media(thumb)
+            if ph_path and os.path.exists(ph_path):
+                if not resize_thumb(ph_path):
+                    # If thumbnail processing fails, continue without thumbnail
+                    ph_path = None
+            else:
+                ph_path = None
+        except Exception as thumb_error:
+            print(f"Thumbnail download error: {thumb_error}")
+            # If thumbnail download fails (expired reference, etc.), continue without thumbnail
+            ph_path = None
         c_time = time.time()
     else:
         ph_path = None
@@ -301,16 +342,35 @@ async def vid(bot, update):
             caption = f"**{new_filename}**"
             
         if thumb:
-            ph_path = await bot.download_media(thumb)
-            resize_thumb(ph_path)
+            try:
+                ph_path = await bot.download_media(thumb)
+                if ph_path and os.path.exists(ph_path):
+                    if not resize_thumb(ph_path):
+                        ph_path = None
+                else:
+                    ph_path = None
+            except Exception as thumb_error:
+                print(f"Thumbnail download error: {thumb_error}")
+                # If custom thumbnail fails, try to generate from video
+                ph_path = None
+                if duration > 0:
+                    try:
+                        ph_path_ = await take_screen_shot(file_path, os.path.dirname(os.path.abspath(file_path)), random.randint(0, duration - 1))
+                        width, height, ph_path = await fix_thumb(ph_path_)
+                    except Exception as fallback_error:
+                        print(f"Fallback thumbnail generation failed: {fallback_error}")
+                        ph_path = None
             c_time = time.time()
         else:
             try:
-                ph_path_ = await take_screen_shot(file_path, os.path.dirname(os.path.abspath(file_path)), random.randint(0, duration - 1))
-                width, height, ph_path = await fix_thumb(ph_path_)
+                if duration > 0:
+                    ph_path_ = await take_screen_shot(file_path, os.path.dirname(os.path.abspath(file_path)), random.randint(0, duration - 1))
+                    width, height, ph_path = await fix_thumb(ph_path_)
+                else:
+                    ph_path = None
             except Exception as e:
                 ph_path = None
-                print(e)
+                print(f"Screenshot generation error: {e}")
 
         value = 2090000000
         if value < file.file_size:
