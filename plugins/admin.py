@@ -268,51 +268,66 @@ async def allcommand(bot, message):
 @Client.on_callback_query(filters.regex('vip1'))
 async def vip1(bot,update):
     id = update.message.reply_to_message.text.split("/addpremium")
-    user_id = id[1].replace(" ", "")
+    user_id = int(id[1].replace(" ", ""))  # Convert to int immediately
     from helper.database import dbcol
     # Original limits were 2GB for Basic, 50GB for Standard, 100GB for Pro.
     # Updated to 15GB Free, 60GB Basic, 60GB Standard, 150GB Pro.
     # Here, we handle the 'Basic' plan upgrade.
     inlimit  = 64424509440  # 60GB for Basic users
-    uploadlimit(int(user_id),64424509440) # Set to 60GB
-    usertype(int(user_id),"🪙 Basic")
-    addpre(int(user_id))
+    uploadlimit(user_id, 64424509440) # Set to 60GB
+    usertype(user_id, "🪙 Basic")
+    addpre(user_id)
     # Mark as paid premium and remove free premium
     dbcol.update_one({"_id": user_id}, {"$set": {"paid_premium": True, "free_premium": False, "upload_limit_gb": 60}}) # Explicitly set limit in GB
     await update.message.edit("Added Successfully To Premium Upload Limit 60 GB")
-    await bot.send_message(user_id, f"Hey {update.from_user.mention} \n\nYou Are Upgraded To <b>🪙 Basic</b>. Check Your Plan Here /myplan")
+    
+    # Try to send message and handle potential errors
+    try:
+        await bot.send_message(user_id, f"Hey there! \n\nYou Are Upgraded To <b>🪙 Basic</b>. Check Your Plan Here /myplan")
+    except Exception as e:
+        print(f"Could not send message to user {user_id}: {e}")
 
 
 
 @Client.on_callback_query(filters.regex('vip2'))
 async def vip2(bot,update):
     id = update.message.reply_to_message.text.split("/addpremium")
-    user_id = id[1].replace(" ", "")
+    user_id = int(id[1].replace(" ", ""))  # Convert to int immediately
     from helper.database import dbcol
     inlimit = 64424509440 # 60GB for Standard users
-    uploadlimit(int(user_id), 64424509440) # Set to 60GB
-    usertype(int(user_id),"⚡ Standard")
-    addpre(int(user_id))
+    uploadlimit(user_id, 64424509440) # Set to 60GB
+    usertype(user_id, "⚡ Standard")
+    addpre(user_id)
     # Mark as paid premium and remove free premium
-    dbcol.update_one({"_id": int(user_id)}, {"$set": {"paid_premium": True, "free_premium": False, "upload_limit_gb": 60}}) # Explicitly set limit in GB
+    dbcol.update_one({"_id": user_id}, {"$set": {"paid_premium": True, "free_premium": False, "upload_limit_gb": 60}}) # Explicitly set limit in GB
     await update.message.edit("Added Successfully To Premium Upload Limit 60 GB")
-    await bot.send_message(user_id, f"Hey {update.from_user.mention} \n\nYou Are Upgraded To <b>⚡ Standard</b>. Check Your Plan Here /myplan")
+    
+    # Try to send message and handle potential errors
+    try:
+        await bot.send_message(user_id, f"Hey there! \n\nYou Are Upgraded To <b>⚡ Standard</b>. Check Your Plan Here /myplan")
+    except Exception as e:
+        print(f"Could not send message to user {user_id}: {e}")
 
 
 
 @Client.on_callback_query(filters.regex('vip3'))
 async def vip3(bot,update):
     id = update.message.reply_to_message.text.split("/addpremium")
-    user_id = id[1].replace(" ", "")
+    user_id = int(id[1].replace(" ", ""))  # Convert to int immediately
     from helper.database import dbcol
     inlimit = 161061273600 # 150GB for Pro users
-    uploadlimit(int(user_id), 161061273600) # Set to 150GB
-    usertype(int(user_id),"💎 Pro")
-    addpre(int(user_id))
+    uploadlimit(user_id, 161061273600) # Set to 150GB
+    usertype(user_id, "💎 Pro")
+    addpre(user_id)
     # Mark as paid premium and remove free premium
-    dbcol.update_one({"_id": int(user_id)}, {"$set": {"paid_premium": True, "free_premium": False, "upload_limit_gb": 150}}) # Explicitly set limit in GB
+    dbcol.update_one({"_id": user_id}, {"$set": {"paid_premium": True, "free_premium": False, "upload_limit_gb": 150}}) # Explicitly set limit in GB
     await update.message.edit("Added Successfully To Premium Upload Limit 150 GB")
-    await bot.send_message(user_id, f"Hey {update.from_user.mention} \n\nYou Are Upgraded To <b>💎 Pro</b>. Check Your Plan Here /myplan")
+    
+    # Try to send message and handle potential errors
+    try:
+        await bot.send_message(user_id, f"Hey there! \n\nYou Are Upgraded To <b>💎 Pro</b>. Check Your Plan Here /myplan")
+    except Exception as e:
+        print(f"Could not send message to user {user_id}: {e}")
 
 
 
