@@ -49,14 +49,11 @@ def insert(chat_id):
         # Check if free premium is active and apply it to new user (only for free users)
         free_config = get_free_premium_config()
         if free_config and free_config.get("active", False):
-            success = apply_free_premium_to_user(user_id, free_config["plan"], free_config["duration_days"])
-            # No notification sent for new users
+            apply_free_premium_to_user(user_id, free_config["plan"], free_config["duration_days"])
 
     except:
         return True
         pass
-
-
 
 
 # Add Thumbnail Data
@@ -94,6 +91,8 @@ def dateupdate(chat_id, date):
     dbcol.update_one({"_id": chat_id}, {"$set": {"date": date}})
 
 def used_limit(chat_id, used):
+    # Ensure used limit is never negative
+    used = max(0, int(used))
     dbcol.update_one({"_id": chat_id}, {"$set": {"used_limit": used}})
 
 def usertype(chat_id, type):
@@ -316,21 +315,11 @@ def apply_free_premium_to_user(user_id, plan, duration_days):
 
     # Calculate expiry date
     expiry_date = add_custom_date(duration_days)
-    
-    # Convert date string to timestamp for consistency
-    import time
-    expiry_timestamp = int(time.mktime(time.strptime(expiry_date[0], '%Y-%m-%d')))
 
-    # Update user data - keep paid premium status intact
+    # Update user data
     uploadlimit(user_id, limit)
     usertype(user_id, plan)
-    dbcol.update_one({"_id": user_id}, {
-        "$set": {
-            "prexdate": expiry_timestamp, 
-            "free_premium": True,
-            "free_premium_duration": duration_days
-        }
-    })
+    dbcol.update_one({"_id": user_id}, {"$set": {"prexdate": expiry_date[0], "free_premium": True}})
     return True
 
 def remove_free_premium_from_user(user_id):
@@ -339,23 +328,7 @@ def remove_free_premium_from_user(user_id):
     if user_data and user_data.get("free_premium", False) and not user_data.get("paid_premium", False):
         uploadlimit(user_id, 16106127360)  # Reset to 15GB (correct free user limit)
         usertype(user_id, "Free")
-        dbcol.update_one({"_id": user_id}, {
-            "$set": {"prexdate": None, "free_premium": False},
-            "$unset": {"free_premium_duration": ""}
-        })
-        return True
-    return False
-
-def remove_paid_premium_from_user(user_id):
-    """Remove paid premium from a user (only if they are paid premium)"""
-    user_data = find_one(user_id)
-    if user_data and user_data.get("paid_premium", False):
-        uploadlimit(user_id, 16106127360)  # Reset to 15GB (correct free user limit)
-        usertype(user_id, "Free")
-        dbcol.update_one({"_id": user_id}, {
-            "$set": {"prexdate": None, "paid_premium": False},
-            "$unset": {"paid_premium_duration": "", "upload_limit_gb": ""}
-        })
+        dbcol.update_one({"_id": user_id}, {"$set": {"prexdate": None, "free_premium": False}})
         return True
     return False
 
