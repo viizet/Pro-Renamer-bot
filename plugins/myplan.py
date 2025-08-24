@@ -52,7 +52,7 @@ async def start(client, message):
         if ends:
             pre_check = check_expi(ends)
             if pre_check == False:
-                uploadlimit(message.from_user.id, 16106127360)  # 15GB for free users
+                uploadlimit(message.from_user.id, 10737418240)  # 10GB for free users
                 usertype(message.from_user.id, "Free")
                 # Remove expired premium status
                 from helper.database import dbcol
@@ -87,18 +87,32 @@ async def start(client, message):
         if is_free_premium and not is_paid_premium:
             plan_info += " (Free Premium)"
 
-        # Determine max file size based on plan
+        # Determine max file size and daily limit based on plan
         if "Basic" in user:
             max_file_size = "2GB"
-        elif "Standard" in user or "Pro" in user:
+            daily_limit_display = humanbytes(limit)
+        elif "Standard" in user:
             max_file_size = "4GB"
+            daily_limit_display = humanbytes(limit)
+        elif "Pro" in user:
+            max_file_size = "4GB"
+            daily_limit_display = "Unlimited"
         else:
             max_file_size = "2GB"
+            daily_limit_display = humanbytes(limit)
 
         # Format usage display - show "0 B" when usage is 0
         used_display = "0 B" if used == 0 else humanbytes(used)
+        
+        # Format remain display for Pro users
+        if "Pro" in user:
+            remain_display = "Unlimited"
+            daily_limit_display = "Unlimited"
+        else:
+            remain_display = humanbytes(remain)
+            daily_limit_display = humanbytes(limit)
 
-        text = f"<b>User ID :</b> <code>{message.from_user.id}</code> \n<b>Name :</b> {message.from_user.mention} \n\n<b>🏷 Plan :</b> {plan_info} \n\n✓ High Priority \n✓ Max File Size: {max_file_size} \n✓ Daily Upload : {humanbytes(limit)} \n✓ Today Used : {used_display} \n✓ Remain : {humanbytes(remain)} \n✓ Timeout : 0 Second \n✓ Parallel process : Unlimited \n✓ Time Gap : Yes \n\n<b>Your Plan Ends On :</b> {normal_date}"
+        text = f"<b>User ID :</b> <code>{message.from_user.id}</code> \n<b>Name :</b> {message.from_user.mention} \n\n<b>🏷 Plan :</b> {plan_info} \n\n✓ High Priority \n✓ Max File Size: {max_file_size} \n✓ Daily Upload : {daily_limit_display} \n✓ Today Used : {used_display} \n✓ Remain : {remain_display} \n✓ Timeout : 0 Second \n✓ Parallel process : Unlimited \n✓ Time Gap : Yes \n\n<b>Your Plan Ends On :</b> {normal_date}"
 
     if user == "Free":
         await message.reply(text, quote=True, reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("💳 Upgrade", callback_data="upgrade"), InlineKeyboardButton("✖️ Cancel", callback_data="cancel")]]))
