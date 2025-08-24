@@ -159,9 +159,9 @@ async def unban_user_cmd(bot, message):
 @Client.on_message(filters.private & filters.user(ADMIN) & filters.command(["addpremium"]))
 async def buypremium(bot, message):
     button = InlineKeyboardMarkup([
-        [InlineKeyboardButton("🪙 Basic", callback_data="vip1"),
-        InlineKeyboardButton("⚡ Standard", callback_data="vip2")],
-        [InlineKeyboardButton("💎 Pro", callback_data="vip3")],
+        [InlineKeyboardButton("🪙 Basic", callback_data="paid_plan_basic"),
+        InlineKeyboardButton("⚡ Standard", callback_data="paid_plan_standard")],
+        [InlineKeyboardButton("💎 Pro", callback_data="paid_plan_pro")],
         [InlineKeyboardButton("✖️ Cancel ✖️",callback_data = "cancel")]
         ])
 
@@ -264,70 +264,102 @@ async def allcommand(bot, message):
     await message.reply_text(commands_text, quote=True, reply_markup=button)
 
 
-# PREMIUM POWER MODE @viizet
-@Client.on_callback_query(filters.regex('vip1'))
-async def vip1(bot,update):
-    id = update.message.reply_to_message.text.split("/addpremium")
-    user_id = int(id[1].replace(" ", ""))  # Convert to int immediately
-    from helper.database import dbcol
-    # Original limits were 2GB for Basic, 50GB for Standard, 100GB for Pro.
-    # Updated to 15GB Free, 60GB Basic, 60GB Standard, 150GB Pro.
-    # Here, we handle the 'Basic' plan upgrade.
-    inlimit  = 64424509440  # 60GB for Basic users
-    uploadlimit(user_id, 64424509440) # Set to 60GB
-    usertype(user_id, "🪙 Basic")
-    addpre(user_id)
-    # Mark as paid premium and remove free premium
-    dbcol.update_one({"_id": user_id}, {"$set": {"paid_premium": True, "free_premium": False, "upload_limit_gb": 60}}) # Explicitly set limit in GB
-    await update.message.edit("Added Successfully To Premium Upload Limit 60 GB")
+# PAID PREMIUM PLAN SELECTION
+@Client.on_callback_query(filters.regex('paid_plan_(.+)'))
+async def paid_plan_selection(bot, update):
+    plan = update.data.split("_")[-1]
     
-    # Try to send message and handle potential errors
+    plan_details = {
+        "basic": {"name": "🪙 Basic", "limit": 64424509440, "limit_gb": 60, "file_size": "2GB"},
+        "standard": {"name": "⚡ Standard", "limit": 64424509440, "limit_gb": 60, "file_size": "4GB"},
+        "pro": {"name": "💎 Pro", "limit": 161061273600, "limit_gb": 150, "file_size": "4GB"}
+    }
+    
+    details = plan_details[plan]
+    
+    plan_info_text = f"**📋 PAID PREMIUM: {details['name']}**\n\n"
+    plan_info_text += f"**Daily Upload Limit:** {details['limit_gb']}GB\n"
+    plan_info_text += f"**Max File Size:** {details['file_size']}\n"
+    plan_info_text += f"**Features:** High Priority Processing, No Timeout\n\n"
+    plan_info_text += "**Choose duration for paid premium:**"
+
+    keyboard = InlineKeyboardMarkup([
+        [InlineKeyboardButton("1 Day", callback_data=f"paid_duration_{plan}_1day")],
+        [InlineKeyboardButton("30 Days", callback_data=f"paid_duration_{plan}_30days")],
+        [InlineKeyboardButton("3 Months", callback_data=f"paid_duration_{plan}_3months")],
+        [InlineKeyboardButton("6 Months", callback_data=f"paid_duration_{plan}_6months")],
+        [InlineKeyboardButton("1 Year", callback_data=f"paid_duration_{plan}_1year")],
+        [InlineKeyboardButton("🔙 Back", callback_data="back_to_paid_plans")]
+    ])
+
+    await update.message.edit_text(plan_info_text, reply_markup=keyboard)
+
+@Client.on_callback_query(filters.regex('paid_duration_(.+)_(.+)'))
+async def paid_duration_selection(bot, update):
+    parts = update.data.split("_")
+    plan = parts[2]
+    duration = parts[3]
+    
+    # Duration mapping
+    duration_map = {
+        "1day": 1,
+        "30days": 30,
+        "3months": 90,
+        "6months": 180,
+        "1year": 365
+    }
+    
+    plan_details = {
+        "basic": {"name": "🪙 Basic", "limit": 64424509440, "limit_gb": 60},
+        "standard": {"name": "⚡ Standard", "limit": 64424509440, "limit_gb": 60},
+        "pro": {"name": "💎 Pro", "limit": 161061273600, "limit_gb": 150}
+    }
+    
+    # Get user ID from the original message
+    id = update.message.reply_to_message.text.split("/addpremium")
+    user_id = int(id[1].replace(" ", ""))
+    
+    duration_days = duration_map[duration]
+    details = plan_details[plan]
+    
+    # Apply paid premium with duration
+    from helper.database import dbcol, add_paid_premium_with_duration
+    uploadlimit(user_id, details["limit"])
+    usertype(user_id, details["name"])
+    
+    # Calculate expiry date
+    from datetime import datetime, timedelta
+    expiry_date = datetime.now() + timedelta(days=duration_days)
+    expiry_timestamp = expiry_date.strftime('%Y-%m-%d')
+    
+    # Mark as paid premium and remove free premium
+    dbcol.update_one({"_id": user_id}, {"$set": {
+        "paid_premium": True, 
+        "free_premium": False, 
+        "upload_limit_gb": details["limit_gb"],
+        "prexdate": expiry_timestamp
+    }})
+    
+    duration_text = duration.replace("days", " days").replace("months", " months").replace("year", " year").replace("day", " day")
+    
+    await update.message.edit(f"✅ **PAID PREMIUM ACTIVATED!**\n\n**Plan:** {details['name']}\n**Duration:** {duration_text}\n**Upload Limit:** {details['limit_gb']}GB")
+    
+    # Try to send message to user
     try:
-        await bot.send_message(user_id, f"Hey there! \n\nYou Are Upgraded To <b>🪙 Basic</b>. Check Your Plan Here /myplan")
+        await bot.send_message(user_id, f"🎉 **Congratulations!**\n\nYou have been upgraded to **{details['name']}** for {duration_text}!\n\n**Features:**\n• Daily Upload Limit: {details['limit_gb']}GB\n• High Priority Processing\n• Timeout: 0 Seconds\n• Parallel Process: Unlimited\n\nCheck your plan: /myplan\n\nThanks for using our bot! 🚀")
     except Exception as e:
         print(f"Could not send message to user {user_id}: {e}")
 
+@Client.on_callback_query(filters.regex('back_to_paid_plans'))
+async def back_to_paid_plans(bot, update):
+    button = InlineKeyboardMarkup([
+        [InlineKeyboardButton("🪙 Basic", callback_data="paid_plan_basic"),
+        InlineKeyboardButton("⚡ Standard", callback_data="paid_plan_standard")],
+        [InlineKeyboardButton("💎 Pro", callback_data="paid_plan_pro")],
+        [InlineKeyboardButton("✖️ Cancel ✖️",callback_data = "cancel")]
+        ])
 
-
-@Client.on_callback_query(filters.regex('vip2'))
-async def vip2(bot,update):
-    id = update.message.reply_to_message.text.split("/addpremium")
-    user_id = int(id[1].replace(" ", ""))  # Convert to int immediately
-    from helper.database import dbcol
-    inlimit = 64424509440 # 60GB for Standard users
-    uploadlimit(user_id, 64424509440) # Set to 60GB
-    usertype(user_id, "⚡ Standard")
-    addpre(user_id)
-    # Mark as paid premium and remove free premium
-    dbcol.update_one({"_id": user_id}, {"$set": {"paid_premium": True, "free_premium": False, "upload_limit_gb": 60}}) # Explicitly set limit in GB
-    await update.message.edit("Added Successfully To Premium Upload Limit 60 GB")
-    
-    # Try to send message and handle potential errors
-    try:
-        await bot.send_message(user_id, f"Hey there! \n\nYou Are Upgraded To <b>⚡ Standard</b>. Check Your Plan Here /myplan")
-    except Exception as e:
-        print(f"Could not send message to user {user_id}: {e}")
-
-
-
-@Client.on_callback_query(filters.regex('vip3'))
-async def vip3(bot,update):
-    id = update.message.reply_to_message.text.split("/addpremium")
-    user_id = int(id[1].replace(" ", ""))  # Convert to int immediately
-    from helper.database import dbcol
-    inlimit = 161061273600 # 150GB for Pro users
-    uploadlimit(user_id, 161061273600) # Set to 150GB
-    usertype(user_id, "💎 Pro")
-    addpre(user_id)
-    # Mark as paid premium and remove free premium
-    dbcol.update_one({"_id": user_id}, {"$set": {"paid_premium": True, "free_premium": False, "upload_limit_gb": 150}}) # Explicitly set limit in GB
-    await update.message.edit("Added Successfully To Premium Upload Limit 150 GB")
-    
-    # Try to send message and handle potential errors
-    try:
-        await bot.send_message(user_id, f"Hey there! \n\nYou Are Upgraded To <b>💎 Pro</b>. Check Your Plan Here /myplan")
-    except Exception as e:
-        print(f"Could not send message to user {user_id}: {e}")
+    await update.message.edit_text("🦋 Select Plan To Upgrade...", reply_markup=button)
 
 
 
