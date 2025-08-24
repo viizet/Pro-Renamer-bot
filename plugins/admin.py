@@ -163,9 +163,9 @@ async def unban_user_cmd(bot, message):
 @Client.on_message(filters.private & filters.user(ADMIN) & filters.command(["addpremium"]))
 async def buypremium(bot, message):
     button = InlineKeyboardMarkup([
-        [InlineKeyboardButton("🪙 Basic", callback_data="vip1"),
-        InlineKeyboardButton("⚡ Standard", callback_data="vip2")],
-        [InlineKeyboardButton("💎 Pro", callback_data="vip3")],
+        [InlineKeyboardButton("🪙 Basic", callback_data="paid_plan_basic"),
+        InlineKeyboardButton("⚡ Standard", callback_data="paid_plan_standard")],
+        [InlineKeyboardButton("💎 Pro", callback_data="paid_plan_pro")],
         [InlineKeyboardButton("✖️ Cancel ✖️",callback_data = "cancel")]
         ])
 
@@ -198,11 +198,9 @@ async def removepremium(bot, message):
             await message.reply_text(f"❌ User {user_id} doesn't have paid premium!", quote=True)
             return
 
-        # Remove premium
-        from helper.database import dbcol
-        uploadlimit(user_id, 2147483652)  # Reset to 2GB
-        usertype(user_id, "Free")
-        dbcol.update_one({"_id": user_id}, {"$set": {"prexdate": None, "paid_premium": False}})
+        # Remove premium using the dedicated function
+        from helper.database import remove_paid_premium_from_user
+        remove_paid_premium_from_user(user_id)
 
         await message.reply_text(f"✅ **Paid premium removed from user:** `{user_id}`", quote=True)
 
@@ -273,55 +271,151 @@ async def allcommand(bot, message):
     await message.reply_text(commands_text, quote=True, reply_markup=button)
 
 
-# PREMIUM POWER MODE @viizet
-@Client.on_callback_query(filters.regex('vip1'))
-async def vip1(bot,update):
+# PAID PREMIUM PLAN SELECTION
+@Client.on_callback_query(filters.regex('paid_plan_(.+)'))
+async def paid_plan_selection(bot, update):
+    plan = update.data.split('_')[-1]
+    
+    plan_details = {
+        "basic": {
+            "name": "🪙 Basic",
+            "daily_limit": "60GB",
+            "max_file": "2GB",
+            "price": "$0.50/month"
+        },
+        "standard": {
+            "name": "⚡ Standard", 
+            "daily_limit": "60GB",
+            "max_file": "4GB",
+            "price": "$1.50/month"
+        },
+        "pro": {
+            "name": "💎 Pro",
+            "daily_limit": "150GB",
+            "max_file": "4GB", 
+            "price": "$3.00/month"
+        }
+    }
+    
+    details = plan_details[plan]
+    
+    plan_info_text = f"**📋 PAID PREMIUM PLAN: {details['name']}**\n\n"
+    plan_info_text += f"**Daily Upload Limit:** {details['daily_limit']}\n"
+    plan_info_text += f"**Max File Size:** {details['max_file']}\n"
+    plan_info_text += f"**Price:** {details['price']}\n\n"
+    plan_info_text += "**Choose duration:**"
+
+    keyboard = InlineKeyboardMarkup([
+        [InlineKeyboardButton("1 Day", callback_data=f"paid_duration_{plan}_1day")],
+        [InlineKeyboardButton("1 Week", callback_data=f"paid_duration_{plan}_7days")],
+        [InlineKeyboardButton("1 Month", callback_data=f"paid_duration_{plan}_30days")],
+        [InlineKeyboardButton("3 Months", callback_data=f"paid_duration_{plan}_90days")],
+        [InlineKeyboardButton("6 Months", callback_data=f"paid_duration_{plan}_180days")],
+        [InlineKeyboardButton("1 Year", callback_data=f"paid_duration_{plan}_365days")],
+        [InlineKeyboardButton("🔙 Back", callback_data="back_to_paid_plans")]
+    ])
+
+    await update.message.edit_text(plan_info_text, reply_markup=keyboard)
+
+@Client.on_callback_query(filters.regex("back_to_paid_plans"))
+async def back_to_paid_plans(bot, update):
+    button = InlineKeyboardMarkup([
+        [InlineKeyboardButton("🪙 Basic", callback_data="paid_plan_basic"),
+        InlineKeyboardButton("⚡ Standard", callback_data="paid_plan_standard")],
+        [InlineKeyboardButton("💎 Pro", callback_data="paid_plan_pro")],
+        [InlineKeyboardButton("✖️ Cancel ✖️",callback_data = "cancel")]
+        ])
+
+    await update.message.edit_text("🦋 Select Plan To Upgrade...", reply_markup=button)
+
+# PAID PREMIUM DURATION SELECTION AND ACTIVATION
+@Client.on_callback_query(filters.regex('paid_duration_(.+)_(.+)'))
+async def paid_duration_selection(bot, update):
+    parts = update.data.split('_')
+    plan = parts[2]
+    duration_days = int(parts[3].replace('days', '').replace('day', ''))
+    
     id = update.message.reply_to_message.text.split("/addpremium")
-    user_id = id[1].replace(" ", "")
+    user_id = int(id[1].replace(" ", ""))
+    
     from helper.database import dbcol
-    # Original limits were 2GB for Basic, 50GB for Standard, 100GB for Pro.
-    # Updated to 15GB Free, 60GB Basic, 60GB Standard, 150GB Pro.
-    # Here, we handle the 'Basic' plan upgrade.
-    inlimit  = 64424509440  # 60GB for Basic users
-    uploadlimit(int(user_id),64424509440) # Set to 60GB
-    usertype(int(user_id),"🪙 Basic")
-    addpre(int(user_id))
-    # Mark as paid premium and remove free premium
-    dbcol.update_one({"_id": int(user_id)}, {"$set": {"paid_premium": True, "free_premium": False, "upload_limit_gb": 60}}) # Explicitly set limit in GB
-    await update.message.edit("Added Successfully To Premium Upload Limit 60 GB")
-    await bot.send_message(user_id, f"🎉 Congratulations! You've been upgraded to Premium!\n\nPlan: 🪙 Basic\nDuration: 1 Year\nMax size Upload 2GB\nUpload Limit: 60GB\n\n✨ Enjoy your premium features!\nCheck your plan: /myplan")
-
-
-
-@Client.on_callback_query(filters.regex('vip2'))
-async def vip2(bot,update):
-    id = update.message.reply_to_message.text.split("/addpremium")
-    user_id = id[1].replace(" ", "")
-    from helper.database import dbcol
-    inlimit = 64424509440 # 60GB for Standard users
-    uploadlimit(int(user_id), 64424509440) # Set to 60GB
-    usertype(int(user_id),"⚡ Standard")
-    addpre(int(user_id))
-    # Mark as paid premium and remove free premium
-    dbcol.update_one({"_id": int(user_id)}, {"$set": {"paid_premium": True, "free_premium": False, "upload_limit_gb": 60}}) # Explicitly set limit in GB
-    await update.message.edit("Added Successfully To Premium Upload Limit 60 GB")
-    await bot.send_message(user_id, f"🎉 Congratulations! You've been upgraded to Premium!\n\nPlan: ⚡ Standard\nDuration: 1 Year\nMax size Upload 4GB\nUpload Limit: 60GB\n\n✨ Enjoy your premium features!\nCheck your plan: /myplan")
-
-
-
-@Client.on_callback_query(filters.regex('vip3'))
-async def vip3(bot,update):
-    id = update.message.reply_to_message.text.split("/addpremium")
-    user_id = id[1].replace(" ", "")
-    from helper.database import dbcol
-    inlimit = 161061273600 # 150GB for Pro users
-    uploadlimit(int(user_id), 161061273600) # Set to 150GB
-    usertype(int(user_id),"💎 Pro")
-    addpre(int(user_id))
-    # Mark as paid premium and remove free premium
-    dbcol.update_one({"_id": int(user_id)}, {"$set": {"paid_premium": True, "free_premium": False, "upload_limit_gb": 150}}) # Explicitly set limit in GB
-    await update.message.edit("Added Successfully To Premium Upload Limit 150 GB")
-    await bot.send_message(user_id, f"🎉 Congratulations! You've been upgraded to Premium!\n\nPlan: 💎 Pro\nDuration: 1 Year\nMax size Upload 4GB\nUpload Limit: 150GB\n\n✨ Enjoy your premium features!\nCheck your plan: /myplan")
+    from helper.date import add_custom_date
+    
+    # Plan configurations
+    plan_configs = {
+        "basic": {
+            "name": "🪙 Basic",
+            "limit": 64424509440,  # 60GB
+            "limit_gb": 60,
+            "max_file": "2GB"
+        },
+        "standard": {
+            "name": "⚡ Standard",
+            "limit": 64424509440,  # 60GB  
+            "limit_gb": 60,
+            "max_file": "4GB"
+        },
+        "pro": {
+            "name": "💎 Pro",
+            "limit": 161061273600,  # 150GB
+            "limit_gb": 150,
+            "max_file": "4GB"
+        }
+    }
+    
+    config = plan_configs[plan]
+    
+    # Calculate expiry date
+    expiry_date = add_custom_date(duration_days)
+    
+    # Convert date string to timestamp for consistency
+    import time
+    expiry_timestamp = int(time.mktime(time.strptime(expiry_date[0], '%Y-%m-%d')))
+    
+    # Apply paid premium
+    uploadlimit(user_id, config["limit"])
+    usertype(user_id, config["name"])
+    
+    # Mark as paid premium and remove free premium, set custom expiry
+    dbcol.update_one({"_id": user_id}, {
+        "$set": {
+            "paid_premium": True, 
+            "free_premium": False, 
+            "upload_limit_gb": config["limit_gb"],
+            "prexdate": expiry_timestamp,
+            "paid_premium_duration": duration_days
+        }
+    })
+    
+    # Duration text formatting
+    if duration_days == 1:
+        duration_text = "1 Day"
+    elif duration_days == 7:
+        duration_text = "1 Week"
+    elif duration_days == 30:
+        duration_text = "1 Month"
+    elif duration_days == 90:
+        duration_text = "3 Months"
+    elif duration_days == 180:
+        duration_text = "6 Months"
+    elif duration_days == 365:
+        duration_text = "1 Year"
+    else:
+        duration_text = f"{duration_days} Days"
+    
+    await update.message.edit_text(f"✅ Added Successfully To Paid Premium!\n\nPlan: {config['name']}\nDuration: {duration_text}\nUpload Limit: {config['limit_gb']}GB")
+    
+    # Notify user
+    await bot.send_message(
+        user_id, 
+        f"🎉 Congratulations! You've been upgraded to Paid Premium!\n\n"
+        f"Plan: {config['name']}\n"
+        f"Duration: {duration_text}\n"
+        f"Max File Size: {config['max_file']}\n"
+        f"Upload Limit: {config['limit_gb']}GB\n\n"
+        f"✨ Enjoy your premium features!\n"
+        f"Check your plan: /myplan"
+    )
 
 
 
