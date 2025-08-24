@@ -16,6 +16,10 @@ from helper.database import uploadlimit, usertype
 @Client.on_message(filters.private & filters.command(["myplan"]))
 async def start(client, message):
     used_ = find_one(message.from_user.id)
+    if used_ is None:
+        # User not found in database, send them to start command first
+        await message.reply_text("❌ **User not found in database!**\n\nPlease send /start first to initialize your account.", quote=True)
+        return
     daily = used_["daily"]
     expi = daily - \
         int(time.mktime(time.strptime(str(date_.today()), '%Y-%m-%d')))
@@ -60,9 +64,14 @@ async def start(client, message):
         text = f"<b>User ID :</b> <code>{message.from_user.id}</code> \n<b>Name :</b> {message.from_user.mention} \n\n<b>🏷 Plan :</b> {plan_info} \n\n✓ High Priority \n✓ Max File Size: {max_file_size} \n✓ Daily Upload : {humanbytes(limit)} \n✓ Today Used : {humanbytes(used)} \n✓ Remain : {humanbytes(remain)} \n✓ Timeout : 0 Second \n✓ Parallel process : Unlimited \n✓ Time Gap : Yes \n\n<b>Your Plan Ends On :</b> {normal_date}"
 
     if user == "Free":
-        await message.reply(text, quote=True, reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("💳 Upgrade", callback_data="upgrade"), InlineKeyboardButton("✖️ Cancel", callback_data="cancel")]]))
+        await message.reply(text, quote=True, reply_markup=InlineKeyboardMarkup([
+            [InlineKeyboardButton("💳 Upgrade", callback_data="upgrade")],
+            [InlineKeyboardButton("✖️ Cancel", callback_data="cancel")]
+        ]))
     else:
-        await message.reply(text, quote=True, reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("✖️ Cancel ✖️", callback_data="cancel")]]))
+        await message.reply(text, quote=True, reply_markup=InlineKeyboardMarkup([
+            [InlineKeyboardButton("✖️ Cancel", callback_data="cancel")]
+        ]))
 
 
 
