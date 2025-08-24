@@ -107,6 +107,13 @@ def addpre(chat_id):
     date = add_date()
     dbcol.update_one({"_id": chat_id}, {"$set": {"prexdate": date[0]}})
 
+def add_paid_premium_with_duration(chat_id, duration_days):
+    """Add paid premium with custom duration"""
+    from datetime import datetime, timedelta
+    expiry_date = datetime.now() + timedelta(days=duration_days)
+    expiry_timestamp = expiry_date.strftime('%Y-%m-%d')
+    dbcol.update_one({"_id": chat_id}, {"$set": {"prexdate": expiry_timestamp}})
+
 def addpredata(chat_id):
     user_id = int(chat_id)
     user_data = dbcol.find_one({"_id": user_id})
