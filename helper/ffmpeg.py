@@ -10,7 +10,13 @@ async def fix_thumb(thumb):
     width = 0
     height = 0
     try:
-        if thumb is not None:
+        if thumb is not None and os.path.exists(thumb):
+            if os.path.getsize(thumb) == 0:
+                print(f"Thumbnail file is empty: {thumb}")
+                os.remove(thumb)
+                thumb = None
+                return width, height, thumb
+                
             metadata = extractMetadata(createParser(thumb))
             if metadata.has("width"):
                 width = metadata.get("width")
@@ -24,11 +30,18 @@ async def fix_thumb(thumb):
             new_width = 320
             new_height = int((h / w) * new_width)
 
-            img = img.resize((new_width, new_height), Image.ANTIALIAS)
+            img = img.resize((new_width, new_height), Image.LANCZOS)
             img.save(thumb, "JPEG")
+        else:
+            thumb = None
 
     except Exception as e:
-        print(e)
+        print(f"Error in fix_thumb: {e}")
+        try:
+            if thumb and os.path.exists(thumb):
+                os.remove(thumb)
+        except:
+            pass
         thumb = None
 
     return width, height, thumb
