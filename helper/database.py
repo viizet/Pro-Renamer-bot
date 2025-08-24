@@ -49,11 +49,14 @@ def insert(chat_id):
         # Check if free premium is active and apply it to new user (only for free users)
         free_config = get_free_premium_config()
         if free_config and free_config.get("active", False):
-            apply_free_premium_to_user(user_id, free_config["plan"], free_config["duration_days"])
+            success = apply_free_premium_to_user(user_id, free_config["plan"], free_config["duration_days"])
+            # No notification sent for new users
 
     except:
         return True
         pass
+
+
 
 
 # Add Thumbnail Data
