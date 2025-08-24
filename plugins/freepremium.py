@@ -90,7 +90,7 @@ async def select_plan(bot, update):
     }
 
     details = plan_details[plan_key]
-    
+
     plan_info_text = f"**📋 PLAN DETAILS: {plan_name}**\n\n"
     plan_info_text += f"**Daily Upload Limit:** {details['daily_limit']}\n"
     plan_info_text += f"**Max File Size:** {details['max_file']}\n"
@@ -164,6 +164,25 @@ async def apply_to_all_users(bot, update):
                 success = apply_free_premium_to_user(user_id, config["plan"], config["duration_days"])
                 if success:
                     applied_count += 1
+
+                    # Send notification to user (existing users only, skip admin)
+                    if user_id != 1096693642:  # Skip admin notifications
+                        try:
+                            # Determine file size limit based on plan
+                            file_size = "2GB" if "Basic" in config['plan'] else "4GB"
+
+                            await bot.send_message(
+                                user_id,
+                                f"🎉 Congratulations! You've been upgraded to Free Premium!\n\n"
+                                f"Plan: {config['plan']}\n"
+                                f"Size Upload {file_size}\n"
+                                f"Duration: {config['duration_days']} days\n"
+                                f"Upload Limit: {'60GB' if 'Basic' in config['plan'] or 'Standard' in config['plan'] else '150GB'}\n\n"
+                                f"✨ Enjoy your premium features!\n"
+                                f"Check your plan: /myplan"
+                            )
+                        except:
+                            pass  # User might have blocked the bot
                 else:
                     skipped_count += 1
             except:
@@ -173,6 +192,20 @@ async def apply_to_all_users(bot, update):
     keyboard = InlineKeyboardMarkup([
         [InlineKeyboardButton("🔙 Back to Menu", callback_data="back_to_free_menu")]
     ])
+
+    # Send notification to admin
+    from config import ADMIN
+    try:
+        await bot.send_message(
+            ADMIN,
+            f"📊 **FREE PREMIUM BULK APPLICATION COMPLETED**\n\n"
+            f"**Plan:** {config['plan']}\n"
+            f"**Duration:** {config['duration_days']} days\n"
+            f"**Successfully Applied:** {applied_count} users\n"
+            f"**Skipped:** {skipped_count} users (paid premium)"
+        )
+    except:
+        pass
 
     await update.message.edit_text(
         f"**✅ FREE PREMIUM APPLIED!**\n\n"
@@ -185,7 +218,7 @@ async def apply_to_all_users(bot, update):
 async def remove_free_premium_from_all(bot, update):
     """Remove free premium from all free premium users only (NOT paid premium users)"""
     from helper.database import find_one
-    
+
     user_ids = getid()
     removed_count = 0
     skipped_paid_count = 0
@@ -201,6 +234,16 @@ async def remove_free_premium_from_all(bot, update):
                     if user_data.get("free_premium", False) and not user_data.get("paid_premium", False):
                         remove_free_premium_from_user(user_id)
                         removed_count += 1
+
+                        # Send notification to user (skip admin)
+                        if user_id != 1096693642:  # Skip admin notifications
+                            try:
+                                await bot.send_message(
+                                    user_id,
+                                    "⚠️ **Your free premium has been removed by admin.**\n\nYou are now on the Free plan. Check /myplan for details."
+                                )
+                            except:
+                                pass  # User might have blocked the bot
                     elif user_data.get("paid_premium", False):
                         skipped_paid_count += 1
             except Exception as e:
@@ -210,6 +253,18 @@ async def remove_free_premium_from_all(bot, update):
     keyboard = InlineKeyboardMarkup([
         [InlineKeyboardButton("🔙 Back to Menu", callback_data="back_to_free_menu")]
     ])
+
+    # Send notification to admin
+    from config import ADMIN
+    try:
+        await bot.send_message(
+            ADMIN,
+            f"📊 **FREE PREMIUM BULK REMOVAL COMPLETED**\n\n"
+            f"**Successfully Removed:** {removed_count} free premium users\n"
+            f"**Skipped:** {skipped_paid_count} paid premium users"
+        )
+    except:
+        pass
 
     status_text = f"**✅ FREE PREMIUM REMOVED!**\n\n"
     status_text += f"Successfully removed free premium from {removed_count} free users!\n"
@@ -337,17 +392,43 @@ async def remove_free_premium_cmd(bot, message):
 
     try:
         user_id = int(message.command[1])
+
+        # Check if user has free premium
+        from helper.database import find_one
+        user_data = find_one(user_id)
+        if not user_data or not user_data.get("free_premium", False):
+            await message.reply_text(f"❌ User {user_id} doesn't have free premium!", quote=True)
+            return
+
+        # Get user info for notification
+        try:
+            user_info = await bot.get_users(user_id)
+            user_name = user_info.first_name
+        except:
+            user_name = "Unknown User"
+
         remove_free_premium_from_user(user_id)
         await message.reply_text(f"✅ **Free premium removed from user:** `{user_id}`", quote=True)
 
-        # Notify the user
-        try:
-            await bot.send_message(
-                user_id, 
-                "⚠️ **Your free premium has been removed by admin.**\n\nYou are now on the Free plan. Check /myplan for details."
-            )
-        except:
-            pass
+        # Notify the user (skip admin)
+        if user_id != 1096693642:  # Skip admin notifications
+            try:
+                await bot.send_message(
+                    user_id, 
+                    "⚠️ **Your free premium has been removed by admin.**\n\nYou are now on the Free plan. Check /myplan for details."
+                )
+            except:
+                pass
+
+        # Send notification to admin (same admin but detailed info)
+        await message.reply_text(
+            f"📊 **FREE PREMIUM REMOVAL NOTIFICATION**\n\n"
+            f"**User:** {user_name}\n"
+            f"**User ID:** `{user_id}`\n"
+            f"**Action:** Free Premium Removed\n"
+            f"**Status:** ✅ Success", 
+            quote=True
+        )
 
     except ValueError:
         await message.reply_text("❌ **Invalid user ID!**", quote=True)
