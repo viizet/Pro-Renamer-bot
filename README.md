@@ -2,7 +2,7 @@
 
 A powerful Telegram bot for renaming files with custom thumbnails, premium features, and comprehensive user management.
 
-## ✨ Features
+## ✨ - Features
 
 🚀 **Fast File Renaming** - Rename files quickly and efficiently  
 📁 **4GB File Support** - Handle large files with premium upgrade  
