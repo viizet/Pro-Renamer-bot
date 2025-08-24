@@ -191,7 +191,7 @@ async def removepremium(bot, message):
 
         # Remove premium
         from helper.database import dbcol
-        uploadlimit(user_id, 2147483652)  # Reset to 2GB
+        uploadlimit(user_id, 10737418240)  # Reset to 10GB for free users
         usertype(user_id, "Free")
         dbcol.update_one({"_id": user_id}, {"$set": {"prexdate": None, "paid_premium": False}})
 
@@ -268,15 +268,15 @@ async def allcommand(bot, message):
 @Client.on_callback_query(filters.regex('paid_plan_(.+)'))
 async def paid_plan_selection(bot, update):
     plan = update.data.split("_")[-1]
-    
+
     plan_details = {
         "basic": {"name": "🪙 Basic", "limit": 64424509440, "limit_gb": 60, "file_size": "2GB"},
         "standard": {"name": "⚡ Standard", "limit": 64424509440, "limit_gb": 60, "file_size": "4GB"},
-        "pro": {"name": "💎 Pro", "limit": 161061273600, "limit_gb": 150, "file_size": "4GB"}
+        "pro": {"name": "💎 Pro", "limit": 999999999999999999, "limit_gb": "Unlimited", "file_size": "4GB"}
     }
-    
+
     details = plan_details[plan]
-    
+
     plan_info_text = f"**📋 PAID PREMIUM: {details['name']}**\n\n"
     plan_info_text += f"**Daily Upload Limit:** {details['limit_gb']}GB\n"
     plan_info_text += f"**Max File Size:** {details['file_size']}\n"
@@ -299,7 +299,7 @@ async def paid_duration_selection(bot, update):
     parts = update.data.split("_")
     plan = parts[2]
     duration = parts[3]
-    
+
     # Duration mapping
     duration_map = {
         "1day": 1,
@@ -308,42 +308,42 @@ async def paid_duration_selection(bot, update):
         "6months": 180,
         "1year": 365
     }
-    
+
     plan_details = {
         "basic": {"name": "🪙 Basic", "limit": 64424509440, "limit_gb": 60},
         "standard": {"name": "⚡ Standard", "limit": 64424509440, "limit_gb": 60},
-        "pro": {"name": "💎 Pro", "limit": 161061273600, "limit_gb": 150}
+        "pro": {"name": "💎 Pro", "limit": 999999999999999999, "limit_gb": "Unlimited"}
     }
-    
+
     # Get user ID from the original message
     id = update.message.reply_to_message.text.split("/addpremium")
     user_id = int(id[1].replace(" ", ""))
-    
+
     duration_days = duration_map[duration]
     details = plan_details[plan]
-    
+
     # Apply paid premium with duration
     from helper.database import dbcol, add_paid_premium_with_duration
     uploadlimit(user_id, details["limit"])
     usertype(user_id, details["name"])
-    
+
     # Calculate expiry date
     from datetime import datetime, timedelta
     expiry_date = datetime.now() + timedelta(days=duration_days)
     expiry_timestamp = expiry_date.strftime('%Y-%m-%d')
-    
+
     # Mark as paid premium and remove free premium
     dbcol.update_one({"_id": user_id}, {"$set": {
-        "paid_premium": True, 
-        "free_premium": False, 
+        "paid_premium": True,
+        "free_premium": False,
         "upload_limit_gb": details["limit_gb"],
         "prexdate": expiry_timestamp
     }})
-    
+
     duration_text = duration.replace("days", " days").replace("months", " months").replace("year", " year").replace("day", " day")
-    
+
     await update.message.edit(f"✅ **PAID PREMIUM ACTIVATED!**\n\n**Plan:** {details['name']}\n**Duration:** {duration_text}\n**Upload Limit:** {details['limit_gb']}GB")
-    
+
     # Try to send message to user
     try:
         await bot.send_message(user_id, f"🎉 **Congratulations!**\n\nYou have been upgraded to **{details['name']}** for {duration_text}!\n\n**Features:**\n• Daily Upload Limit: {details['limit_gb']}GB\n• High Priority Processing\n• Timeout: 0 Seconds\n• Parallel Process: Unlimited\n\nCheck your plan: /myplan\n\nThanks for using our bot! 🚀")
@@ -572,7 +572,7 @@ async def admin_info(bot, callback_query):
 • <b>Free User:</b> 15GB Daily Upload Limit, 2GB Max File Size
 • <b>🪙 Basic:</b> 60GB Daily Upload Limit, 2GB Max File Size
 • <b>⚡ Standard:</b> 60GB Daily Upload Limit, 4GB Max File Size
-• <b>💎 Pro:</b> 150GB Daily Upload Limit, 4GB Max File Size
+• <b>💎 Pro:</b> Unlimited Daily Upload Limit, 4GB Max File Size
 
 **Example:**
 Reply to user message with `/addpremium` to upgrade."""
