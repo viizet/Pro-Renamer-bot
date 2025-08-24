@@ -203,6 +203,6 @@ async def send_doc(client, message):
         file_extension = filename.split('.')[-1] if '.' in filename else 'Unknown'
         mime_type = getattr(file, 'mime_type', 'None')
         
-        await message.reply_text(f"""🗂️ **Media Info :**\n\n◈ **File Name :** {filename}\n◈ **File Size :** {filesize}\n◈ **File Extension :** {file_extension}\n◈ **Mime Type :** {mime_type}\n◈ **DC ID :** {dcid}\n\n__Please Enter The New Filename__""", reply_to_message_id=message.id, reply_markup=InlineKeyboardMarkup(
+        await message.reply_text(f"""🗂️ **Media Info :**\n\n◈ **File Name :** {filename}\n◈ **File Size :** {filesize}\n◈ **File Extension :** {file_extension}\n◈ **Mime Type :** {mime_type}\n◈ **DC ID :** {dcid}\n\n**Please Enter The New Filename **""", reply_to_message_id=message.id, reply_markup=InlineKeyboardMarkup(
             [[InlineKeyboardButton("📝 Rename", callback_data="rename"),
               InlineKeyboardButton("✖️ Cancel", callback_data="cancel")]]))
