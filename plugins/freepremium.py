@@ -17,7 +17,7 @@ DURATION_MAP = {
 
 PLAN_MAP = {
     "basic": "🪙 Basic",
-    "standard": "⚡ Standard", 
+    "standard": "⚡ Standard",
     "pro": "💎 Pro"
 }
 
@@ -52,7 +52,7 @@ async def start_free_premium(bot, update):
         [InlineKeyboardButton("📊 View Plans Comparison", callback_data="view_plans_comparison")],
         [InlineKeyboardButton("🪙 Basic (60GB)", callback_data="select_plan_basic")],
         [InlineKeyboardButton("⚡ Standard (60GB)", callback_data="select_plan_standard")],
-        [InlineKeyboardButton("💎 Pro (150GB)", callback_data="select_plan_pro")],
+        [InlineKeyboardButton("💎 Pro (Unlimited)", callback_data="select_plan_pro")],
         [InlineKeyboardButton("🔙 Back", callback_data="back_to_free_menu")]
     ])
 
@@ -76,14 +76,14 @@ async def select_plan(bot, update):
             "features": "• High Priority Processing\n• Timeout: 0 Seconds\n• Parallel Process: Unlimited\n• Time Gap: Yes"
         },
         "standard": {
-            "daily_limit": "60GB", 
+            "daily_limit": "60GB",
             "max_file": "4GB",
             "price": "$1.50/month",
             "features": "• High Priority Processing\n• Timeout: 0 Seconds\n• Parallel Process: Unlimited\n• Time Gap: Yes"
         },
         "pro": {
-            "daily_limit": "150GB",
-            "max_file": "4GB", 
+            "daily_limit": "Unlimited",
+            "max_file": "4GB",
             "price": "$3.00/month",
             "features": "• Highest Priority Processing\n• Timeout: 0 Seconds\n• Parallel Process: Unlimited\n• Time Gap: Yes"
         }
@@ -177,7 +177,7 @@ async def apply_to_all_users(bot, update):
                                 f"Plan: {config['plan']}\n"
                                 f"Size Upload {file_size}\n"
                                 f"Duration: {config['duration_days']} days\n"
-                                f"Upload Limit: {'60GB' if 'Basic' in config['plan'] or 'Standard' in config['plan'] else '150GB'}\n\n"
+                                f"Upload Limit: {'60GB' if 'Basic' in config['plan'] or 'Standard' in config['plan'] else 'Unlimited'}\n\n"
                                 f"✨ Enjoy your premium features!\n"
                                 f"Check your plan: /myplan"
                             )
@@ -312,7 +312,7 @@ async def view_plans_comparison(bot, update):
     comparison_text = """**📊 DETAILED PLANS COMPARISON**
 
 **🆓 FREE PLAN**
-• Daily Upload Limit: 15GB
+• Daily Upload Limit: 10GB
 • Max File Size: 2GB
 • Timeout: 2 Minutes
 • Parallel Process: Unlimited
@@ -339,7 +339,7 @@ async def view_plans_comparison(bot, update):
 • Price: $1.50 per Month
 
 **💎 PRO PLAN**
-• Daily Upload Limit: 150GB
+• Daily Upload Limit: Unlimited
 • Max File Size: 4GB
 • Highest Priority Processing
 • Timeout: 0 Seconds
@@ -351,8 +351,8 @@ Select which plan to offer as free premium:"""
 
     keyboard = InlineKeyboardMarkup([
         [InlineKeyboardButton("🪙 Basic (60GB)", callback_data="select_plan_basic")],
-        [InlineKeyboardButton("⚡ Standard (60GB)", callback_data="select_plan_standard")], 
-        [InlineKeyboardButton("💎 Pro (150GB)", callback_data="select_plan_pro")],
+        [InlineKeyboardButton("⚡ Standard (60GB)", callback_data="select_plan_standard")],
+        [InlineKeyboardButton("💎 Pro (Unlimited)", callback_data="select_plan_pro")],
         [InlineKeyboardButton("🔙 Back", callback_data="start_free_premium")]
     ])
 
@@ -414,7 +414,7 @@ async def remove_free_premium_cmd(bot, message):
         if user_id != 1096693642:  # Skip admin notifications
             try:
                 await bot.send_message(
-                    user_id, 
+                    user_id,
                     "⚠️ **Your free premium has been removed by admin.**\n\nYou are now on the Free plan. Check /myplan for details."
                 )
             except:
@@ -426,7 +426,7 @@ async def remove_free_premium_cmd(bot, message):
             f"**User:** {user_name}\n"
             f"**User ID:** `{user_id}`\n"
             f"**Action:** Free Premium Removed\n"
-            f"**Status:** ✅ Success", 
+            f"**Status:** ✅ Success",
             quote=True
         )
 
@@ -443,7 +443,7 @@ async def show_plans_info(bot, message):
     text = """**📢 DETAILED UPLOAD LIMITS & PLANS**
 
 **✅ FREE USERS**
-• Daily Upload Limit: 15GB
+• Daily Upload Limit: 10GB
 • Max File Size: 2GB
 • Timeout: 2 Minutes
 • Parallel Process: Unlimited
@@ -470,7 +470,7 @@ async def show_plans_info(bot, message):
 • Price: 🌎 $1.50 per Month
 
 **💎 PRO USERS**
-• Daily Upload Limit: 150GB
+• Daily Upload Limit: Unlimited
 • Max File Size: 4GB
 • Highest Priority Processing
 • Timeout: 0 Seconds
@@ -482,7 +482,7 @@ async def show_plans_info(bot, message):
 ✓ All plans support unlimited parallel processing
 ✓ Premium plans get priority processing
 ✓ Standard & Pro plans support larger files (4GB)
-✓ Pro plan offers the highest daily upload limit
+✓ Pro plan offers unlimited daily upload
 
 **💳 Want to upgrade?** Use /upgrade command
 **📊 Check your current plan:** Use /myplan command"""
