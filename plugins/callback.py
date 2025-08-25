@@ -40,10 +40,10 @@ async def admincm(bot,message):
 async def help(bot,update):
     text = script.HELP_TXT.format(update.from_user.mention)
     keybord = InlineKeyboardMarkup([ 
-                    [InlineKeyboardButton('🏞 Thumbnail', callback_data='thumbnail'),
-                    InlineKeyboardButton('✏ Caption', callback_data='caption')],
-                    [InlineKeyboardButton('🏠 Home', callback_data='home'),
-                    InlineKeyboardButton('💵 Donate', callback_data='donate')]
+                    [InlineKeyboardButton('🖼️ Thumbnail', callback_data='thumbnail'),
+                    InlineKeyboardButton('📝 Caption', callback_data='caption')],
+                    [InlineKeyboardButton('🔙 Back', callback_data='home'),
+                    InlineKeyboardButton('✖️ Close', callback_data='cancel')]
                    ])
     await update.message.edit(text = text,reply_markup = keybord)
 
