@@ -6,44 +6,24 @@ from pyrogram import Client , filters
 
 @Client.on_callback_query(filters.regex('upgrade'))
 async def upgrade(bot,update):
-    text = """**🚀 PREMIUM PLANS & FEATURES**
+    text = """**🚀 PREMIUM PLANS**
 
-**✅ Free Plan**
-• Daily Upload Limit: 10GB
-• Max File Size: 2GB
-• Price: Free Forever
-• Basic Features
+**✅ Free**
+10GB/day • 2GB max
 
-**🪙 Basic Plan - $0.50/month**
-• Daily Upload Limit: 60GB
-• Max File Size: 2GB
-• Priority Processing
-• No Timeout Delays
+**🪙 Basic – $0.50**
+60GB/day • 2GB max • Priority
 
-**⚡ Standard Plan - $1.50/month**
-• Daily Upload Limit: 60GB
-• Max File Size: 4GB
-• High Priority Processing
-• Advanced Features
-• Unlimited Parallel Processing
+**⚡ Standard – $1.50**
+60GB/day • 4GB max • High Priority
 
-**💎 Pro Plan - $3.00/month**
-• Daily Upload Limit: Unlimited
-• Max File Size: 4GB
-• Highest Priority Processing
-• All Premium Features
-• 24/7 Priority Support
+**💎 Pro – $3.00**
+Unlimited/day • 4GB max • 24/7 VIP Support
 
-**💳 Payment Methods:**
-• Bitcoin: Coming Soon
-• PayPal: Available
-• Crypto: Multiple Options
+**💳 Pay:** PayPal ✅ | Crypto ✅ | BTC (soon)
+**📸 Proof** → @viizet
 
-**📞 After Payment:**
-Send payment screenshot to admin @viizet for instant activation!
-
-**✨ Premium Benefits:**
-✅ Faster Processing • ✅ Large File Support • ✅ No Delays • ✅ Priority Support"""
+**✨ Speed • Big Files • No Wait • VIP**"""
 
     keyboard = InlineKeyboardMarkup([
         [InlineKeyboardButton("💳 Contact Admin", url = "https://t.me/viizet"),
@@ -59,44 +39,24 @@ Send payment screenshot to admin @viizet for instant activation!
 
 @Client.on_message(filters.private & filters.command(["upgrade"]))
 async def upgradecm(bot,message):
-    text = """**🚀 PREMIUM PLANS & FEATURES**
+    text = """**🚀 PREMIUM PLANS**
 
-**✅ Free Plan**
-• Daily Upload Limit: 10GB
-• Max File Size: 2GB
-• Price: Free Forever
-• Basic Features
+**✅ Free**
+10GB/day • 2GB max
 
-**🪙 Basic Plan - $0.50/month**
-• Daily Upload Limit: 60GB
-• Max File Size: 2GB
-• Priority Processing
-• No Timeout Delays
+**🪙 Basic – $0.50**
+60GB/day • 2GB max • Priority
 
-**⚡ Standard Plan - $1.50/month**
-• Daily Upload Limit: 60GB
-• Max File Size: 4GB
-• High Priority Processing
-• Advanced Features
-• Unlimited Parallel Processing
+**⚡ Standard – $1.50**
+60GB/day • 4GB max • High Priority
 
-**💎 Pro Plan - $3.00/month**
-• Daily Upload Limit: Unlimited
-• Max File Size: 4GB
-• Highest Priority Processing
-• All Premium Features
-• 24/7 Priority Support
+**💎 Pro – $3.00**
+Unlimited/day • 4GB max • 24/7 VIP Support
 
-**💳 Payment Methods:**
-• Bitcoin: Coming Soon
-• PayPal: Available
-• Crypto: Multiple Options
+**💳 Pay:** PayPal ✅ | Crypto ✅ | BTC (soon)
+**📸 Proof** → @viizet
 
-**📞 After Payment:**
-Send payment screenshot to admin @viizet for instant activation!
-
-**✨ Premium Benefits:**
-✅ Faster Processing • ✅ Large File Support • ✅ No Delays • ✅ Priority Support"""
+**✨ Speed • Big Files • No Wait • VIP**"""
 
     keyboard = InlineKeyboardMarkup([
         [InlineKeyboardButton("💳 Contact Admin", url = "https://t.me/viizet"),
@@ -225,7 +185,7 @@ async def myplan_callback(bot, update):
 
         # Format usage display - show "0 B" when usage is 0
         used_display = "0 B" if used == 0 else humanbytes(used)
-        
+
         # Format daily upload and remain for Pro users
         if "Pro" in user:
             daily_upload_display = "Unlimited"
