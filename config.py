@@ -30,12 +30,7 @@ START_PIC = os.environ.get("START_PIC", "https://ibb.co/xqKVS7tx")
 
 
 
-# If You Need To Add Verify System Then Message Me On Telegram
-# Check Demo Bots
-# https://t.me/FileRenameXBot
-# https://t.me/PremiumRenamerRobot
-# https://t.me/FileRenamerXRobot
-# Token Verification Adding Features Is Paid So If You Want Then Dm Me
+
 
 
 # SHORTNER_URL = os.environ.get("SHORTNER_URL", "")
