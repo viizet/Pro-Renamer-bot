@@ -113,18 +113,45 @@ async def doc(bot, update):
     else:
         await ms.edit("🚀 Mode Changing...  ⚡")
 
-    # Rename the downloaded file to the new filename
-    splitpath = path.split("/downloads/")
-    if len(splitpath) > 1:
-        dow_file_name = splitpath[1]
-        old_file_name = f"downloads/{dow_file_name}"
-        if os.path.exists(old_file_name):
-            os.rename(old_file_name, file_path)
-        elif os.path.exists(path):
-            os.rename(path, file_path)
-    else:
-        if os.path.exists(path):
-            os.rename(path, file_path)
+    # Ensure downloads directory exists
+    if not os.path.exists("downloads"):
+        os.makedirs("downloads")
+    
+    # Handle file path properly - improved for large files
+    if not path:
+        await ms.edit("❌ Error: Failed to download file")
+        neg_used = used - int(file.file_size)
+        used_limit(update.from_user.id, neg_used)
+        return
+    
+    # Check for various possible file locations
+    possible_paths = [path]
+    if path.endswith('.temp'):
+        possible_paths.append(path.rstrip('.temp'))
+    if not path.startswith('downloads/'):
+        possible_paths.append(f"downloads/{os.path.basename(path)}")
+    
+    actual_path = None
+    for p in possible_paths:
+        if os.path.exists(p):
+            actual_path = p
+            break
+    
+    if not actual_path:
+        await ms.edit(f"❌ Error: Downloaded file not found. Tried paths: {possible_paths}")
+        neg_used = used - int(file.file_size)
+        used_limit(update.from_user.id, neg_used)
+        return
+    
+    # Move file to final location with new filename
+    if actual_path != file_path:
+        try:
+            os.rename(actual_path, file_path)
+        except Exception as e:
+            await ms.edit(f"❌ Error moving file: {str(e)}")
+            neg_used = used - int(file.file_size)
+            used_limit(update.from_user.id, neg_used)
+            return
     
     # Verify file exists and has size
     if not os.path.exists(file_path):
@@ -284,18 +311,45 @@ async def vid(bot, update):
         else:
             await ms.edit("🚀 Mode Changing...  ⚡") 
 
-        # Rename the downloaded file to the new filename
-        splitpath = path.split("/downloads/")
-        if len(splitpath) > 1:
-            dow_file_name = splitpath[1]
-            old_file_name = f"downloads/{dow_file_name}"
-            if os.path.exists(old_file_name):
-                os.rename(old_file_name, file_path)
-            elif os.path.exists(path):
-                os.rename(path, file_path)
-        else:
-            if os.path.exists(path):
-                os.rename(path, file_path)
+        # Ensure downloads directory exists
+        if not os.path.exists("downloads"):
+            os.makedirs("downloads")
+        
+        # Handle file path properly - improved for large files
+        if not path:
+            await ms.edit("❌ Error: Failed to download file")
+            neg_used = used - int(file.file_size)
+            used_limit(update.from_user.id, neg_used)
+            return
+        
+        # Check for various possible file locations
+        possible_paths = [path]
+        if path.endswith('.temp'):
+            possible_paths.append(path.rstrip('.temp'))
+        if not path.startswith('downloads/'):
+            possible_paths.append(f"downloads/{os.path.basename(path)}")
+        
+        actual_path = None
+        for p in possible_paths:
+            if os.path.exists(p):
+                actual_path = p
+                break
+        
+        if not actual_path:
+            await ms.edit(f"❌ Error: Downloaded file not found. Tried paths: {possible_paths}")
+            neg_used = used - int(file.file_size)
+            used_limit(update.from_user.id, neg_used)
+            return
+        
+        # Move file to final location with new filename
+        if actual_path != file_path:
+            try:
+                os.rename(actual_path, file_path)
+            except Exception as e:
+                await ms.edit(f"❌ Error moving file: {str(e)}")
+                neg_used = used - int(file.file_size)
+                used_limit(update.from_user.id, neg_used)
+                return
         
         # Verify file exists and has size
         if not os.path.exists(file_path):
