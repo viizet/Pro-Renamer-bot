@@ -79,11 +79,11 @@ async def start(bot, message):
 <b>Made by @viizet</b>"""
 
     button = InlineKeyboardMarkup([
-        [InlineKeyboardButton("📢 Updates", url="https://t.me/Phioza"),
-        InlineKeyboardButton("💬 Support", url="https://t.me/Phioza")],
-        [InlineKeyboardButton("🛠️ Help", callback_data='help'),
-        InlineKeyboardButton("❤️‍🩹 About", callback_data='about')],
-        [InlineKeyboardButton("🧑‍💻 Developer 🧑‍💻", url="https://t.me/viizet")]
+        [InlineKeyboardButton("Updates 📢", url="https://t.me/Phioza"),
+        InlineKeyboardButton("Support 💬", url="https://t.me/Phioza")],
+        [InlineKeyboardButton("Help 🛠️", callback_data='help'),
+        InlineKeyboardButton("About ⚡️", callback_data='about')],
+        [InlineKeyboardButton("Developer 🧑‍💻", url="https://t.me/viizet")]
         ])
 
     await message.reply_photo(
